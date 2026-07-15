@@ -1,88 +1,229 @@
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background:#f3f4f6; color:#111827; line-height:1.5; }
+/* ============================================================
+   NARA Wine Intelligence — 블록 전용 오버라이드 (design-system.css 기반)
+   ============================================================ */
 
-.app-header { background: linear-gradient(135deg, #1e3a5f, #7c3aed); color:#fff; padding:28px 16px; text-align:center; }
-.app-header .header-label { margin:0 0 4px; color:rgba(255,255,255,.7); font-size:12px; }
-.app-header h1 { margin:0 0 6px; font-size:22px; }
-.app-header .header-meta { margin:0; color:rgba(255,255,255,.85); font-size:13px; }
+/* Accent: wine-scraper 블록은 보라/딥블루 계열로 분리 */
+:root{ --accent:#5B4B8A; }
 
-.tab-bar { display:flex; justify-content:center; gap:8px; padding:12px 16px 8px; background:#fff; border-bottom:1px solid #e5e7eb; position:sticky; top:0; z-index:20; }
-.tab-btn { flex:1; max-width:200px; padding:8px 14px; border:1px solid #e5e7eb; border-radius:8px; background:#fff; color:#6b7280; font-size:14px; cursor:pointer; }
-.tab-btn.active { background:#1e3a5f; color:#fff; border-color:#1e3a5f; }
-
-.container { max-width:680px; margin:0 auto; padding:16px; }
-.tab-panel { display:none; }
-.tab-panel.active { display:block; }
-
-.card { background:#fff; border-radius:8px; padding:18px 20px; margin-bottom:12px; border:1px solid #e5e7eb; box-shadow:0 1px 3px rgba(0,0,0,.07); }
-.card-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
-.card-header h2 { margin:0; font-size:15px; color:#111827; }
-.card-header .meta { margin-left:auto; font-size:12px; color:#6b7280; }
-
-.input-group { margin-bottom:12px; }
-.input-group label { display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:4px; }
-.input-group input { width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:6px; font-size:14px; background:#fafafa; }
-.input-group input:focus { outline:none; border-color:#7c3aed; background:#fff; }
-
-.source-list { display:grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap:8px; margin-bottom:12px; }
-.source-item { display:flex; align-items:center; gap:6px; padding:8px 10px; border:1px solid #e5e7eb; border-radius:6px; background:#fafafa; font-size:13px; }
-.source-item input { accent-color:#7c3aed; }
-.source-item .del { margin-left:auto; color:#9ca3af; cursor:pointer; font-size:12px; }
-.source-item .del:hover { color:#ef4444; }
-
-.add-source { display:flex; gap:8px; }
-.add-source input { flex:1; padding:8px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px; }
-.add-source .btn { padding:8px 12px; font-size:13px; white-space:nowrap; }
-
-.actions { display:flex; gap:8px; margin:12px 0; }
-.actions .btn { flex:1; padding:10px; border:none; border-radius:8px; font-size:14px; cursor:pointer; }
-.btn.primary { background:#1e3a5f; color:#fff; }
-.btn.danger { background:#ef4444; color:#fff; }
-.btn.secondary { background:#f3f4f6; color:#374151; border:1px solid #e5e7eb; }
-.btn:disabled { opacity:.5; cursor:not-allowed; }
-
-.progress-area { margin:8px 0 14px; }
-.progress-track { height:6px; background:#e5e7eb; border-radius:3px; overflow:hidden; }
-.progress-fill { height:100%; width:0%; background:linear-gradient(90deg,#1e3a5f,#7c3aed); transition:width .3s; }
-.progress-area span { display:block; margin-top:4px; font-size:12px; color:#6b7280; }
-
-.result-card .card-header { margin-bottom:8px; }
-.badge { display:inline-block; padding:1px 6px; background:#e0e7ff; color:#3730a3; border-radius:999px; font-size:11px; font-weight:700; vertical-align:middle; margin-left:4px; }
-.table-wrap { overflow-x:auto; }
-.result-table { width:100%; border-collapse:collapse; font-size:13px; }
-.result-table th, .result-table td { padding:10px 8px; text-align:left; border-bottom:1px solid #f3f4f6; white-space:nowrap; }
-.result-table th { color:#6b7280; font-weight:600; font-size:12px; }
-.result-table tbody tr { cursor:pointer; }
-.result-table tbody tr:hover { background:#f9fafb; }
-.empty td { text-align:center; color:#9ca3af; padding:24px; }
-
-.briefing-summary .briefing-title-row { display:flex; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
-.briefing-summary .briefing-title-row h2 { margin:0; font-size:15px; color:#111827; }
-.briefing-summary .briefing-title-row .meta { margin-left:auto; font-size:12px; color:#6b7280; }
-.tag-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
-.tag-row .tag { display:inline-block; background:#f3f4f6; border-radius:4px; padding:2px 8px; font-size:12px; color:#374151; }
-.divider { border:none; border-top:1px solid #f3f4f6; margin:10px 0; }
-.briefing-section { margin-bottom:14px; }
-.briefing-section .section-title { font-size:13px; font-weight:700; margin-bottom:6px; }
-.briefing-list { margin:0; padding-left:18px; font-size:13px; color:#374151; }
-.briefing-list li { margin:8px 0; }
-.briefing-list a { color:#1a56db; text-decoration:none; }
-.briefing-list a:hover { text-decoration:underline; }
-.briefing-list .desc { color:#6b7280; font-size:12px; margin-top:2px; line-height:1.4; }
-.new-badge { display:inline-block; background:#dcfce7; color:#166534; font-size:10px; padding:1px 5px; border-radius:3px; margin-right:5px; }
-
-.overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:flex-end; justify-content:center; z-index:50; }
-.overlay.hidden { display:none; }
-.detail-card { background:#fff; width:100%; max-height:80vh; border-radius:16px 16px 0 0; padding:20px; overflow:auto; }
-.close-btn { float:right; background:transparent; border:none; font-size:13px; color:#6b7280; cursor:pointer; }
-.detail-card h3 { font-size:16px; margin-bottom:12px; }
-.detail-card dl { display:grid; grid-template-columns: 7rem 1fr; gap:6px 10px; font-size:13px; }
-.detail-card dt { color:#6b7280; }
-.detail-card dd { color:#111; font-weight:500; }
-
-.hidden { display:none !important; }
-
-@media (min-width:640px){
-  .overlay { align-items:center; padding:24px; }
-  .detail-card { max-width:480px; border-radius:16px; max-height:none; }
+/* ── 헤더 ── */
+.app-header{
+  background:linear-gradient(135deg, #1e3a5f, #7c3aed);
+  color:#fff;
+  padding:28px 16px;
+  text-align:center;
 }
+.app-header .header-label{ margin:0 0 4px; color:rgba(255,255,255,.7); font-size:12px; }
+.app-header h1{ margin:0 0 6px; font-size:20px; font-weight:700; }
+.app-header .header-meta{ margin:0; color:rgba(255,255,255,.85); font-size:13px; }
+
+/* ── 탭 바 ── */
+.tab-bar{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  padding:12px 16px 8px;
+  background:var(--color-surface);
+  border-bottom:1px solid var(--color-border);
+  position:sticky;
+  top:0;
+  z-index:20;
+}
+.tab-btn{
+  flex:1;
+  max-width:200px;
+  padding:8px 14px;
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-md);
+  background:var(--color-surface);
+  color:var(--color-text-faint);
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  transition:border-color var(--transition-standard), color var(--transition-standard), background var(--transition-standard);
+}
+.tab-btn.active{
+  background:var(--accent);
+  color:#fff;
+  border-color:var(--accent);
+}
+
+/* ── 컨테이너 ── */
+.container{ max-width:720px; margin:0 auto; padding:16px; }
+.tab-panel{ display:none; }
+.tab-panel.active{ display:block; }
+
+/* ── 카드 헤더 ── */
+.card-header{ display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+.card-header h2{ margin:0; font-size:15px; font-weight:700; color:var(--color-text-secondary); }
+.card-header .meta{ margin-left:auto; font-size:12px; color:var(--color-text-faint); }
+
+/* ── 입력 필드 오버라이드 ── */
+.input-group{ margin-bottom:14px; }
+.input-group .input-label{ display:block; font-size:12px; font-weight:600; color:var(--color-text-muted); margin:0 0 6px; }
+.input-group .input{ width:100%; padding:10px 12px; border:1px solid var(--color-border-input); border-radius:var(--radius-md); font-size:14px; color:var(--color-text); background:#fafafa; outline:none; transition:border-color var(--transition-fast); }
+.input-group .input:focus{ border-color:var(--accent); background:var(--color-surface); }
+
+/* ── 소스 리스트 ── */
+.source-list{ display:grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap:8px; margin-bottom:12px; }
+.source-item{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 10px;
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-md);
+  background:var(--color-surface);
+  font-size:13px;
+  color:var(--color-text-secondary);
+  cursor:pointer;
+  transition:border-color var(--transition-standard);
+}
+.source-item:hover{ border-color:var(--color-border-hover); }
+.source-item input{ accent-color:var(--accent); }
+.source-item .del{ margin-left:auto; color:var(--color-text-faintest); cursor:pointer; font-size:14px; line-height:1; }
+.source-item .del:hover{ color:var(--color-danger); }
+
+/* ── 소스 추가 ── */
+.add-source{ display:flex; gap:8px; align-items:flex-start; }
+.add-source .input{ flex:1; }
+.add-source .btn-outline{ white-space:nowrap; align-self:flex-start; margin-top:0; }
+
+/* ── 액션 버튼 영역 ── */
+.actions{ display:flex; gap:8px; margin:14px 0; }
+.actions .btn,
+.actions .btn-outline{ flex:1; padding:10px; font-size:14px; }
+.actions .btn:disabled,
+.actions .btn-outline:disabled{ opacity:.45; cursor:not-allowed; }
+
+/* ── 프로그레스 ── */
+.progress-area{ margin:8px 0 16px; }
+.progress-track{ height:6px; background:var(--color-divider); border-radius:3px; overflow:hidden; }
+.progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7c3aed); transition:width .3s; }
+.progress-area span{ display:block; margin-top:6px; font-size:12px; color:var(--color-text-faint); }
+
+/* ── 결과 테이블 오버라이드 ── */
+.result-card{ margin-top:12px; }
+.result-card .card-header h2{ font-size:15px; }
+.result-card .card-header .chip-pill{ margin-left:6px; }
+.table-wrap{ overflow-x:auto; }
+.result-table tbody tr{ cursor:pointer; }
+.result-table tbody tr:hover td{ background:var(--color-surface-hover); }
+.empty td{ text-align:center; color:var(--color-text-faintest); padding:28px; font-size:14px; }
+
+/* ── 주간 네비게이션 ── */
+.week-nav{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  margin:14px 0 16px;
+}
+.week-info{ text-align:center; }
+.week-label{ display:block; font-size:14px; font-weight:700; color:var(--color-text-secondary); }
+.week-range{ display:block; font-size:12px; color:var(--color-text-faint); margin-top:2px; }
+
+/* ── 주간 달력 그리드 ── */
+.week-calendar{
+  display:grid;
+  grid-template-columns:repeat(7, 1fr);
+  gap:8px;
+  margin-bottom:24px;
+}
+
+.calendar-cell{
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-lg);
+  padding:14px 8px;
+  text-align:center;
+  cursor:pointer;
+  transition:border-color var(--transition-standard), box-shadow var(--transition-standard), transform var(--transition-standard);
+  min-height:80px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.calendar-cell:hover{
+  border-color:var(--color-border-hover);
+  box-shadow:var(--shadow-card-hover);
+  transform:translateY(-1px);
+}
+.calendar-cell.today{
+  border-color:var(--accent);
+  background:color-mix(in srgb, var(--accent) 6%, var(--color-surface));
+}
+.calendar-cell.today .day-num{ color:var(--accent); font-weight:800; }
+.calendar-cell.selected{
+  border-color:var(--accent);
+  box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.calendar-cell.empty{
+  opacity:.35;
+  cursor:default;
+  pointer-events:none;
+}
+.calendar-cell .day-name{
+  font-size:11px;
+  color:var(--color-text-faint);
+  margin-bottom:4px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.calendar-cell .day-num{
+  font-size:18px;
+  font-weight:700;
+  color:var(--color-text);
+  margin-bottom:4px;
+}
+.calendar-cell .day-count{
+  font-size:11px;
+  color:var(--color-text-faint);
+  line-height:1.3;
+}
+.calendar-cell .has-new{
+  display:inline-block;
+  width:5px;
+  height:5px;
+  background:var(--color-danger);
+  border-radius:50%;
+  margin-top:4px;
+}
+
+/* 달력: 7열 그리드에서 모바일에서는 4+3 배치 유지 */
+@media (max-width:480px){
+  .week-calendar{ gap:6px; }
+  .calendar-cell{ padding:10px 4px; min-height:68px; }
+  .calendar-cell .day-num{ font-size:15px; }
+  .calendar-cell .day-count{ font-size:10px; }
+}
+
+/* ── 브리핑 섹션 ── */
+.tag-row{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.tag-row .tag{
+  display:inline-block;
+  background:var(--color-surface-muted);
+  border-radius:var(--radius-sm);
+  padding:2px 8px;
+  font-size:12px;
+  color:var(--color-text-muted);
+}
+.divider{ border:none; border-top:1px solid var(--color-divider); margin:10px 0; }
+.briefing-section{ margin-bottom:16px; }
+.briefing-section .section-title{ font-size:12px; font-weight:700; margin-bottom:8px; text-transform:uppercase; letter-spacing:.03em; color:var(--color-text-faint); }
+.briefing-list{ margin:0; padding-left:18px; font-size:13px; color:var(--color-text); }
+.briefing-list li{ margin:8px 0; }
+.briefing-list a{ color:#1a56db; }
+.briefing-list a:hover{ text-decoration:underline; }
+.briefing-list .desc{ font-size:12px; color:var(--color-text-faint); margin-top:2px; line-height:1.5; }
+.new-badge{ display:inline-block; background:color-mix(in srgb, var(--color-danger) 12%, #fff); color:var(--color-danger); font-size:10px; padding:1px 5px; border-radius:3px; margin-right:5px; font-weight:600; }
+
+/* ── 모달 오버라이드 ── */
+.close-btn{ float:right; background:transparent; border:none; font-size:13px; color:var(--color-text-faint); cursor:pointer; }
+.close-btn:hover{ color:var(--color-text); }
+#detailTitle{ font-size:16px; margin-bottom:12px; color:var(--color-text-secondary); }
+#detailList{ display:grid; grid-template-columns:7rem 1fr; gap:6px 10px; font-size:13px; }
+#detailList dt{ color:var(--color-text-faint); }
+#detailList dd{ color:var(--color-text); font-weight:500; }
+
+.hidden{ display:none !important; }

@@ -1,0 +1,335 @@
+/*
+ * Naracellar Information Digest — 공통 디자인 시스템 (design-system.css)
+ *
+ * 이 파일은 새로 만드는 것이 아니라, 이미 허브(나라셀라 정보 대시보드.dc.html)와
+ * 첫 블록(nara-data-wine-info의 quicklook PHP 프로토타입)에서 독립적으로 쓰이고
+ * 있던 색상·간격·컴포넌트 값들이 우연히도 거의 일치해서, 그 실제 값을 그대로
+ * 뽑아 정식 토큰으로 정리한 것이다(2026-07-13). 즉 "앞으로 이렇게 하자"가 아니라
+ * "이미 이렇게 쓰고 있다"를 문서화한 것 — 값을 임의로 바꾸지 말고, 바꿔야 한다면
+ * 허브와 기존 블록 화면에 미치는 영향부터 확인할 것.
+ *
+ * 사용법은 design.md 참고. 33개 블록이 전부 이 파일을 그대로 가져다 쓰는 게
+ * 목표이며, 블록마다 브랜드를 다르게 가져가고 싶은 경우 --accent 딱 하나만
+ * 오버라이드하면 카드 아이콘 배경/hover 등 accent 파생 색이 전부 같이 바뀐다
+ * (color-mix() 패턴, 아래 참고).
+ */
+
+:root {
+  /* ── Accent — 블록마다 이 한 값만 바꾸면 파생 색(색칠된 배지, hover 등)이
+     전부 따라간다. 기본값은 나라셀라 그린. */
+  --accent: #7BA23E;
+
+  /* ── 중립색 스케일 — 어둡고 진한 순서대로. 배경 위 텍스트/보더 용도별로
+     이름 붙임(숫자 스케일이 아니라 의미로 이름 붙인 이유: 컴포넌트 코드를
+     읽을 때 "이게 왜 이 색인지" 바로 이해되게 하려고). */
+  --color-text: #2A2A26;           /* 본문 기본 텍스트, h1 */
+  --color-text-secondary: #3A3A34; /* 카드 타이틀 등 약간 낮은 위계 */
+  --color-text-strong-muted: #4A4A44; /* 문서 링크 텍스트 등 */
+  --color-text-muted: #6A6862;     /* 브레드크럼 링크, 라벨 */
+  --color-text-faint: #8A887F;     /* 섹션 타이틀, th, 보조 설명 */
+  --color-text-fainter: #9A988E;   /* 영문 병기(.en), 캡션 */
+  --color-text-faintest: #B0AEA4;  /* 더 옅은 캡션, placeholder급 */
+  --color-text-disabled: #C1BFB6;  /* 비활성/카운트 구분자 */
+
+  --color-border: #EBE9E3;         /* 카드/테이블 기본 보더 */
+  --color-border-input: #E0DED6;   /* input/toolbar 보더 */
+  --color-border-subtle: #E7E5DE;  /* 헤더 버튼/팝오버 보더 */
+  --color-border-hover: #C9D9AE;   /* 카드 hover 시 accent 계열 보더 */
+  --color-divider: #F0EFEA;        /* 테이블 행 구분선, crumb 밑줄 */
+
+  --color-surface: #FFFFFF;        /* 카드/테이블/모달/팝오버 배경 */
+  --color-surface-muted: #F1F0EB;  /* 배지·칩 배경, th 배경대용 */
+  --color-surface-tint: #F7F8F2;   /* 인용/설명 박스 배경(story-box류) */
+  --color-surface-hover: #FAFAF4;  /* 테이블 행 hover */
+  --color-bg: #FAFAF8;             /* 페이지 전체 배경 */
+
+  --color-danger: #E5484D;         /* "업데이트됨" 점, 경고 점 */
+  --color-danger-text: #B6544A;    /* 로그아웃 등 위험 텍스트 */
+
+  /* ── 반경 */
+  --radius-sm: 5px;    /* 배지, 칩, 작은 태그 */
+  --radius-md: 8px;    /* input, 버튼, pager */
+  --radius-lg: 12px;   /* 타일/카드 (그리드형) */
+  --radius-xl: 14px;   /* 섹션 카드, 리스트 컨테이너 */
+  --radius-2xl: 16px;  /* 모달 */
+  --radius-pill: 999px;/* 토스트, 아바타, 원형 버튼 */
+
+  /* ── 그림자 — 위계(팝오버 < 모달)에 맞춰 블러/투명도가 커진다 */
+  --shadow-card-hover: 0 6px 16px rgba(60, 70, 40, .08);
+  --shadow-popover: 0 14px 36px rgba(50, 50, 40, .13);
+  --shadow-modal: 0 24px 60px rgba(30, 30, 20, .24);
+  --shadow-toast: 0 10px 30px rgba(0, 0, 0, .22);
+
+  /* ── 타이포그래피 */
+  --font-sans: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* ── 모션 */
+  --transition-fast: .15s ease;
+  --transition-standard: .18s ease;
+}
+
+/* ============================================================
+   기본 리셋 — 모든 블록 페이지의 <body>에 적용
+   ============================================================ */
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--color-bg);
+  font-family:var(--font-sans);
+  color:var(--color-text);
+  -webkit-font-smoothing:antialiased;
+  /* 한국어 줄바꿈 시 단어 중간이 끊기지 않도록(2026-07-09 확인된 이슈) */
+  word-break:keep-all;
+  overflow-wrap:break-word;
+}
+button,input{font-family:inherit}
+a{color:inherit;text-decoration:none}
+
+/* ============================================================
+   카드 / 타일 — 클릭 가능한 목록 아이템(허브의 블록 카드, 와인 목록 타일 등)
+   ============================================================ */
+.card{
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-xl);
+  padding:22px;
+}
+.tile{
+  display:block;
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-lg);
+  padding:16px;
+  transition:box-shadow var(--transition-standard), border-color var(--transition-standard), transform var(--transition-standard);
+  cursor:pointer;
+}
+.tile:hover{
+  border-color:var(--color-border-hover);
+  box-shadow:var(--shadow-card-hover);
+  transform:translateY(-1px);
+}
+
+/* ============================================================
+   배지 / 칩 — 타입 라벨, 아로마 태그, 카운트 등 작은 정보 조각
+   ============================================================ */
+.badge{
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:var(--radius-sm);
+  font-size:11.5px;
+  font-weight:600;
+  background:var(--color-surface-muted);
+  color:var(--color-text-muted);
+}
+.chip{
+  display:inline-block;
+  padding:5px 11px;
+  margin:0 4px 4px 0;
+  border-radius:var(--radius-sm);
+  font-size:13.5px;
+  background:var(--color-surface-muted);
+  color:var(--color-text-muted);
+}
+/* 원형 필터 태그(허브의 "인기" 배지, pill 형태 카운트 등) */
+.chip-pill{
+  padding:3px 10px;
+  border-radius:var(--radius-pill);
+  background:var(--color-surface-muted);
+  font-size:11.5px;
+  font-weight:600;
+  color:var(--color-text-muted);
+}
+/* accent 색이 실린 강조 배지(예: "인기", 선택된 상태) —
+   color-mix()로 accent에서 파생시켜서 --accent만 바꾸면 같이 바뀐다 */
+.chip-accent{
+  font-size:11px;
+  font-weight:600;
+  color:color-mix(in srgb, var(--accent) 72%, #000);
+  background:color-mix(in srgb, var(--accent) 16%, #fff);
+  border-radius:var(--radius-sm);
+  padding:2px 6px;
+}
+
+/* ============================================================
+   버튼 / 입력
+   ============================================================ */
+.btn{
+  padding:9px 16px;
+  border:none;
+  border-radius:var(--radius-md);
+  background:var(--accent);
+  color:#fff;
+  font-weight:600;
+  font-size:13.5px;
+  cursor:pointer;
+}
+.btn-outline{
+  padding:9px 16px;
+  border:1px solid var(--color-border-subtle);
+  border-radius:var(--radius-md);
+  background:var(--color-surface);
+  color:var(--color-text);
+  font-weight:600;
+  font-size:13.5px;
+  cursor:pointer;
+  transition:border-color var(--transition-standard);
+}
+.btn-outline:hover{border-color:#CFCDC4}
+.btn-icon-round{
+  width:38px;
+  height:38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--color-border-subtle);
+  background:var(--color-surface);
+  border-radius:var(--radius-pill);
+  cursor:pointer;
+  transition:border-color var(--transition-standard);
+}
+.btn-icon-round:hover{border-color:#CFCDC4}
+
+.input{
+  padding:10px 12px;
+  border:1px solid var(--color-border-input);
+  border-radius:var(--radius-md);
+  font-size:13.5px;
+  color:var(--color-text);
+  outline:none;
+  transition:border-color var(--transition-fast);
+  width:100%;
+}
+.input:focus{border-color:var(--accent)}
+.input-label{
+  display:block;
+  font-size:12px;
+  font-weight:600;
+  color:var(--color-text-muted);
+  margin:0 0 7px;
+}
+
+/* ============================================================
+   테이블
+   ============================================================ */
+table.ds-table{
+  width:100%;
+  border-collapse:collapse;
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-md);
+  overflow:hidden;
+}
+table.ds-table th,
+table.ds-table td{
+  padding:11px 14px;
+  font-size:15px;
+  text-align:left;
+  border-bottom:1px solid var(--color-divider);
+}
+table.ds-table th{
+  background:#FCFCFA;
+  color:var(--color-text-faint);
+  font-weight:600;
+  font-size:12.5px;
+  letter-spacing:.02em;
+}
+table.ds-table tr:last-child td{border-bottom:none}
+table.ds-table tr:hover td{background:var(--color-surface-hover)}
+table.ds-table td.k{
+  width:132px;
+  color:var(--color-text-faint);
+  font-weight:600;
+}
+
+/* ============================================================
+   섹션 타이틀 / 브레드크럼
+   ============================================================ */
+.section-title{
+  font-size:12px;
+  font-weight:700;
+  color:var(--color-text-faint);
+  margin:16px 0 8px;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+}
+.crumb{
+  font-size:13px;
+  color:var(--color-text-faint);
+  margin-bottom:14px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--color-divider);
+}
+.crumb a{color:var(--color-text-muted);font-weight:600}
+.crumb a:hover{color:var(--accent)}
+.crumb .cur{color:var(--color-text);font-weight:700}
+.crumb .sep{color:var(--color-text-disabled)}
+
+/* ============================================================
+   인용/설명 박스(와이너리소개, 안내문 등 은은한 배경의 텍스트 블록)
+   ============================================================ */
+.tint-box{
+  background:var(--color-surface-tint);
+  border-radius:var(--radius-lg);
+  padding:18px 20px;
+}
+/* 출처/보조 설명 캡션 — 항상 작고 흐리게(2026-07-09 확정 원칙) */
+.field-src{
+  font-size:11px;
+  color:#B4AB92;
+  margin:8px 0 0;
+}
+
+/* ============================================================
+   모달 / 팝오버 / 토스트
+   ============================================================ */
+.popover{
+  background:var(--color-surface);
+  border:1px solid var(--color-border-subtle);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-popover);
+  padding:14px;
+  animation:dsPopIn .16s ease;
+}
+.modal-panel{
+  background:var(--color-surface);
+  border-radius:var(--radius-2xl);
+  box-shadow:var(--shadow-modal);
+  padding:24px;
+  animation:dsPopIn .18s ease;
+}
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(20, 18, 14, .35);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+}
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:34px;
+  transform:translateX(-50%);
+  background:var(--color-text);
+  color:#fff;
+  font-size:13.5px;
+  font-weight:500;
+  padding:11px 20px;
+  border-radius:var(--radius-pill);
+  box-shadow:var(--shadow-toast);
+  z-index:60;
+  animation:dsToastIn .2s ease;
+}
+
+@keyframes dsPopIn{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes dsToastIn{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes dsFadeIn{from{opacity:0}to{opacity:1}}
+
+/* ============================================================
+   스켈레톤(데이터 로딩/미연동 placeholder)
+   ============================================================ */
+.skeleton{
+  border-radius:4px;
+  background:#EFEDE7;
+}

@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NARA Wine Intelligence</title>
+  <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <header class="app-header">
     <p class="header-label">NARA Wine Intelligence</p>
-    <h1>🍷 와인 정보 수집 플랫폼</h1>
+    <h1>와인 정보 수집 플랫폼</h1>
     <p class="header-meta">스크래퍼 &middot; 데일리 브리핑</p>
   </header>
 
@@ -23,34 +24,34 @@
     <section id="tab-scraper" class="tab-panel active">
       <div class="card">
         <div class="card-header">
-          <h2>🔍 검색 조건</h2>
+          <h2>검색 조건</h2>
         </div>
         <div class="input-group">
-          <label for="wineName">와인명</label>
-          <input type="text" id="wineName" placeholder="예: Montes Alpha Cabernet Sauvignon">
+          <label class="input-label" for="wineName">와인명</label>
+          <input type="text" id="wineName" class="input" placeholder="예: Montes Alpha Cabernet Sauvignon">
         </div>
         <div class="input-group">
-          <label for="wineBrand">와인 브랜드</label>
-          <input type="text" id="wineBrand" placeholder="예: Montes">
+          <label class="input-label" for="wineBrand">와인 브랜드</label>
+          <input type="text" id="wineBrand" class="input" placeholder="예: Montes">
         </div>
       </div>
 
       <div class="card">
         <div class="card-header">
-          <h2>📡 수집 소스</h2>
+          <h2>수집 소스</h2>
           <span class="meta" id="sourceCount">0개 선택</span>
         </div>
         <div class="source-list" id="sourceList"></div>
         <div class="add-source">
-          <input type="text" id="newSourceName" placeholder="새 소스 이름">
-          <input type="text" id="newSourceUrl" placeholder="URL (선택)">
-          <button id="btnAddSource" class="btn secondary">+ 추가</button>
+          <input type="text" id="newSourceName" class="input" placeholder="새 소스 이름">
+          <input type="text" id="newSourceUrl" class="input" placeholder="URL (선택)">
+          <button id="btnAddSource" class="btn-outline">+ 추가</button>
         </div>
       </div>
 
       <div class="actions">
-        <button id="btnScrapeStart" class="btn primary">스크래핑 시작</button>
-        <button id="btnScrapeStop" class="btn danger" disabled>중지</button>
+        <button id="btnScrapeStart" class="btn">스크래핑 시작</button>
+        <button id="btnScrapeStop" class="btn-outline" disabled>중지</button>
       </div>
 
       <div class="progress-area hidden" id="scrapeProgress">
@@ -60,10 +61,10 @@
 
       <div class="card result-card">
         <div class="card-header">
-          <h2>📊 수집 결과 <span class="badge" id="resultBadge">0</span></h2>
+          <h2>수집 결과 <span class="chip-pill" id="resultBadge">0</span></h2>
         </div>
         <div class="table-wrap">
-          <table class="result-table" id="resultTable">
+          <table class="ds-table" id="resultTable">
             <thead>
               <tr><th>와인명</th><th>브랜드</th><th>빈티지</th><th>가격</th><th>상태</th></tr>
             </thead>
@@ -77,43 +78,58 @@
 
     <!-- 데일리 브리핑 탭 -->
     <section id="tab-briefing" class="tab-panel">
-      <div class="briefing-summary card">
-        <div class="briefing-title-row">
-          <h2>📋 오늘의 브리핑 요약</h2>
-          <span class="meta" id="briefingDate">2026년 07월 14일 (화)</span>
+      <!-- 주간 네비게이션 -->
+      <div class="week-nav">
+        <button class="btn-icon-round" id="btnPrevWeek" title="이전 주">‹</button>
+        <div class="week-info">
+          <span class="week-label" id="weekLabel">2026년 7월 2주차</span>
+          <span class="week-range" id="weekRange">7/7 ~ 7/13</span>
         </div>
-        <div class="tag-row" id="briefingTags"></div>
+        <button class="btn-icon-round" id="btnNextWeek" title="다음 주">›</button>
+      </div>
+
+      <!-- 주간 달력 그리드 -->
+      <div class="week-calendar" id="weekCalendar"></div>
+
+      <!-- 선택된 날짜 상세 브리핑 -->
+      <div class="card hidden" id="briefingDetail">
+        <div class="card-header">
+          <h2 id="detailDateLabel">브리핑 상세</h2>
+          <span class="meta">총 <span id="detailTotal">0</span>건</span>
+        </div>
+        <div class="tag-row" id="detailTags"></div>
         <hr class="divider">
-        <div class="briefing-section" id="briefingDomestic">
-          <div class="section-title" style="color:#1e3a5f;">📰 국내 뉴스·매거진</div>
-          <ul class="briefing-list" id="listDomestic"></ul>
+        <div class="briefing-section" data-section="domestic">
+          <div class="section-title" style="color:var(--color-text)">📰 국내 뉴스·매거진</div>
+          <ul class="briefing-list" id="detailDomestic"></ul>
         </div>
-        <div class="briefing-section" id="briefingNewsroom">
-          <div class="section-title" style="color:#0e7490;">🏛 뉴스룸</div>
-          <ul class="briefing-list" id="listNewsroom"></ul>
+        <div class="briefing-section" data-section="newsroom">
+          <div class="section-title" style="color:var(--color-text)">🏛 뉴스룸</div>
+          <ul class="briefing-list" id="detailNewsroom"></ul>
         </div>
-        <div class="briefing-section" id="briefingCafe">
-          <div class="section-title" style="color:#7c3aed;">🍷 와쌉 카페</div>
-          <ul class="briefing-list" id="listCafe"></ul>
+        <div class="briefing-section" data-section="cafe">
+          <div class="section-title" style="color:var(--color-text)">🍷 와쌉 카페</div>
+          <ul class="briefing-list" id="detailCafe"></ul>
         </div>
-        <div class="briefing-section" id="briefingYoutube">
-          <div class="section-title" style="color:#0891b2;">🎬 YouTube</div>
-          <ul class="briefing-list" id="listYoutube"></ul>
+        <div class="briefing-section" data-section="youtube">
+          <div class="section-title" style="color:var(--color-text)">🎬 YouTube</div>
+          <ul class="briefing-list" id="detailYoutube"></ul>
         </div>
-        <div class="briefing-section" id="briefingBlog">
-          <div class="section-title" style="color:#059669;">📝 네이버 블로그</div>
-          <ul class="briefing-list" id="listBlog"></ul>
+        <div class="briefing-section" data-section="blog">
+          <div class="section-title" style="color:var(--color-text)">📝 네이버 블로그</div>
+          <ul class="briefing-list" id="detailBlog"></ul>
         </div>
-        <div class="briefing-section" id="briefingGlobal">
-          <div class="section-title" style="color:#475569;">🌐 해외·통계·이벤트</div>
-          <ul class="briefing-list" id="listGlobal"></ul>
+        <div class="briefing-section" data-section="global">
+          <div class="section-title" style="color:var(--color-text)">🌐 해외·통계·이벤트</div>
+          <ul class="briefing-list" id="detailGlobal"></ul>
         </div>
       </div>
     </section>
   </main>
 
-  <div class="overlay hidden" id="detailOverlay">
-    <div class="detail-card">
+  <!-- 모달: 스크래퍼 상세 -->
+  <div class="modal-overlay hidden" id="detailOverlay">
+    <div class="modal-panel">
       <button class="close-btn" id="closeDetail">닫기</button>
       <h3 id="detailTitle">와인 상세</h3>
       <dl id="detailList"></dl>
