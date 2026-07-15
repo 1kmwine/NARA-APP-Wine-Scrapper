@@ -17,7 +17,7 @@ class ParsedArticle:
 
 
 def extract_visible_text(html: str) -> str:
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(html, "lxml")
     for tag in soup(["script", "style"]):
         tag.decompose()
     text = soup.get_text(separator=" ")
@@ -28,16 +28,17 @@ def extract_visible_text(html: str) -> str:
 # 컬럼 길이(title VARCHAR(500), excerpt VARCHAR(500))를 넘거나
 # article:published_time이 ISO 8601이 아닌 사이트가 실제로 있었던 문제를 동일하게 방어.
 def parse_article_meta(html: str, fallback_title: str) -> ParsedArticle:
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(html, "lxml")
 
     def meta_content(prop: str) -> str | None:
         tag = soup.find("meta", attrs={"property": prop})
-        if tag and tag.get("content"):
-            return tag["content"].strip()
-        return None
+        if not tag:
+            return None
+        content = (tag.get("content") or "").strip()
+        return content or None
 
     og_title = meta_content("og:title")
-    title = (og_title or fallback_title).strip()[:500]
+    title = (og_title or fallback_title).strip()[:500].strip()
 
     og_description = meta_content("og:description")
     excerpt = make_excerpt(og_description or extract_visible_text(html))

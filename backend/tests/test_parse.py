@@ -45,3 +45,30 @@ def test_parse_article_meta_truncates_long_title_to_500_chars():
 def test_extract_visible_text_strips_script_and_style():
     html = "<html><body><script>var x=1;</script><style>.a{}</style><p>보이는 텍스트</p></body></html>"
     assert extract_visible_text(html) == "보이는 텍스트"
+
+
+def test_parse_article_meta_handles_truncated_malformed_html():
+    # 닫는 태그가 하나도 없는, 실제 스크레이핑 중 잘려서 들어올 수 있는 형태의 HTML.
+    # html.parser보다 관대한 lxml 파서로 교체했으므로 예외 없이 og:title을 읽어야 한다.
+    html = '<html><head><meta property="og:title" content="제목"'
+    parsed = parse_article_meta(html, fallback_title="fallback")
+    assert parsed.title == "제목"
+
+
+def test_extract_visible_text_handles_truncated_malformed_html():
+    html = '<html><head><meta property="og:title" content="제목"'
+    # 예외 없이 문자열을 반환하기만 하면 된다 (내용 자체는 비어있어도 무방).
+    result = extract_visible_text(html)
+    assert isinstance(result, str)
+
+
+def test_parse_article_meta_thumbnail_is_none_when_og_image_missing():
+    html = "<html><head></head><body><p>이미지 태그 없음</p></body></html>"
+    parsed = parse_article_meta(html, fallback_title="제목")
+    assert parsed.thumbnail_url is None
+
+
+def test_parse_article_meta_thumbnail_is_none_when_og_image_whitespace_only():
+    html = '<html><head><meta property="og:image" content="   "></head><body></body></html>'
+    parsed = parse_article_meta(html, fallback_title="제목")
+    assert parsed.thumbnail_url is None
