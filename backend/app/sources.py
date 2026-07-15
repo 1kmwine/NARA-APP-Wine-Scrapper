@@ -30,7 +30,3 @@ _SOURCES_BY_ID = {s.id: s for s in SOURCES}
 
 def source_by_id(source_id: str) -> Source | None:
     return _SOURCES_BY_ID.get(source_id)
-
-
-def url_matches_domain(url: str, domain: str) -> bool:
-    return domain in url

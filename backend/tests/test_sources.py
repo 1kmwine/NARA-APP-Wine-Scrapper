@@ -1,4 +1,4 @@
-from app.sources import SOURCES, source_by_id, url_matches_domain
+from app.sources import SOURCES, source_by_id
 
 
 def test_has_twelve_sources():
@@ -21,8 +21,3 @@ def test_source_by_id_found():
 
 def test_source_by_id_missing_returns_none():
     assert source_by_id("nope") is None
-
-
-def test_url_matches_domain():
-    assert url_matches_domain("https://www.wine21.com/news/1", "wine21.com")
-    assert not url_matches_domain("https://example.com/other", "wine21.com")

@@ -10,7 +10,7 @@ _TAG_RE = re.compile(r"<[^>]+>")
 
 
 class HttpClient(Protocol):
-    def get(self, url: str, params=None, headers=None, timeout=None): ...
+    def get(self, url: str, *, params=None, headers=None, timeout=None): ...
 
 
 def _strip_tags(value: str) -> str:

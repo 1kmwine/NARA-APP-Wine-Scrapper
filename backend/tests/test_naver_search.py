@@ -1,4 +1,12 @@
-from app.naver_search import naver_search, search_urls_for_domain, NAVER_NEWS_URL, NAVER_BLOG_URL
+import pytest
+
+from app.naver_search import (
+    naver_search,
+    search_urls_for_domain,
+    _url_host_matches_domain,
+    NAVER_NEWS_URL,
+    NAVER_BLOG_URL,
+)
 
 
 class FakeResponse:
@@ -12,6 +20,14 @@ class FakeResponse:
         return self._payload
 
 
+class FailingResponse:
+    def raise_for_status(self):
+        raise RuntimeError("HTTP error")
+
+    def json(self):
+        raise AssertionError("json() should not be called when raise_for_status raises")
+
+
 class FakeClient:
     def __init__(self, payload):
         self._payload = payload
@@ -20,6 +36,11 @@ class FakeClient:
     def get(self, url, params=None, headers=None, timeout=None):
         self.calls.append((url, params, headers))
         return FakeResponse(self._payload)
+
+
+class FailingClient:
+    def get(self, url, params=None, headers=None, timeout=None):
+        return FailingResponse()
 
 
 class MultiFakeClient:
@@ -61,3 +82,19 @@ def test_search_urls_for_domain_filters_and_dedupes():
     })
     urls = search_urls_for_domain("몬테스", "wine21.com", "id", "secret", client)
     assert urls == ["https://wine21.com/1", "https://wine21.com/3"]
+
+
+def test_url_host_matches_domain():
+    assert _url_host_matches_domain("https://wine21.com/1", "wine21.com") is True
+    assert _url_host_matches_domain("https://www.wine21.com/1", "wine21.com") is True
+    assert _url_host_matches_domain("https://blog.wine21.com/1", "wine21.com") is True
+    assert _url_host_matches_domain("https://notwine21.com/1", "wine21.com") is False
+    assert _url_host_matches_domain("https://wine21.com.evil.com/1", "wine21.com") is False
+    assert _url_host_matches_domain("https://other.com/1", "wine21.com") is False
+    assert _url_host_matches_domain("https://WWW.WINE21.COM/1", "wine21.com") is True
+
+
+def test_naver_search_propagates_http_error():
+    client = FailingClient()
+    with pytest.raises(RuntimeError, match="HTTP error"):
+        naver_search("몬테스", NAVER_NEWS_URL, "id", "secret", client)
