@@ -1,10 +1,14 @@
 from __future__ import annotations
+import logging
 import threading
+import time
 import uuid
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 
 from .sources import Source
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -49,6 +53,8 @@ class JobStore:
         with self._lock:
             job = self._jobs[job_id]
             for key, value in changes.items():
+                if key not in job.__dataclass_fields__:
+                    raise AttributeError(f"Job has no field {key!r}")
                 setattr(job, key, value)
 
     def append_result(self, job_id: str, item: JobResultItem) -> None:
@@ -74,6 +80,7 @@ def run_job(
     parse_article_meta: Callable[[str, str], object],
     match_brands: Callable[[str, list[str]], list[str]],
     extract_visible_text: Callable[[str], str],
+    deadline: float | None = None,
 ) -> None:
     store.update(job_id, status="running")
     query = brand or wine_name
@@ -85,18 +92,24 @@ def run_job(
         return
 
     had_failure = False
+    timed_out = False
 
     for source in sources:
+        if deadline is not None and time.monotonic() > deadline:
+            timed_out = True
+            break
+
         try:
             urls = search_urls_for_domain(query, source.domain)
-        except Exception:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("%s 소스 검색 실패", source.name)
             had_failure = True
             store.append_result(
                 job_id,
                 JobResultItem(
                     source_id=source.id,
                     source_name=source.name,
-                    title=f"{source.name} 검색 실패",
+                    title=f"{source.name} 검색 실패: {exc}",
                     published_date=None,
                     external_url="",
                     status="실패",
@@ -106,6 +119,10 @@ def run_job(
             continue
 
         for url in urls:
+            if deadline is not None and time.monotonic() > deadline:
+                timed_out = True
+                break
+
             try:
                 if article_exists(url):
                     store.append_result(
@@ -142,14 +159,15 @@ def run_job(
                         matched_brands=matched,
                     ),
                 )
-            except Exception:  # noqa: BLE001 — 이 URL만 실패 처리하고 계속 진행
+            except Exception as exc:  # noqa: BLE001 — 이 URL만 실패 처리하고 계속 진행
+                logger.exception("%s 처리 실패", url)
                 had_failure = True
                 store.append_result(
                     job_id,
                     JobResultItem(
                         source_id=source.id,
                         source_name=source.name,
-                        title=url,
+                        title=f"{url} (실패: {exc})",
                         published_date=None,
                         external_url=url,
                         status="실패",
@@ -158,4 +176,10 @@ def run_job(
 
         store.increment_done(job_id)
 
-    store.update(job_id, status="partial" if had_failure else "succeeded")
+        if timed_out:
+            break
+
+    if timed_out:
+        store.update(job_id, status="failed", error="60초 시간 제한을 초과했습니다")
+    else:
+        store.update(job_id, status="partial" if had_failure else "succeeded")
