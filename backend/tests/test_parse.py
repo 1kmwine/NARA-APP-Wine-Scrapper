@@ -1,0 +1,47 @@
+from app.parse import parse_article_meta, extract_visible_text
+
+
+OG_HTML = """
+<html><head>
+<meta property="og:title" content="몬테스 알파 새 빈티지 출시">
+<meta property="og:description" content="칠레 와이너리 몬테스가 새 빈티지를 출시했다.">
+<meta property="og:image" content="https://example.com/thumb.jpg">
+<meta property="article:published_time" content="2026-07-01T09:00:00+09:00">
+</head><body><p>본문 내용입니다.</p></body></html>
+"""
+
+
+def test_parse_article_meta_reads_og_tags():
+    parsed = parse_article_meta(OG_HTML, fallback_title="fallback")
+    assert parsed.title == "몬테스 알파 새 빈티지 출시"
+    assert "몬테스" in parsed.excerpt
+    assert parsed.thumbnail_url == "https://example.com/thumb.jpg"
+    assert parsed.published_date == "2026-07-01"
+
+
+def test_parse_article_meta_falls_back_to_title_and_body_text():
+    html = "<html><body><p>og 태그가 없는 페이지</p></body></html>"
+    parsed = parse_article_meta(html, fallback_title="대체 제목")
+    assert parsed.title == "대체 제목"
+    assert "og 태그가 없는 페이지" in parsed.excerpt
+
+
+def test_parse_article_meta_rejects_non_iso_date():
+    html = (
+        '<html><head><meta property="article:published_time" '
+        'content="Thu, 21 May 2026 00:00:00 GMT"></head><body></body></html>'
+    )
+    parsed = parse_article_meta(html, fallback_title="제목")
+    assert parsed.published_date is None
+
+
+def test_parse_article_meta_truncates_long_title_to_500_chars():
+    long_title = "가" * 600
+    html = f'<html><head><meta property="og:title" content="{long_title}"></head><body></body></html>'
+    parsed = parse_article_meta(html, fallback_title="제목")
+    assert len(parsed.title) == 500
+
+
+def test_extract_visible_text_strips_script_and_style():
+    html = "<html><body><script>var x=1;</script><style>.a{}</style><p>보이는 텍스트</p></body></html>"
+    assert extract_visible_text(html) == "보이는 텍스트"
