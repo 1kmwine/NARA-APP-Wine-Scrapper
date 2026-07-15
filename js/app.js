@@ -61,7 +61,11 @@ document.getElementById('btnAddSource').addEventListener('click',()=>{
   saveSources(); renderSources();
 });
 
-/* ========== 스크래퍼 시뮬레이션 ========== */
+/* ========== 스크래퍼 (실제 API 연동) ========== */
+const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:8001'
+  : 'api';
+
 const btnStart=document.getElementById('btnScrapeStart');
 const btnStop=document.getElementById('btnScrapeStop');
 const progress=document.getElementById('scrapeProgress');
@@ -69,7 +73,8 @@ const progressFill=document.getElementById('scrapeFill');
 const progressText=document.getElementById('scrapeText');
 const resultBody=document.getElementById('resultBody');
 const resultBadge=document.getElementById('resultBadge');
-let running=false,timer=null;
+const POLL_TIMEOUT_MS=60000;
+let polling=false,pollTimer=null,pollDeadline=null;
 
 function renderResult(list){
   resultBody.innerHTML='';
@@ -77,55 +82,106 @@ function renderResult(list){
   resultBadge.textContent=list.length;
   list.forEach(item=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${item.name}</td><td>${item.brand}</td><td>${item.vintage}</td><td>${item.price}</td><td>${item.status}</td>`;
+    const cellValues=[
+      item.title,
+      item.source_name,
+      item.published_date||'-',
+      (item.matched_brands||[]).join(', ')||'-',
+      item.status,
+    ];
+    cellValues.forEach(value=>{
+      const td=document.createElement('td');
+      td.textContent=value;
+      tr.appendChild(td);
+    });
     tr.addEventListener('click',()=>showDetail(item));
     resultBody.appendChild(tr);
   });
 }
 
-btnStart.addEventListener('click',()=>{
-  if(running) return;
+function stopPolling(){
+  polling=false;
+  if(pollTimer) clearTimeout(pollTimer);
+  pollTimer=null;
+  pollDeadline=null;
+  btnStart.disabled=false; btnStop.disabled=true;
+}
+
+async function pollJob(jobId){
+  if(!polling) return;
+  if(Date.now()>pollDeadline){
+    stopPolling();
+    alert('60초 안에 끝나지 않아 중단했습니다. 다시 시도해주세요.');
+    return;
+  }
+  try{
+    const res=await fetch(`${API_BASE}/jobs/${jobId}`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const job=await res.json();
+    progressFill.style.width=`${job.total?(job.done/job.total)*100:0}%`;
+    progressText.textContent=`${job.done} / ${job.total}`;
+    renderResult(job.results);
+
+    if(job.status==='succeeded'||job.status==='partial'||job.status==='failed'){
+      stopPolling();
+      if(job.status==='failed'){ alert(`스크래핑 실패: ${job.error||'알 수 없는 오류'}`); }
+      return;
+    }
+    pollTimer=setTimeout(()=>pollJob(jobId), 1000);
+  }catch(e){
+    stopPolling();
+    alert(`상태 조회 실패: ${e.message}`);
+  }
+}
+
+btnStart.addEventListener('click', async ()=>{
+  if(polling) return;
   const wineName=document.getElementById('wineName').value.trim();
   if(!wineName){ alert('와인명을 입력해주세요.'); return; }
-  running=true; btnStart.disabled=true; btnStop.disabled=false; progress.classList.remove('hidden');
-  const active=sources.filter(s=>s.on);
-  const total=active.length*3; let done=0;
-  const results=[];
-  let idx=0;
-  function next(){
-    if(!running||idx>=total){ finish(); return; }
-    const src=active[Math.floor(idx/3)];
-    idx++; done++;
-    progressFill.style.width=`${(done/total)*100}%`;
-    progressText.textContent=`${done} / ${total}`;
-    results.push({
-      name:`${wineName} ${idx}`,
-      brand:document.getElementById('wineBrand').value.trim()||'-',
-      vintage:2018+Math.floor(Math.random()*6),
-      price:'₩'+(Math.floor(Math.random()*15)+5)+'0,000',
-      status:'완료',
-      region:'Napa Valley',
-      variety:'Cabernet Sauvignon'
+  const wineBrand=document.getElementById('wineBrand').value.trim();
+  const sourceIds=sources.filter(s=>s.on).map(s=>s.id);
+  if(!sourceIds.length){ alert('수집 소스를 하나 이상 선택해주세요.'); return; }
+
+  polling=true; btnStart.disabled=true; btnStop.disabled=false; progress.classList.remove('hidden');
+  progressFill.style.width='0%'; progressText.textContent=`0 / ${sourceIds.length}`;
+  renderResult([]);
+
+  try{
+    const res=await fetch(`${API_BASE}/jobs`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wine_name:wineName, brand:wineBrand, source_ids:sourceIds}),
     });
-    renderResult(results.slice());
-    timer=setTimeout(next, 300+Math.random()*400);
+    if(!res.ok){ const body=await res.json().catch(()=>({})); throw new Error(body.detail||`HTTP ${res.status}`); }
+    const {job_id}=await res.json();
+    pollDeadline=Date.now()+POLL_TIMEOUT_MS;
+    pollJob(job_id);
+  }catch(e){
+    stopPolling();
+    alert(`검색 시작 실패: ${e.message}`);
   }
-  function finish(){ running=false; btnStart.disabled=false; btnStop.disabled=true; timer=null; }
-  next();
 });
+
 btnStop.addEventListener('click',()=>{
-  running=false; if(timer) clearTimeout(timer); timer=null;
-  btnStart.disabled=false; btnStop.disabled=true; progress.classList.add('hidden');
+  stopPolling();
+  progress.classList.add('hidden');
 });
 
 const overlay=document.getElementById('detailOverlay');
 document.getElementById('closeDetail').addEventListener('click',()=>overlay.classList.add('hidden'));
 overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.classList.add('hidden'); });
 function showDetail(item){
-  document.getElementById('detailTitle').textContent=item.name;
+  document.getElementById('detailTitle').textContent=item.title;
   const dl=document.getElementById('detailList');
   dl.innerHTML='';
-  Object.entries(item).forEach(([k,v])=>{ const dt=document.createElement('dt'); dt.textContent=k; const dd=document.createElement('dd'); dd.textContent=v; dl.appendChild(dt); dl.appendChild(dd); });
+  const fields={
+    '소스':item.source_name,
+    '게시일':item.published_date||'-',
+    '매칭 브랜드':(item.matched_brands||[]).join(', ')||'-',
+    '상태':item.status,
+    '원문 URL':item.external_url,
+  };
+  Object.entries(fields).forEach(([k,v])=>{ const dt=document.createElement('dt'); dt.textContent=k; const dd=document.createElement('dd'); dd.textContent=v; dl.appendChild(dt); dl.appendChild(dd); });
   overlay.classList.remove('hidden');
 }
 
