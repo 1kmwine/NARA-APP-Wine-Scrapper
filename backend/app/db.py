@@ -37,27 +37,31 @@ def article_exists(conn, external_url: str) -> bool:
 def insert_article(
     conn, source_name: str, external_url: str, article: ParsedArticle, matched_brands: list[str]
 ) -> int:
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            INSERT INTO wine_articles
-                (source_type, title, source_name, published_date, external_url, thumbnail_path, excerpt)
-            VALUES ('scraper', %s, %s, %s, %s, %s, %s)
-            """,
-            (
-                article.title,
-                source_name,
-                article.published_date,
-                external_url,
-                article.thumbnail_url,
-                article.excerpt,
-            ),
-        )
-        article_id = cur.lastrowid
-        for brand_name in matched_brands:
+    try:
+        with conn.cursor() as cur:
             cur.execute(
-                "INSERT INTO wine_article_brands (article_id, brand_name) VALUES (%s, %s)",
-                (article_id, brand_name),
+                """
+                INSERT INTO wine_articles
+                    (source_type, title, source_name, published_date, external_url, thumbnail_path, excerpt)
+                VALUES ('scraper', %s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    article.title,
+                    source_name,
+                    article.published_date,
+                    external_url,
+                    article.thumbnail_url,
+                    article.excerpt,
+                ),
             )
+            article_id = cur.lastrowid
+            for brand_name in matched_brands:
+                cur.execute(
+                    "INSERT INTO wine_article_brands (article_id, brand_name) VALUES (%s, %s)",
+                    (article_id, brand_name),
+                )
+    except Exception:
+        conn.rollback()
+        raise
     conn.commit()
     return article_id
