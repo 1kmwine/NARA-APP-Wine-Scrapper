@@ -118,6 +118,7 @@ async function pollJob(jobId){
     const res=await fetch(`${API_BASE}/jobs/${jobId}`);
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const job=await res.json();
+    if(!polling) return;
     progressFill.style.width=`${job.total?(job.done/job.total)*100:0}%`;
     progressText.textContent=`${job.done} / ${job.total}`;
     renderResult(job.results);
