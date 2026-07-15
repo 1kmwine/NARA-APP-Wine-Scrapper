@@ -5,6 +5,11 @@ _TAG_RE = re.compile(r"<[^>]+>")
 _WS_RE = re.compile(r"\s+")
 _ASCII_WORD_CHAR_RE = re.compile(r"[A-Za-z0-9]")
 
+# match_brands는 외부 웹사이트에서 스크래핑한 임의의 텍스트를 그대로 받으므로,
+# 반복 문자로만 이루어진 병리적 입력(광고 필러, 압축 안 된 minified 블롭 등)에서
+# 거부 루프가 O(n^2)로 느려지는 것을 막기 위해 검색 대상 길이를 상한선으로 자른다.
+_MAX_MATCH_TEXT_LENGTH = 50_000
+
 
 def make_excerpt(html_or_text: str, max_length: int = 200) -> str:
     text = _TAG_RE.sub(" ", html_or_text)
@@ -26,6 +31,8 @@ def _is_ascii_word_char(ch: str | None) -> bool:
 # (한글/공백/문장부호/문자열 경계는 전부 허용) 유효한 매칭으로 인정한다.
 # scripts/lib/article-shared.ts의 matchBrands를 그대로 이식.
 def match_brands(text: str, known_brands: list[str]) -> list[str]:
+    if len(text) > _MAX_MATCH_TEXT_LENGTH:
+        text = text[:_MAX_MATCH_TEXT_LENGTH]
     lower_text = text.lower()
     matched: list[str] = []
     for brand in known_brands:

@@ -36,3 +36,15 @@ def test_match_brands_dedupes_result():
 
 def test_match_brands_no_match_returns_empty_list():
     assert match_brands("관련 없는 문장", ["Montes"]) == []
+
+
+def test_match_brands_finds_match_at_end_of_string():
+    assert match_brands("Wine by Montes", ["Montes"]) == ["Montes"]
+
+
+def test_match_brands_empty_text_returns_empty_list():
+    assert match_brands("", ["Montes"]) == []
+
+
+def test_match_brands_empty_known_brands_returns_empty_list():
+    assert match_brands("Montes Alpha", []) == []
