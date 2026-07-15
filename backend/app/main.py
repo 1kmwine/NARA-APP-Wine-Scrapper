@@ -16,6 +16,8 @@ from .jobs import JobStore, run_job
 from . import db
 
 app = FastAPI(title="NARA Wine Scraper API")
+# 이 서비스는 127.0.0.1에만 바인딩되어 nginx 리버스 프록시를 통해서만 접근되고
+# 인터넷에 직접 노출되지 않으므로, 모든 origin을 허용해도 안전하다.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -35,20 +37,6 @@ class CreateJobRequest(BaseModel):
 
 class CreateJobResponse(BaseModel):
     job_id: str
-
-
-def _fetch_html(url: str) -> str:
-    with httpx.Client(follow_redirects=True, timeout=15.0) as client:
-        response = client.get(url)
-        response.raise_for_status()
-        return response.text
-
-
-def _search_urls_for_domain(query: str, domain: str) -> list[str]:
-    with httpx.Client() as client:
-        return search_urls_for_domain(
-            query, domain, settings.naver_client_id, settings.naver_client_secret, client
-        )
 
 
 def _with_connection(fn):
@@ -73,31 +61,64 @@ def _insert_article(source_name: str, url: str, article, matched: list[str]) -> 
     return _with_connection(lambda conn: db.insert_article(conn, source_name, url, article, matched))
 
 
+def _run_job_in_background(job_id: str, sources: list, wine_name: str, brand: str) -> None:
+    """백그라운드 스레드 진입점.
+
+    job 하나의 전체 수명 동안 httpx.Client를 하나만 열어 재사용한다(연결 풀링/
+    keep-alive) — run_job은 이 스레드 안에서 완전히 순차 실행되므로 동시 접근
+    걱정 없이 안전하다. run_job 자체가 내부적으로 잡지 못하는 예외가 있더라도
+    job이 영원히 "running"에 멈춰있지 않도록 바깥에서 한 번 더 방어한다.
+    """
+    try:
+        with httpx.Client(follow_redirects=True, timeout=15.0) as client:
+
+            def fetch_html(url: str) -> str:
+                response = client.get(url)
+                response.raise_for_status()
+                return response.text
+
+            def search_urls(query: str, domain: str) -> list[str]:
+                return search_urls_for_domain(
+                    query, domain, settings.naver_client_id, settings.naver_client_secret, client
+                )
+
+            run_job(
+                job_id,
+                store,
+                sources,
+                wine_name,
+                brand,
+                search_urls_for_domain=search_urls,
+                fetch_html=fetch_html,
+                get_known_brands=_get_known_brands,
+                article_exists=_article_exists,
+                insert_article=_insert_article,
+                parse_article_meta=parse_article_meta,
+                match_brands=match_brands,
+                extract_visible_text=extract_visible_text,
+                deadline=time.monotonic() + 60,
+            )
+    except Exception as exc:  # noqa: BLE001 — run_job 내부에서 못 잡은 예외까지 대비하는 방어 레이어
+        store.update(job_id, status="failed", error=f"예기치 못한 오류: {exc}")
+
+
 @app.post("/jobs", response_model=CreateJobResponse)
 def create_job(payload: CreateJobRequest) -> CreateJobResponse:
     if not payload.wine_name.strip():
         raise HTTPException(status_code=400, detail="와인명을 입력해주세요")
+
+    wine_name = payload.wine_name.strip()
+    brand = payload.brand.strip()
 
     selected = [source_by_id(sid) for sid in payload.source_ids]
     selected = [s for s in selected if s is not None]
     if not selected:
         raise HTTPException(status_code=400, detail="선택된 소스가 없습니다")
 
-    job = store.create(payload.wine_name, payload.brand, total=len(selected))
+    job = store.create(wine_name, brand, total=len(selected))
     thread = threading.Thread(
-        target=run_job,
-        args=(job.id, store, selected, payload.wine_name, payload.brand),
-        kwargs=dict(
-            search_urls_for_domain=_search_urls_for_domain,
-            fetch_html=_fetch_html,
-            get_known_brands=_get_known_brands,
-            article_exists=_article_exists,
-            insert_article=_insert_article,
-            parse_article_meta=parse_article_meta,
-            match_brands=match_brands,
-            extract_visible_text=extract_visible_text,
-            deadline=time.monotonic() + 60,
-        ),
+        target=_run_job_in_background,
+        args=(job.id, selected, wine_name, brand),
         daemon=True,
     )
     thread.start()
