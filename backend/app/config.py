@@ -15,6 +15,8 @@ class Settings:
     db_database: str
     naver_client_id: str
     naver_client_secret: str
+    github_token: str
+    naver_cookie: str
 
 
 def get_settings() -> Settings:
@@ -26,4 +28,6 @@ def get_settings() -> Settings:
         db_database=os.environ["DB_DATABASE"],
         naver_client_id=os.environ["NAVER_CLIENT_ID"],
         naver_client_secret=os.environ["NAVER_CLIENT_SECRET"],
+        github_token=os.environ["GITHUB_TOKEN"],
+        naver_cookie=os.environ["NAVER_COOKIE"],
     )
