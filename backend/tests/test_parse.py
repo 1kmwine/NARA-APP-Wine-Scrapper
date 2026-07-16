@@ -48,9 +48,14 @@ def test_extract_visible_text_strips_script_and_style():
 
 
 def test_parse_article_meta_handles_truncated_malformed_html():
-    # 닫는 태그가 하나도 없는, 실제 스크레이핑 중 잘려서 들어올 수 있는 형태의 HTML.
-    # html.parser보다 관대한 lxml 파서로 교체했으므로 예외 없이 og:title을 읽어야 한다.
-    html = '<html><head><meta property="og:title" content="제목"'
+    # head의 meta 태그 자체는 온전히 닫혀 있지만(실제 스크레이핑에서 head는 문서
+    # 초반부라 온전히 도착하는 경우가 대부분), 문서 전체는 </body></html> 없이
+    # 잘린 형태 — 네트워크 중단으로 응답이 잘려 들어올 때 실제로 나타나는 모양.
+    # lxml 6.x(libxml2 상향)는 5.x보다 엄격해져서 태그 자체가 안 닫힌 경우(예:
+    # `content="제목"` 뒤에 `>`가 아예 없는 경우)는 더 이상 복구하지 못하지만,
+    # 이 케이스처럼 태그 자체는 닫혀 있고 그 뒤 문서만 잘린 경우는 여전히 정상
+    # 복구되므로 예외 없이 og:title을 읽어야 한다.
+    html = '<html><head><meta property="og:title" content="제목"></head><body><p>본문이 여기서 잘림'
     parsed = parse_article_meta(html, fallback_title="fallback")
     assert parsed.title == "제목"
 
