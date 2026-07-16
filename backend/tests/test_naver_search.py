@@ -56,9 +56,23 @@ class MultiFakeClient:
 
 
 def test_naver_search_strips_bold_tags_from_title():
-    client = FakeClient({"items": [{"title": "<b>몬테스</b> 알파 신제품", "link": "https://wine21.com/1"}]})
+    client = FakeClient({
+        "items": [
+            {
+                "title": "<b>몬테스</b> 알파 신제품",
+                "link": "https://wine21.com/1",
+                "originallink": "https://wine21.com/1",
+            }
+        ]
+    })
     result = naver_search("몬테스", NAVER_NEWS_URL, "id", "secret", client)
-    assert result == [{"title": "몬테스 알파 신제품", "link": "https://wine21.com/1"}]
+    assert result == [
+        {
+            "title": "몬테스 알파 신제품",
+            "link": "https://wine21.com/1",
+            "originallink": "https://wine21.com/1",
+        }
+    ]
 
 
 def test_naver_search_sends_client_credentials_header():
@@ -72,16 +86,45 @@ def test_naver_search_sends_client_credentials_header():
 def test_search_urls_for_domain_filters_and_dedupes():
     client = MultiFakeClient({
         NAVER_NEWS_URL: {"items": [
-            {"title": "a", "link": "https://wine21.com/1"},
-            {"title": "b", "link": "https://other.com/2"},
+            {"title": "a", "link": "https://wine21.com/1", "originallink": "https://wine21.com/1"},
+            {"title": "b", "link": "https://other.com/2", "originallink": "https://other.com/2"},
         ]},
         NAVER_BLOG_URL: {"items": [
-            {"title": "c", "link": "https://wine21.com/1"},  # 중복 URL
-            {"title": "d", "link": "https://wine21.com/3"},
+            {"title": "c", "link": "https://wine21.com/1", "originallink": "https://wine21.com/1"},  # 중복 URL
+            {"title": "d", "link": "https://wine21.com/3", "originallink": "https://wine21.com/3"},
         ]},
     })
     urls = search_urls_for_domain("몬테스", "wine21.com", "id", "secret", client)
     assert urls == ["https://wine21.com/1", "https://wine21.com/3"]
+
+
+def test_search_urls_for_domain_prefers_originallink_over_naver_rewritten_link():
+    # 네이버 뉴스 제휴 언론사(예: 한국경제)는 link가 n.news.naver.com으로
+    # 재작성되고 실제 원본 도메인은 originallink에만 남는다 — 2026-07-16
+    # 실제 배포 검증 중 발견한 문제를 재현하는 회귀 테스트.
+    client = MultiFakeClient({
+        NAVER_NEWS_URL: {"items": [
+            {
+                "title": "제휴 언론사 기사",
+                "link": "https://n.news.naver.com/mnews/article/015/0001234567",
+                "originallink": "https://www.hankyung.com/article/2026071612345",
+            },
+        ]},
+        NAVER_BLOG_URL: {"items": []},
+    })
+    urls = search_urls_for_domain("몬테스", "hankyung.com", "id", "secret", client)
+    assert urls == ["https://www.hankyung.com/article/2026071612345"]
+
+
+def test_search_urls_for_domain_falls_back_to_link_when_no_originallink():
+    client = MultiFakeClient({
+        NAVER_NEWS_URL: {"items": [
+            {"title": "a", "link": "https://wine21.com/1", "originallink": ""},
+        ]},
+        NAVER_BLOG_URL: {"items": []},
+    })
+    urls = search_urls_for_domain("몬테스", "wine21.com", "id", "secret", client)
+    assert urls == ["https://wine21.com/1"]
 
 
 def test_url_host_matches_domain():

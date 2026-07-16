@@ -44,7 +44,14 @@ def naver_search(
     response.raise_for_status()
     items = response.json().get("items", [])
     return [
-        {"title": _strip_tags(item.get("title", "")), "link": item.get("link", "")}
+        {
+            "title": _strip_tags(item.get("title", "")),
+            "link": item.get("link", ""),
+            # 네이버와 제휴된 언론사(예: 한국경제)는 link가 n.news.naver.com으로
+            # 재작성되고, 원본 도메인은 originallink에만 남는다(2026-07-16 실제
+            # 배포 검증 중 발견 — link만 보면 제휴 언론사 소스가 전부 누락됨).
+            "originallink": item.get("originallink", ""),
+        }
         for item in items
     ]
 
@@ -59,7 +66,14 @@ def search_urls_for_domain(
     urls: list[str] = []
     for api_url in (NAVER_NEWS_URL, NAVER_BLOG_URL):
         items = naver_search(query, api_url, client_id, client_secret, client)
-        urls.extend(item["link"] for item in items if _url_host_matches_domain(item["link"], domain))
+        for item in items:
+            # originallink를 우선 확인한다 — 실제 소스 도메인은 거기 있고,
+            # link는 네이버 제휴 언론사의 경우 n.news.naver.com으로 재작성되어
+            # 있을 수 있다. originallink가 없거나 매칭 안 되면 link로 폴백.
+            if _url_host_matches_domain(item.get("originallink", ""), domain):
+                urls.append(item["originallink"])
+            elif _url_host_matches_domain(item.get("link", ""), domain):
+                urls.append(item["link"])
 
     seen: set[str] = set()
     result: list[str] = []
