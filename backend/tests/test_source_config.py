@@ -99,3 +99,66 @@ def test_age_youtube_defaults_to_seven_when_block_missing():
     minimal = "## 국내 뉴스·매거진\n\n| 매체 | 분류 | 검색어 | URL |\n|--|--|--|--|\n"
     cfg = parse_sources_document(minimal)
     assert cfg.age_youtube == 7
+
+
+import base64
+
+from app.source_config import load_sources_document, invalidate_sources_cache
+
+
+class FakeGitHubResponse:
+    def __init__(self, payload=None, status_code=200):
+        self._payload = payload or {}
+        self.status_code = status_code
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise RuntimeError(f"HTTP {self.status_code}")
+
+    def json(self):
+        return self._payload
+
+
+class FakeGitHubClient:
+    def __init__(self, text, sha="abc123"):
+        content_b64 = base64.b64encode(text.encode("utf-8")).decode("ascii")
+        self._response = FakeGitHubResponse({"content": content_b64, "sha": sha})
+        self.calls = 0
+
+    def get(self, url, *, headers=None, timeout=None):
+        self.calls += 1
+        return self._response
+
+
+def test_load_sources_document_returns_text_and_sha():
+    client = FakeGitHubClient("hello world", sha="sha1")
+    invalidate_sources_cache()
+    text, sha = load_sources_document(client, "token")
+    assert text == "hello world"
+    assert sha == "sha1"
+    assert client.calls == 1
+
+
+def test_load_sources_document_uses_cache_on_second_call():
+    client = FakeGitHubClient("cached text")
+    invalidate_sources_cache()
+    load_sources_document(client, "token")
+    load_sources_document(client, "token")
+    assert client.calls == 1
+
+
+def test_load_sources_document_force_refresh_bypasses_cache():
+    client = FakeGitHubClient("v1")
+    invalidate_sources_cache()
+    load_sources_document(client, "token")
+    load_sources_document(client, "token", force_refresh=True)
+    assert client.calls == 2
+
+
+def test_invalidate_sources_cache_forces_refetch():
+    client = FakeGitHubClient("v1")
+    invalidate_sources_cache()
+    load_sources_document(client, "token")
+    invalidate_sources_cache()
+    load_sources_document(client, "token")
+    assert client.calls == 2

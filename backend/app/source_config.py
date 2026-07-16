@@ -1,5 +1,8 @@
 from __future__ import annotations
+import base64
 import re
+import time
+from typing import Protocol
 from urllib.parse import urlparse
 
 from .sources import NewsSource, YoutubeSource, WassapSource, InternationalSource, SourcesConfig
@@ -107,3 +110,59 @@ def parse_sources_document(text: str) -> SourcesConfig:
         international=_parse_international(text),
         age_youtube=_parse_age_youtube(text),
     )
+
+
+GITHUB_API_BASE = "https://api.github.com"
+SOURCES_REPO = "1kmwine/NARA-APP-Wine-Scrapper"
+SOURCES_PATH = "docs/scraping-sources.md"
+_CACHE_TTL_SECONDS = 30.0
+
+_cache: dict = {"text": None, "sha": None, "fetched_at": 0.0}
+
+
+class GitHubClient(Protocol):
+    def get(self, url: str, *, headers: dict | None = None, timeout: float | None = None): ...
+    def put(self, url: str, *, json: dict | None = None, headers: dict | None = None, timeout: float | None = None): ...
+
+
+def _sources_url() -> str:
+    return f"{GITHUB_API_BASE}/repos/{SOURCES_REPO}/contents/{SOURCES_PATH}"
+
+
+def _auth_headers(github_token: str) -> dict:
+    return {"Authorization": f"token {github_token}", "Accept": "application/vnd.github.v3+json"}
+
+
+def _fetch_sources_document(client: GitHubClient, github_token: str) -> tuple[str, str]:
+    response = client.get(_sources_url(), headers=_auth_headers(github_token), timeout=10.0)
+    response.raise_for_status()
+    body = response.json()
+    text = base64.b64decode(body["content"] + "==").decode("utf-8")
+    return text, body["sha"]
+
+
+def load_sources_document(
+    client: GitHubClient, github_token: str, *, force_refresh: bool = False
+) -> tuple[str, str]:
+    """GitHub Contents API로 scraping-sources.md 원문+SHA를 가져온다.
+
+    raw.githubusercontent.com은 CDN 캐시로 수분간 구버전을 반환할 수 있어 Contents API를
+    쓴다 (WINE-BRIEFING/scrape.py와 동일한 이유). _CACHE_TTL_SECONDS 동안은 재사용해 job마다
+    반복 호출하지 않는다. 소스 추가 직후에는 force_refresh=True로 무효화한다.
+    """
+    now = time.monotonic()
+    if not force_refresh and _cache["text"] is not None and now - _cache["fetched_at"] < _CACHE_TTL_SECONDS:
+        return _cache["text"], _cache["sha"]
+    text, sha = _fetch_sources_document(client, github_token)
+    _cache.update(text=text, sha=sha, fetched_at=now)
+    return text, sha
+
+
+def invalidate_sources_cache() -> None:
+    _cache.update(text=None, sha=None, fetched_at=0.0)
+
+
+def load_sources(client: GitHubClient, github_token: str, *, force_refresh: bool = False) -> SourcesConfig:
+    """GitHub에서 로드+파싱까지 한 번에 수행하는 편의 함수."""
+    text, _sha = load_sources_document(client, github_token, force_refresh=force_refresh)
+    return parse_sources_document(text)
