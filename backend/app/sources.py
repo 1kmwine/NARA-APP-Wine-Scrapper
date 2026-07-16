@@ -1,32 +1,45 @@
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
-class Source:
-    id: str
-    name: str
-    domain: str
+class NewsSource:
+    id: str          # 소스 도메인을 그대로 사용 (예: "wine21.com") — 고유하고 안정적
+    name: str         # 매체명 (예: "와인21")
+    domain: str        # 도메인 매칭용
+    query: str = ""      # scraping-sources.md의 검색어 컬럼
 
 
-# js/app.js의 DEFAULT_SOURCES와 id/도메인을 반드시 동일하게 유지한다.
-SOURCES: list[Source] = [
-    Source("sommelier", "소믈리에 타임즈", "sommeliertimes.com"),
-    Source("wine21", "와인21", "wine21.com"),
-    Source("winein", "와인인", "winein.co.kr"),
-    Source("hankyung", "한국경제", "hankyung.com"),
-    Source("mk", "매일경제", "mk.co.kr"),
-    Source("chosun", "조선비즈", "biz.chosun.com"),
-    Source("decanter", "Decanter", "decanter.com"),
-    Source("ws", "Wine-Searcher", "wine-searcher.com"),
-    Source("js", "James Suckling", "jamessuckling.com"),
-    Source("rp", "Wine Advocate", "robertparker.com"),
-    Source("wspec", "Wine Spectator", "winespectator.com"),
-    Source("wmag", "Wine Enthusiast", "winemag.com"),
-]
-
-_SOURCES_BY_ID = {s.id: s for s in SOURCES}
+@dataclass(frozen=True)
+class YoutubeSource:
+    id: str          # 핸들을 id로 사용 (Channel ID는 비어있을 수 있어 안정적이지 않음)
+    name: str         # 채널명
+    handle: str        # youtube.com/@handle의 handle
+    channel_id: str = ""  # 비어있으면 collectors.py가 핸들 페이지에서 자동 추출
 
 
-def source_by_id(source_id: str) -> Source | None:
-    return _SOURCES_BY_ID.get(source_id)
+@dataclass(frozen=True)
+class WassapSource:
+    id: str          # f"{cafe_id}-{clubid}"
+    name: str          # 표시명 (기본 "와쌉")
+    cafe_id: str        # URL 경로 세그먼트 (예: "winerack24")
+    clubid: str          # 네이버 카페 clubid
+
+
+@dataclass(frozen=True)
+class InternationalSource:
+    id: str          # 소스명을 슬러그화 (예: "decanter", "wine-spectator")
+    name: str         # 소스명 (collectors.py의 파서 디스패치 키로도 쓰임 — 예: "Decanter")
+    url: str            # 목록 페이지 URL
+
+
+@dataclass(frozen=True)
+class SourcesConfig:
+    news: list[NewsSource] = field(default_factory=list)
+    youtube: list[YoutubeSource] = field(default_factory=list)
+    wassap: list[WassapSource] = field(default_factory=list)
+    international: list[InternationalSource] = field(default_factory=list)
+    age_youtube: int = 7  # scraping-sources.md 수집쿼리 블록의 최근_유튜브_일수
+
+    def total_count(self) -> int:
+        return len(self.news) + len(self.youtube) + len(self.wassap) + len(self.international)
