@@ -4,6 +4,8 @@ import re
 from dataclasses import dataclass
 from datetime import date, timedelta
 
+import httpx
+
 from .brand_match import make_excerpt
 
 
@@ -215,3 +217,100 @@ def collect_wassap(source, client, naver_cookie: str, max_items: int = 10) -> li
         )
         for art in articles
     ]
+
+
+# ─────────────────────────── 해외소스 (scrape_international 포팅) ───────────────────────────
+_PLACEHOLDER_RE = re.compile(r'[A-Z0-9_]+')
+
+
+def _is_placeholder(text: str) -> bool:
+    return bool(_PLACEHOLDER_RE.fullmatch(text.strip()))
+
+
+def default_translate_to_ko(text: str) -> str:
+    """영문 → 한국어 (무료 Google Translate 엔드포인트). 실패 시 원문 그대로 반환 — 지어내지 않는다."""
+    if not text:
+        return ""
+    try:
+        response = httpx.get(
+            "https://translate.googleapis.com/translate_a/single",
+            params={"client": "gtx", "sl": "en", "tl": "ko", "dt": "t", "q": text},
+            timeout=10.0,
+        )
+        response.raise_for_status()
+        data = response.json()
+        return "".join(segment[0] for segment in data[0])
+    except Exception:  # noqa: BLE001 — 번역 실패는 원문 유지로 방어
+        return text
+
+
+def _parse_decanter(client, translate) -> list[CollectedItem]:
+    response = client.get("https://www.decanter.com/wine-news/", timeout=15.0)
+    response.raise_for_status()
+    html = response.text
+    titles = re.findall(r'class="listing__title">\s*([^<]{8,150}?)\s*<', html)
+    synopses = re.findall(r'class="listing__text listing__text--synopsis">\s*([^<]{10,200}?)\s*<', html)
+    items = []
+    for title, synopsis in list(zip(titles, synopses))[:3]:
+        title, synopsis = title.strip(), synopsis.strip()
+        if _is_placeholder(title):
+            continue
+        items.append(_build_item(
+            title=translate(title), excerpt=translate(synopsis), thumbnail_url=None,
+            external_url="https://www.decanter.com/wine-news/", published_date=None, source_name="Decanter",
+        ))
+    return items
+
+
+def _parse_wine_spectator(client, translate) -> list[CollectedItem]:
+    response = client.get("https://www.winespectator.com/", timeout=15.0)
+    response.raise_for_status()
+    html = response.text
+    matches = re.findall(
+        r'href="(https://www\.winespectator\.com/articles/[a-z0-9-]+)"[^>]*>\s*([^<]{10,150})\s*<', html)
+    by_url: dict[str, list[str]] = {}
+    for url, text in matches:
+        by_url.setdefault(url, []).append(text.strip())
+    items = []
+    for url, texts in list(by_url.items())[:3]:
+        title = texts[0]
+        summary = texts[1] if len(texts) > 1 else ""
+        if _is_placeholder(title):
+            continue
+        items.append(_build_item(
+            title=translate(title), excerpt=translate(summary), thumbnail_url=None,
+            external_url=url, published_date=None, source_name="Wine Spectator",
+        ))
+    return items
+
+
+def _parse_oiv(client, translate) -> list[CollectedItem]:
+    response = client.get("https://www.oiv.int/news/press", timeout=15.0)
+    response.raise_for_status()
+    html = response.text
+    items_found = re.findall(r'href="(/press/[a-z0-9-]+)"[^>]*>\s*([^<]{10,150})\s*<', html)
+    items = []
+    for path, title in items_found[:3]:
+        items.append(_build_item(
+            title=translate(title.strip()), excerpt="", thumbnail_url=None,
+            external_url="https://www.oiv.int" + path, published_date=None, source_name="OIV",
+        ))
+    return items
+
+
+_INTERNATIONAL_PARSERS = {
+    "Decanter": _parse_decanter,
+    "Wine Spectator": _parse_wine_spectator,
+    "OIV": _parse_oiv,
+}
+
+
+def collect_international(source, client, translate=default_translate_to_ko) -> list[CollectedItem]:
+    """소스명으로 전용 파서를 찾아 실행한다. Decanter/Wine Spectator/OIV만 지원 —
+    scraping-sources.md에 새 해외소스가 ✅로 추가돼도 여기 전용 파서가 없으면
+    NotImplementedError로 실패 처리된다 (사이트마다 HTML 구조가 달라 범용 파서를
+    만들지 않음 — 새 사이트 추가 시 이 함수에 파서를 직접 구현해야 한다)."""
+    parser = _INTERNATIONAL_PARSERS.get(source.name)
+    if parser is None:
+        raise NotImplementedError(f"지원되지 않는 해외소스: {source.name}")
+    return parser(client, translate)

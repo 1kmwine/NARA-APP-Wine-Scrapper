@@ -173,3 +173,85 @@ def test_collect_wassap_limits_to_ten_items():
     items = collect_wassap(source, client, naver_cookie="fake-cookie")
 
     assert len(items) == 10
+
+
+from app.collectors import collect_international
+from app.sources import InternationalSource
+
+
+class FakeInternationalResponse:
+    def __init__(self, text):
+        self.text = text
+
+    def raise_for_status(self):
+        pass
+
+
+class FakeInternationalClient:
+    def __init__(self, pages: dict[str, str]):
+        self._pages = pages
+
+    def get(self, url, timeout=None):
+        return FakeInternationalResponse(self._pages[url])
+
+
+def _identity_translate(text: str) -> str:
+    return f"[번역]{text}"
+
+
+DECANTER_HTML = (
+    '<div class="listing__title">   와인 뉴스 제목 하나   </div>'
+    '<div class="listing__text listing__text--synopsis">   부제 요약   </div>'
+)
+
+
+def test_collect_international_decanter():
+    source = InternationalSource(id="decanter", name="Decanter", url="https://www.decanter.com/wine-news/")
+    client = FakeInternationalClient({"https://www.decanter.com/wine-news/": DECANTER_HTML})
+
+    items = collect_international(source, client, translate=_identity_translate)
+
+    assert len(items) == 1
+    assert items[0].title == "[번역]와인 뉴스 제목 하나"
+    assert items[0].excerpt == "[번역]부제 요약"
+    assert items[0].source_name == "Decanter"
+    assert items[0].external_url == "https://www.decanter.com/wine-news/"
+
+
+WINESPECTATOR_HTML = (
+    '<a href="https://www.winespectator.com/articles/some-article">부르고뉴 와인 기사 제목입니다</a>'
+    '<a href="https://www.winespectator.com/articles/some-article">기사 부제 요약입니다</a>'
+)
+
+
+def test_collect_international_wine_spectator():
+    source = InternationalSource(id="wine-spectator", name="Wine Spectator", url="https://www.winespectator.com/")
+    client = FakeInternationalClient({"https://www.winespectator.com/": WINESPECTATOR_HTML})
+
+    items = collect_international(source, client, translate=_identity_translate)
+
+    assert len(items) == 1
+    assert items[0].title == "[번역]부르고뉴 와인 기사 제목입니다"
+    assert items[0].external_url == "https://www.winespectator.com/articles/some-article"
+
+
+OIV_HTML = '<a href="/press/oiv-report-2026">OIV 연례 보고서 발표</a>'
+
+
+def test_collect_international_oiv():
+    source = InternationalSource(id="oiv", name="OIV", url="https://www.oiv.int/news/press")
+    client = FakeInternationalClient({"https://www.oiv.int/news/press": OIV_HTML})
+
+    items = collect_international(source, client, translate=_identity_translate)
+
+    assert len(items) == 1
+    assert items[0].title == "[번역]OIV 연례 보고서 발표"
+    assert items[0].external_url == "https://www.oiv.int/press/oiv-report-2026"
+
+
+def test_collect_international_unsupported_source_raises():
+    source = InternationalSource(id="jamessuckling", name="James Suckling", url="https://www.jamessuckling.com/")
+    client = FakeInternationalClient({})
+    import pytest
+    with pytest.raises(NotImplementedError):
+        collect_international(source, client, translate=_identity_translate)
