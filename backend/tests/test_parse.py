@@ -42,6 +42,15 @@ def test_parse_article_meta_truncates_long_title_to_500_chars():
     assert len(parsed.title) == 500
 
 
+def test_parse_article_meta_truncates_long_thumbnail_url_to_500_chars():
+    # thumbnail_path 컬럼이 VARCHAR(500) — CDN 서명 URL이 긴 사이트에서
+    # INSERT가 깨지지 않도록 title/excerpt와 동일하게 방어해야 한다.
+    long_url = "https://cdn.example.com/" + ("a" * 600)
+    html = f'<html><head><meta property="og:image" content="{long_url}"></head><body></body></html>'
+    parsed = parse_article_meta(html, fallback_title="제목")
+    assert len(parsed.thumbnail_url) == 500
+
+
 def test_extract_visible_text_strips_script_and_style():
     html = "<html><body><script>var x=1;</script><style>.a{}</style><p>보이는 텍스트</p></body></html>"
     assert extract_visible_text(html) == "보이는 텍스트"

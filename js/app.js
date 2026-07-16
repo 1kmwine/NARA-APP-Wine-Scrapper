@@ -51,16 +51,6 @@ function renderSources(){
 function updateCount(){ sourceCount.textContent=`${sources.filter(s=>s.on).length}개 선택`; }
 renderSources();
 
-document.getElementById('btnAddSource').addEventListener('click',()=>{
-  const name=document.getElementById('newSourceName').value.trim();
-  const url=document.getElementById('newSourceUrl').value.trim();
-  if(!name) return;
-  sources.push({id:'src_'+Date.now(),name,url:url||'',on:true});
-  document.getElementById('newSourceName').value='';
-  document.getElementById('newSourceUrl').value='';
-  saveSources(); renderSources();
-});
-
 /* ========== 스크래퍼 (실제 API 연동) ========== */
 const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
   ? 'http://localhost:8001'

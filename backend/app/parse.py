@@ -43,7 +43,10 @@ def parse_article_meta(html: str, fallback_title: str) -> ParsedArticle:
     og_description = meta_content("og:description")
     excerpt = make_excerpt(og_description or extract_visible_text(html))
 
-    thumbnail_url = meta_content("og:image")
+    # thumbnail_path 컬럼이 VARCHAR(500) — title/excerpt와 같은 이유로 CDN
+    # 서명 URL이 긴 사이트에서 INSERT가 깨지는 걸 방지하기 위해 동일하게 자른다.
+    og_image = meta_content("og:image")
+    thumbnail_url = og_image[:500] if og_image else None
 
     published_raw = meta_content("article:published_time") or meta_content("og:updated_time")
     published_candidate = published_raw[:10] if published_raw else None
