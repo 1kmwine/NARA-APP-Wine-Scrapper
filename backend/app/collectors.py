@@ -134,3 +134,84 @@ def collect_youtube(source, client, max_age_days: int = 7) -> list[CollectedItem
             source_name=f"YouTube: {source.name}",
         ))
     return items
+
+
+# ─────────────────────────── 와쌉 카페 (scrape_wassap 포팅) ───────────────────────────
+_TAG_RE = re.compile(r'<[^>]+>')
+_WASSAP_LIST_RE = re.compile(
+    r'href="/ArticleRead\.nhn\?clubid=\d+&amp;articleid=(\d+)"'
+    r'[^>]*title="답(\d+)/댓(\d+)"[^>]*>\s*<div class="ellipsis tcol-c">([^<]+)</div>'
+)
+_WASSAP_BODY_RE = re.compile(r'sds-comps-text-type-body1[^>]*>(.*?)</span>', re.DOTALL)
+
+
+def _strip_tags(value: str) -> str:
+    return _TAG_RE.sub("", value).strip()
+
+
+def collect_wassap(source, client, naver_cookie: str, max_items: int = 10) -> list[CollectedItem]:
+    """카페 메인 리스트에서 반응수 상위 max_items건 + 검색으로 snippet 보강."""
+    cafe_headers = {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Referer": "https://cafe.naver.com",
+        "Cookie": naver_cookie,
+    }
+    list_url = (
+        f"https://cafe.naver.com/{source.cafe_id}"
+        f"?iframe_url=/ArticleList.nhn%3Fsearch.clubid%3D{source.clubid}%26search.boardtype%3DL"
+    )
+    response = client.get(list_url, headers=cafe_headers, timeout=15.0)
+    response.raise_for_status()
+    list_html = response.content.decode("euc-kr", errors="ignore")
+
+    articles: list[dict] = []
+    seen: set[str] = set()
+    for art_id, reply_count, comment_count, title in _WASSAP_LIST_RE.findall(list_html):
+        if art_id in seen:
+            continue
+        seen.add(art_id)
+        title = title.strip()
+        if "[공지]" in title:
+            continue
+        articles.append({
+            "id": art_id, "title": title,
+            "comments": int(comment_count) + int(reply_count),
+            "url": f"https://cafe.naver.com/{source.cafe_id}/{art_id}",
+        })
+
+    articles.sort(key=lambda a: (-a["comments"], -int(a["id"])))
+    articles = articles[:max_items]
+
+    search_headers = {**cafe_headers, "Referer": "https://www.naver.com"}
+    for art in articles:
+        snippet_pattern = re.compile(
+            rf'href="[^"]*{re.escape(source.cafe_id)}/{art["id"]}[^"]*"[^>]*'
+            rf'data-heatmap-target="\.link"[^>]*>(.*?)</a>',
+            re.DOTALL,
+        )
+        art["snippet"] = ""
+        for keyword in (f"와쌉 {art['title'][:20]}", art["title"][:15]):
+            try:
+                search_response = client.get(
+                    "https://search.naver.com/search.naver",
+                    params={"where": "cafearticle", "query": keyword, "sort": "1"},
+                    headers=search_headers, timeout=15.0,
+                )
+                search_response.raise_for_status()
+                html = search_response.text
+                link_match = snippet_pattern.search(html)
+                if link_match:
+                    body_match = _WASSAP_BODY_RE.search(html, link_match.end(), link_match.end() + 1500)
+                    if body_match:
+                        art["snippet"] = _strip_tags(body_match.group(1))[:120]
+                        break
+            except Exception:  # noqa: BLE001 — snippet 보강 실패는 무시하고 제목만으로 계속
+                continue
+
+    return [
+        _build_item(
+            title=art["title"], excerpt=art["snippet"], thumbnail_url=None,
+            external_url=art["url"], published_date=None, source_name="와쌉",
+        )
+        for art in articles
+    ]

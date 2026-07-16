@@ -96,3 +96,80 @@ def test_collected_item_title_truncated_to_500_chars():
     items = collect_youtube(source, client, max_age_days=7)
 
     assert len(items[0].title) == 500
+
+
+from app.collectors import collect_wassap
+from app.sources import WassapSource
+
+
+class FakeWassapResponse:
+    def __init__(self, content: bytes, text: str = ""):
+        self.content = content
+        self.text = text
+
+    def raise_for_status(self):
+        pass
+
+
+class FakeWassapClient:
+    def __init__(self, list_html: str, search_html_by_keyword: dict[str, str] | None = None):
+        self._list_html = list_html
+        self._search_html = search_html_by_keyword or {}
+
+    def get(self, url, *, params=None, headers=None, timeout=None):
+        if "cafe.naver.com/winerack24" in url and params is None:
+            return FakeWassapResponse(self._list_html.encode("euc-kr"))
+        if "search.naver.com" in url:
+            keyword = params["query"]
+            return FakeWassapResponse(b"", text=self._search_html.get(keyword, ""))
+        raise AssertionError(f"예상치 못한 요청: {url} {params}")
+
+
+LIST_HTML = (
+    '<a href="/ArticleRead.nhn?clubid=10050146&amp;articleid=365033" '
+    'title="답0/댓5"><div class="ellipsis tcol-c">몬테스 알파 재입고 문의</div></a>'
+    '<a href="/ArticleRead.nhn?clubid=10050146&amp;articleid=365034" '
+    'title="답0/댓2"><div class="ellipsis tcol-c">[공지] 카페 이용 규칙</div></a>'
+)
+
+
+def test_collect_wassap_parses_list_and_excludes_notices():
+    source = WassapSource(id="winerack24-10050146", name="와쌉", cafe_id="winerack24", clubid="10050146")
+    client = FakeWassapClient(LIST_HTML)
+
+    items = collect_wassap(source, client, naver_cookie="fake-cookie")
+
+    assert len(items) == 1
+    assert items[0].title == "몬테스 알파 재입고 문의"
+    assert items[0].external_url == "https://cafe.naver.com/winerack24/365033"
+    assert items[0].source_name == "와쌉"
+
+
+def test_collect_wassap_sorts_by_comment_count_desc():
+    html = (
+        '<a href="/ArticleRead.nhn?clubid=10050146&amp;articleid=1" title="답0/댓1">'
+        '<div class="ellipsis tcol-c">댓글적음</div></a>'
+        '<a href="/ArticleRead.nhn?clubid=10050146&amp;articleid=2" title="답0/댓20">'
+        '<div class="ellipsis tcol-c">댓글많음</div></a>'
+    )
+    source = WassapSource(id="winerack24-10050146", name="와쌉", cafe_id="winerack24", clubid="10050146")
+    client = FakeWassapClient(html)
+
+    items = collect_wassap(source, client, naver_cookie="fake-cookie")
+
+    assert items[0].title == "댓글많음"
+    assert items[1].title == "댓글적음"
+
+
+def test_collect_wassap_limits_to_ten_items():
+    rows = "".join(
+        f'<a href="/ArticleRead.nhn?clubid=10050146&amp;articleid={i}" title="답0/댓{i}">'
+        f'<div class="ellipsis tcol-c">글{i}</div></a>'
+        for i in range(15)
+    )
+    source = WassapSource(id="winerack24-10050146", name="와쌉", cafe_id="winerack24", clubid="10050146")
+    client = FakeWassapClient(rows)
+
+    items = collect_wassap(source, client, naver_cookie="fake-cookie")
+
+    assert len(items) == 10
