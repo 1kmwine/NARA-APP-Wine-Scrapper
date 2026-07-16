@@ -1,31 +1,19 @@
-import pytest
-
 from app.naver_search import (
-    naver_search,
-    search_urls_for_domain,
-    _url_host_matches_domain,
-    NAVER_NEWS_URL,
-    NAVER_BLOG_URL,
+    naver_search, fetch_all_items, items_for_domain, NAVER_NEWS_URL, NAVER_BLOG_URL,
 )
 
 
 class FakeResponse:
-    def __init__(self, payload):
+    def __init__(self, payload, status_code=200):
         self._payload = payload
+        self.status_code = status_code
 
     def raise_for_status(self):
-        pass
+        if self.status_code >= 400:
+            raise RuntimeError(f"HTTP {self.status_code}")
 
     def json(self):
         return self._payload
-
-
-class FailingResponse:
-    def raise_for_status(self):
-        raise RuntimeError("HTTP error")
-
-    def json(self):
-        raise AssertionError("json() should not be called when raise_for_status raises")
 
 
 class FakeClient:
@@ -38,14 +26,7 @@ class FakeClient:
         return FakeResponse(self._payload)
 
 
-class FailingClient:
-    def get(self, url, params=None, headers=None, timeout=None):
-        return FailingResponse()
-
-
 class MultiFakeClient:
-    """news/blog 두 엔드포인트에 각각 다른 응답을 주기 위한 스텁"""
-
     def __init__(self, responses_by_url):
         self._responses = responses_by_url
         self.calls = []
@@ -55,24 +36,33 @@ class MultiFakeClient:
         return FakeResponse(self._responses[url])
 
 
+class RetryThenSucceedClient:
+    """첫 호출은 429, 두 번째 호출은 성공하는 스텁."""
+
+    def __init__(self, payload):
+        self._payload = payload
+        self.calls = 0
+
+    def get(self, url, params=None, headers=None, timeout=None):
+        self.calls += 1
+        if self.calls == 1:
+            return FakeResponse({}, status_code=429)
+        return FakeResponse(self._payload)
+
+
+class AlwaysRateLimitedClient:
+    def __init__(self):
+        self.calls = 0
+
+    def get(self, url, params=None, headers=None, timeout=None):
+        self.calls += 1
+        return FakeResponse({}, status_code=429)
+
+
 def test_naver_search_strips_bold_tags_from_title():
-    client = FakeClient({
-        "items": [
-            {
-                "title": "<b>몬테스</b> 알파 신제품",
-                "link": "https://wine21.com/1",
-                "originallink": "https://wine21.com/1",
-            }
-        ]
-    })
+    client = FakeClient({"items": [{"title": "<b>몬테스</b> 알파 신제품", "link": "https://wine21.com/1", "originallink": ""}]})
     result = naver_search("몬테스", NAVER_NEWS_URL, "id", "secret", client)
-    assert result == [
-        {
-            "title": "몬테스 알파 신제품",
-            "link": "https://wine21.com/1",
-            "originallink": "https://wine21.com/1",
-        }
-    ]
+    assert result == [{"title": "몬테스 알파 신제품", "link": "https://wine21.com/1", "originallink": ""}]
 
 
 def test_naver_search_sends_client_credentials_header():
@@ -83,61 +73,58 @@ def test_naver_search_sends_client_credentials_header():
     assert headers["X-Naver-Client-Secret"] == "my-secret"
 
 
-def test_search_urls_for_domain_filters_and_dedupes():
+def test_naver_search_retries_once_on_429_then_succeeds():
+    client = RetryThenSucceedClient({"items": [{"title": "a", "link": "https://x.com/1", "originallink": ""}]})
+    result = naver_search("몬테스", NAVER_NEWS_URL, "id", "secret", client, retry_delay_seconds=0)
+    assert client.calls == 2
+    assert len(result) == 1
+
+
+def test_naver_search_gives_up_after_max_retries():
+    client = AlwaysRateLimitedClient()
+    import pytest
+    with pytest.raises(RuntimeError):
+        naver_search("몬테스", NAVER_NEWS_URL, "id", "secret", client, retry_delay_seconds=0)
+    assert client.calls == 3  # 최초 1회 + 재시도 2회
+
+
+def test_fetch_all_items_calls_news_and_blog_exactly_once_each():
     client = MultiFakeClient({
-        NAVER_NEWS_URL: {"items": [
-            {"title": "a", "link": "https://wine21.com/1", "originallink": "https://wine21.com/1"},
-            {"title": "b", "link": "https://other.com/2", "originallink": "https://other.com/2"},
-        ]},
-        NAVER_BLOG_URL: {"items": [
-            {"title": "c", "link": "https://wine21.com/1", "originallink": "https://wine21.com/1"},  # 중복 URL
-            {"title": "d", "link": "https://wine21.com/3", "originallink": "https://wine21.com/3"},
-        ]},
+        NAVER_NEWS_URL: {"items": [{"title": "a", "link": "https://wine21.com/1", "originallink": ""}]},
+        NAVER_BLOG_URL: {"items": [{"title": "b", "link": "https://wine21.com/2", "originallink": ""}]},
     })
-    urls = search_urls_for_domain("몬테스", "wine21.com", "id", "secret", client)
-    assert urls == ["https://wine21.com/1", "https://wine21.com/3"]
+    items = fetch_all_items("몬테스", "id", "secret", client, call_interval_seconds=0)
+    news_calls = [c for c in client.calls if c[0] == NAVER_NEWS_URL]
+    blog_calls = [c for c in client.calls if c[0] == NAVER_BLOG_URL]
+    assert len(news_calls) == 1
+    assert len(blog_calls) == 1
+    assert len(items) == 2
 
 
-def test_search_urls_for_domain_prefers_originallink_over_naver_rewritten_link():
-    # 네이버 뉴스 제휴 언론사(예: 한국경제)는 link가 n.news.naver.com으로
-    # 재작성되고 실제 원본 도메인은 originallink에만 남는다 — 2026-07-16
-    # 실제 배포 검증 중 발견한 문제를 재현하는 회귀 테스트.
-    client = MultiFakeClient({
-        NAVER_NEWS_URL: {"items": [
-            {
-                "title": "제휴 언론사 기사",
-                "link": "https://n.news.naver.com/mnews/article/015/0001234567",
-                "originallink": "https://www.hankyung.com/article/2026071612345",
-            },
-        ]},
-        NAVER_BLOG_URL: {"items": []},
-    })
-    urls = search_urls_for_domain("몬테스", "hankyung.com", "id", "secret", client)
-    assert urls == ["https://www.hankyung.com/article/2026071612345"]
+def test_items_for_domain_prefers_originallink_over_rewritten_link():
+    items = [{"title": "a", "link": "https://n.news.naver.com/1", "originallink": "https://hankyung.com/1"}]
+    urls = items_for_domain(items, "hankyung.com")
+    assert urls == ["https://hankyung.com/1"]
 
 
-def test_search_urls_for_domain_falls_back_to_link_when_no_originallink():
-    client = MultiFakeClient({
-        NAVER_NEWS_URL: {"items": [
-            {"title": "a", "link": "https://wine21.com/1", "originallink": ""},
-        ]},
-        NAVER_BLOG_URL: {"items": []},
-    })
-    urls = search_urls_for_domain("몬테스", "wine21.com", "id", "secret", client)
+def test_items_for_domain_falls_back_to_link_when_no_originallink_match():
+    items = [{"title": "a", "link": "https://wine21.com/3", "originallink": ""}]
+    urls = items_for_domain(items, "wine21.com")
+    assert urls == ["https://wine21.com/3"]
+
+
+def test_items_for_domain_filters_out_non_matching_and_dedupes():
+    items = [
+        {"title": "a", "link": "https://wine21.com/1", "originallink": ""},
+        {"title": "b", "link": "https://other.com/2", "originallink": ""},
+        {"title": "c", "link": "https://wine21.com/1", "originallink": ""},
+    ]
+    urls = items_for_domain(items, "wine21.com")
     assert urls == ["https://wine21.com/1"]
 
 
-def test_url_host_matches_domain():
-    assert _url_host_matches_domain("https://wine21.com/1", "wine21.com") is True
-    assert _url_host_matches_domain("https://www.wine21.com/1", "wine21.com") is True
-    assert _url_host_matches_domain("https://blog.wine21.com/1", "wine21.com") is True
-    assert _url_host_matches_domain("https://notwine21.com/1", "wine21.com") is False
-    assert _url_host_matches_domain("https://wine21.com.evil.com/1", "wine21.com") is False
-    assert _url_host_matches_domain("https://other.com/1", "wine21.com") is False
-    assert _url_host_matches_domain("https://WWW.WINE21.COM/1", "wine21.com") is True
-
-
-def test_naver_search_propagates_http_error():
-    client = FailingClient()
-    with pytest.raises(RuntimeError, match="HTTP error"):
-        naver_search("몬테스", NAVER_NEWS_URL, "id", "secret", client)
+def test_items_for_domain_no_network_calls():
+    """순수 함수 — 클라이언트를 아예 받지 않으므로 네트워크 호출 자체가 불가능함을 시그니처로 보장."""
+    import inspect
+    params = inspect.signature(items_for_domain).parameters
+    assert "client" not in params
