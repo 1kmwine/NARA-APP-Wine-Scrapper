@@ -166,3 +166,105 @@ def load_sources(client: GitHubClient, github_token: str, *, force_refresh: bool
     """GitHub에서 로드+파싱까지 한 번에 수행하는 편의 함수."""
     text, _sha = load_sources_document(client, github_token, force_refresh=force_refresh)
     return parse_sources_document(text)
+
+
+class DuplicateSourceError(Exception):
+    pass
+
+
+class SourcesWriteConflictError(Exception):
+    pass
+
+
+def _insert_table_row_after_section(text: str, section_header_prefix: str, new_row: str) -> str:
+    start = text.find(section_header_prefix)
+    if start == -1:
+        raise ValueError(f"{section_header_prefix} 섹션을 찾을 수 없습니다")
+    end = text.find("\n## ", start + len(section_header_prefix))
+    section_end = end if end != -1 else len(text)
+    section = text[start:section_end]
+    lines = section.splitlines(keepends=True)
+    last_row_idx = None
+    for i, line in enumerate(lines):
+        if line.strip().startswith("|"):
+            last_row_idx = i
+    if last_row_idx is None:
+        raise ValueError(f"{section_header_prefix} 섹션에서 표를 찾을 수 없습니다")
+    lines.insert(last_row_idx + 1, new_row if new_row.endswith("\n") else new_row + "\n")
+    return text[:start] + "".join(lines) + text[section_end:]
+
+
+def _insert_bullet_after_section(text: str, section_header_prefix: str, new_bullet: str) -> str:
+    start = text.find(section_header_prefix)
+    if start == -1:
+        raise ValueError(f"{section_header_prefix} 섹션을 찾을 수 없습니다")
+    end = text.find("\n### ", start + len(section_header_prefix))
+    end2 = text.find("\n## ", start + len(section_header_prefix))
+    candidates = [e for e in (end, end2) if e != -1]
+    section_end = min(candidates) if candidates else len(text)
+    section = text[start:section_end]
+    lines = section.splitlines(keepends=True)
+    last_bullet_idx = None
+    for i, line in enumerate(lines):
+        if line.strip().startswith("-"):
+            last_bullet_idx = i
+    if last_bullet_idx is None:
+        raise ValueError(f"{section_header_prefix} 섹션에서 항목 목록을 찾을 수 없습니다")
+    lines.insert(last_bullet_idx + 1, new_bullet if new_bullet.endswith("\n") else new_bullet + "\n")
+    return text[:start] + "".join(lines) + text[section_end:]
+
+
+def _commit(client: GitHubClient, github_token: str, new_text: str, sha: str, message: str) -> None:
+    payload = {
+        "message": message,
+        "content": base64.b64encode(new_text.encode("utf-8")).decode("ascii"),
+        "sha": sha,
+    }
+    response = client.put(_sources_url(), json=payload, headers=_auth_headers(github_token), timeout=20.0)
+    if response.status_code == 409:
+        raise SourcesWriteConflictError("다른 프로세스가 먼저 문서를 수정했습니다. 다시 시도해주세요.")
+    response.raise_for_status()
+    invalidate_sources_cache()
+
+
+def add_news_source(client: GitHubClient, github_token: str, *, press: str, category: str, query: str, url: str) -> None:
+    text, sha = load_sources_document(client, github_token, force_refresh=True)
+    domain = _domain_from_url(url)
+    existing = parse_sources_document(text)
+    if any(s.domain == domain for s in existing.news):
+        raise DuplicateSourceError(f"이미 등록된 URL입니다: {url}")
+    new_row = f"| {press} | {category} | {query} | {url} |"
+    new_text = _insert_table_row_after_section(text, "## 국내 뉴스·매거진", new_row)
+    _commit(client, github_token, new_text, sha, f"docs: 뉴스 소스 추가 - {press}")
+
+
+def add_youtube_source(client: GitHubClient, github_token: str, *, name: str, url: str, channel_id: str = "") -> None:
+    text, sha = load_sources_document(client, github_token, force_refresh=True)
+    existing = parse_sources_document(text)
+    handle_match = re.search(r'youtube\.com/@([\w.-]+)', url)
+    handle = handle_match.group(1) if handle_match else ""
+    if any(s.handle == handle for s in existing.youtube):
+        raise DuplicateSourceError(f"이미 등록된 채널입니다: {url}")
+    new_row = f"| {name} | {url} | {channel_id} |"
+    new_text = _insert_table_row_after_section(text, "## 유튜브", new_row)
+    _commit(client, github_token, new_text, sha, f"docs: 유튜브 소스 추가 - {name}")
+
+
+def add_wassap_source(client: GitHubClient, github_token: str, *, url: str, clubid: str) -> None:
+    text, sha = load_sources_document(client, github_token, force_refresh=True)
+    existing = parse_sources_document(text)
+    if any(s.clubid == clubid for s in existing.wassap):
+        raise DuplicateSourceError(f"이미 등록된 카페입니다: {url}")
+    new_bullet = f"- {url} (clubid: {clubid})"
+    new_text = _insert_bullet_after_section(text, "### 와쌉", new_bullet)
+    _commit(client, github_token, new_text, sha, f"docs: 와쌉 소스 추가 - {url}")
+
+
+def add_international_source(client: GitHubClient, github_token: str, *, name: str, url: str, note: str = "") -> None:
+    text, sha = load_sources_document(client, github_token, force_refresh=True)
+    existing = parse_sources_document(text)
+    if any(s.name == name for s in existing.international):
+        raise DuplicateSourceError(f"이미 등록된 소스입니다: {name}")
+    new_row = f"| {name} | ✅ 수집 중 | {url} | {note} |"
+    new_text = _insert_table_row_after_section(text, "## 해외·통계·이벤트", new_row)
+    _commit(client, github_token, new_text, sha, f"docs: 해외소스 추가 - {name}")

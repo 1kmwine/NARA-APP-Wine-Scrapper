@@ -162,3 +162,127 @@ def test_invalidate_sources_cache_forces_refetch():
     invalidate_sources_cache()
     load_sources_document(client, "token")
     assert client.calls == 2
+
+
+from app.source_config import (
+    add_news_source, add_youtube_source, add_wassap_source, add_international_source,
+    DuplicateSourceError, SourcesWriteConflictError,
+)
+
+WRITE_FIXTURE = """# 스크래핑 소스 목록
+
+## 국내 뉴스·매거진 **[브리핑]**
+
+| 매체 | 분류 | 검색어 | URL |
+|------|------|--------|-----|
+| 와인21 | 매거진 | 와인21 | https://www.wine21.com/11_news/news_list.html |
+
+## 뉴스룸 **[브리핑]**
+
+| 매체 | URL | 방식 |
+|------|-----|------|
+| 나라셀라 칼럼 | https://www.naracellar.com/bbs/board.php?bo_table=column | board |
+
+## 유튜브 **[브리핑]**
+
+| 채널명 | URL | Channel ID |
+|--------|-----|-----------|
+| 비밀이야 | https://www.youtube.com/@bimirya | UCaKQ7_GT0k8u_sL0nE2tgkA |
+
+## 커뮤니티
+
+### 와쌉 (네이버 카페) **[브리핑]**
+
+- https://cafe.naver.com/winerack24 (clubid: 10050146)
+
+## 해외·통계·이벤트 소스 **[브리핑]**
+
+| 소스 | 상태 | URL | 비고 |
+|------|------|-----|------|
+| Decanter | ✅ 수집 중 | https://www.decanter.com/wine-news/ | 비고1 |
+"""
+
+
+class RecordingGitHubClient(FakeGitHubClient):
+    def __init__(self, text, sha="sha1", put_status=200):
+        super().__init__(text, sha)
+        self.put_calls = []
+        self._put_status = put_status
+
+    def put(self, url, *, json=None, headers=None, timeout=None):
+        self.put_calls.append((url, json, headers))
+        return FakeGitHubResponse({"content": {}}, status_code=self._put_status)
+
+
+def test_add_news_source_inserts_row_and_commits():
+    client = RecordingGitHubClient(WRITE_FIXTURE)
+    invalidate_sources_cache()
+    add_news_source(client, "token", press="한국경제", category="뉴스", query="한국경제 와인", url="https://www.hankyung.com/")
+    assert len(client.put_calls) == 1
+    _url, payload, _headers = client.put_calls[0]
+    committed_text = base64.b64decode(payload["content"]).decode("utf-8")
+    assert "한국경제" in committed_text
+    assert payload["sha"] == "sha1"
+
+
+def test_add_news_source_rejects_duplicate_domain():
+    client = RecordingGitHubClient(WRITE_FIXTURE)
+    invalidate_sources_cache()
+    import pytest
+    with pytest.raises(DuplicateSourceError):
+        add_news_source(client, "token", press="와인21 재등록", category="매거진", query="와인21", url="https://www.wine21.com/other")
+    assert client.put_calls == []
+
+
+def test_add_youtube_source_inserts_row():
+    client = RecordingGitHubClient(WRITE_FIXTURE)
+    invalidate_sources_cache()
+    add_youtube_source(client, "token", name="양갱", url="https://www.youtube.com/@yanggangtv", channel_id="UCohsv4KNeRzmj7E6ipE8COA")
+    _url, payload, _headers = client.put_calls[0]
+    committed_text = base64.b64decode(payload["content"]).decode("utf-8")
+    assert "yanggangtv" in committed_text
+
+
+def test_add_wassap_source_inserts_bullet():
+    client = RecordingGitHubClient(WRITE_FIXTURE)
+    invalidate_sources_cache()
+    add_wassap_source(client, "token", url="https://cafe.naver.com/anothercafe", clubid="99999")
+    _url, payload, _headers = client.put_calls[0]
+    committed_text = base64.b64decode(payload["content"]).decode("utf-8")
+    assert "anothercafe" in committed_text
+    assert "99999" in committed_text
+
+
+def test_add_wassap_source_rejects_duplicate_url():
+    client = RecordingGitHubClient(WRITE_FIXTURE)
+    invalidate_sources_cache()
+    import pytest
+    with pytest.raises(DuplicateSourceError):
+        add_wassap_source(client, "token", url="https://cafe.naver.com/winerack24", clubid="10050146")
+
+
+def test_add_international_source_inserts_row():
+    client = RecordingGitHubClient(WRITE_FIXTURE)
+    invalidate_sources_cache()
+    add_international_source(client, "token", name="OIV", url="https://www.oiv.int/news/press", note="비고")
+    _url, payload, _headers = client.put_calls[0]
+    committed_text = base64.b64decode(payload["content"]).decode("utf-8")
+    assert "OIV" in committed_text
+    assert "✅" in committed_text
+
+
+def test_add_source_raises_conflict_on_409():
+    client = RecordingGitHubClient(WRITE_FIXTURE, put_status=409)
+    invalidate_sources_cache()
+    import pytest
+    with pytest.raises(SourcesWriteConflictError):
+        add_news_source(client, "token", press="새매체", category="뉴스", query="새매체 와인", url="https://newmedia.example.com/")
+
+
+def test_add_source_invalidates_cache_after_write():
+    client = RecordingGitHubClient(WRITE_FIXTURE)
+    invalidate_sources_cache()
+    load_sources_document(client, "token")
+    add_news_source(client, "token", press="새매체", category="뉴스", query="새매체 와인", url="https://newmedia.example.com/")
+    from app.source_config import _cache
+    assert _cache["text"] is None
