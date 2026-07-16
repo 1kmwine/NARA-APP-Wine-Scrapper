@@ -1,0 +1,73 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "Where are the world&rsquo;s best bar and restaurant wine lists? Meet the winners for 2026",
+      "title_ko": "세계 최고의 바와 레스토랑 와인 리스트는 어디에 있나요? 2026년 우승자를 만나보세요",
+      "summary_ko": "이탈리아 거주 와인 작가, 교육자, 대회 심사위원",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "The red wines that made it to the Top 50 at DWWA 2026",
+      "title_ko": "DWWA 2026에서 상위 50위 안에 든 레드 와인",
+      "summary_ko": "멋진 여름 구매 및 기타 등등...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "DWWA judge profile: Richard Baudains",
+      "title_ko": "DWWA 심사위원 프로필: Richard Baudains",
+      "summary_ko": "최고의 클래식부터 숨겨진 보석까지...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Beaulieu Vineyard Reveals a Beautiful Place Once Again",
+      "title_ko": "Beaulieu Vineyard가 다시 한 번 아름다운 곳을 공개합니다.",
+      "summary_ko": "유서 깊은 나파 밸리 와이너리는 수백만 달러 규모의 개조 공사를 완료하여 유서 깊은 건물에 역동적인 환대 센터를 만들었습니다.",
+      "url": "https://www.winespectator.com/articles/beaulieu-vineyard-reopens-after-extensive-renovation",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "What Secrets Lie Inside The 125-Year-Old Napa Winery?",
+      "title_ko": "125년 된 나파 와이너리에는 어떤 비밀이 숨겨져 있을까요?",
+      "summary_ko": "",
+      "url": "https://www.winespectator.com/articles/secrets-of-beaulieu-vineyards-old-stone-winery",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "47th World Congress of Vine and Wine useful information",
+      "title_ko": "제47차 세계포도나무대회 유용한 정보",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/47th-world-congress-vine-and-wine-useful-information",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "Viticulture Head of Unit job offer",
+      "title_ko": "포도재배 부서장 채용 제안",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/viticulture-head-unit-job-offer",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "title_ko": "OIV, 디종에서 창립 대사의 날 개최",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-hosts-inaugural-ambassadors-day-dijon",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
