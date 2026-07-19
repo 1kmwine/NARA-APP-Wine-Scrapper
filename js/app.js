@@ -503,15 +503,18 @@ function fmtDateKey(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padS
 function createDayBriefing(date, isToday, isFuture){
   if(isFuture) return {isToday:false, isFuture:true, groups:{news:[],youtube:[],wassap:[],international:[]}};
   const rand=n=>Math.floor(Math.random()*(n+1));
-  const mk=(sourceName, brand)=>({
+  // renderResultGroups()가 item.source_category로 그룹핑하므로, 데모 아이템에도
+  // 실제 API 응답과 동일하게 이 필드를 채워야 한다(빠뜨리면 카드가 전혀 안 보임).
+  const mk=(sourceName, brand, category)=>({
     title:`[데모] ${sourceName} 관련 소식`, excerpt:'실 데이터 연동은 범위 밖 — 데모용 텍스트입니다.',
     source_name:sourceName, published_date:fmtDateKey(date), external_url:'#', matched_brands:[brand],
+    source_category:category,
   });
   const groups={
-    news: isToday ? [mk('와인나라','오퍼스원'), mk('디캔터코리아','샤토 마고')] : (rand(1)?[mk('와인나라','뒤가피')]:[]),
-    youtube: isToday ? [mk('YouTube: 와인클래스 준','케이머스')] : [],
-    wassap: isToday ? [mk('와쌉','오퍼스원')] : (rand(1)?[mk('와쌉','뒤가피')]:[]),
-    international: isToday ? [mk('Wine Spectator','샤토 마고')] : [],
+    news: isToday ? [mk('와인나라','오퍼스원','news'), mk('디캔터코리아','샤토 마고','news')] : (rand(1)?[mk('와인나라','뒤가피','news')]:[]),
+    youtube: isToday ? [mk('YouTube: 와인클래스 준','케이머스','youtube')] : [],
+    wassap: isToday ? [mk('와쌉','오퍼스원','wassap')] : (rand(1)?[mk('와쌉','뒤가피','wassap')]:[]),
+    international: isToday ? [mk('Wine Spectator','샤토 마고','international')] : [],
   };
   return {isToday, isFuture:false, groups};
 }
