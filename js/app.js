@@ -482,3 +482,141 @@ function showToast(msg){
 /* ========== 초기화 ========== */
 renderRecentQueries();
 loadSourceCounts();
+
+
+/* ============================================================
+   데일리 브리핑 — 주간 달력 (데모 데이터, 실 연동은 범위 밖)
+   ============================================================ */
+const DAY_LABELS=['일','월','화','수','목','금','토'];
+
+function generateDemoData(){
+  const data={};
+  const base=new Date();
+  for(let d=-14; d<=14; d++){
+    const dt=new Date(base); dt.setDate(base.getDate()+d);
+    const key=fmtDateKey(dt);
+    data[key]=createDayBriefing(dt, d===0, d>0);
+  }
+  return data;
+}
+function fmtDateKey(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function createDayBriefing(date, isToday, isFuture){
+  if(isFuture) return {isToday:false, isFuture:true, groups:{news:[],youtube:[],wassap:[],international:[]}};
+  const rand=n=>Math.floor(Math.random()*(n+1));
+  const mk=(sourceName, brand)=>({
+    title:`[데모] ${sourceName} 관련 소식`, excerpt:'실 데이터 연동은 범위 밖 — 데모용 텍스트입니다.',
+    source_name:sourceName, published_date:fmtDateKey(date), external_url:'#', matched_brands:[brand],
+  });
+  const groups={
+    news: isToday ? [mk('와인나라','오퍼스원'), mk('디캔터코리아','샤토 마고')] : (rand(1)?[mk('와인나라','뒤가피')]:[]),
+    youtube: isToday ? [mk('YouTube: 와인클래스 준','케이머스')] : [],
+    wassap: isToday ? [mk('와쌉','오퍼스원')] : (rand(1)?[mk('와쌉','뒤가피')]:[]),
+    international: isToday ? [mk('Wine Spectator','샤토 마고')] : [],
+  };
+  return {isToday, isFuture:false, groups};
+}
+
+const briefingData=generateDemoData();
+let currentWeekStart=getWeekStart(new Date());
+let selectedDateKey=fmtDateKey(new Date());
+
+function getWeekStart(d){
+  const dt=new Date(d);
+  const day=dt.getDay();
+  const diff=day===0?-6:1-day;
+  dt.setDate(dt.getDate()+diff);
+  dt.setHours(0,0,0,0);
+  return dt;
+}
+function addDays(d,n){ const dt=new Date(d); dt.setDate(dt.getDate()+n); return dt; }
+function fmtMonthDay(d){ return `${d.getMonth()+1}/${d.getDate()}`; }
+
+function renderWeekNav(){
+  const start=currentWeekStart;
+  const end=addDays(start,6);
+  const year=start.getFullYear();
+  const month=start.getMonth()+1;
+  const weekNum=Math.ceil(start.getDate()/7);
+  document.getElementById('weekLabel').textContent=`${year}년 ${month}월 ${weekNum}주차`;
+  document.getElementById('weekRange').textContent=`${fmtMonthDay(start)} ~ ${fmtMonthDay(end)}`;
+}
+
+function countOf(data){
+  return Object.values(data.groups).reduce((a,arr)=>a+arr.length,0);
+}
+
+function renderCalendar(){
+  const grid=document.getElementById('weekCalendar');
+  grid.innerHTML='';
+  for(let i=0;i<7;i++){
+    const cellDate=addDays(currentWeekStart,i);
+    const key=fmtDateKey(cellDate);
+    const data=briefingData[key]||{isToday:false,isFuture:false,groups:{news:[],youtube:[],wassap:[],international:[]}};
+    const count=countOf(data);
+    const isSelected=key===selectedDateKey;
+
+    const cell=document.createElement('button');
+    cell.className='calendar-cell'
+      +(isSelected?' selected':'')
+      +(data.isToday?' today':'');
+    cell.disabled=data.isFuture;
+
+    const dow=document.createElement('span'); dow.className='calendar-dow'; dow.textContent=DAY_LABELS[cellDate.getDay()];
+    const num=document.createElement('span'); num.className='calendar-daynum'; num.textContent=cellDate.getDate();
+    const dot=document.createElement('span'); dot.className='calendar-dot';
+    dot.style.background = count>0 ? 'var(--accent)' : 'transparent';
+    cell.appendChild(dow); cell.appendChild(num); cell.appendChild(dot);
+
+    if(!data.isFuture){ cell.addEventListener('click', ()=>{ selectedDateKey=key; renderCalendar(); renderBriefingDetail(); }); }
+    grid.appendChild(cell);
+  }
+}
+
+function renderWeeklySummary(){
+  const el=document.getElementById('weeklySummary');
+  el.innerHTML='';
+  const title=document.createElement('div');
+  title.className='weekly-summary-title';
+  title.textContent='주간 요약';
+  const item=document.createElement('div');
+  item.className='weekly-summary-item';
+  const bullet=document.createElement('span'); bullet.className='weekly-summary-bullet'; bullet.textContent='•';
+  const text=document.createElement('span'); text.textContent='실 데이터 연동은 범위 밖입니다 — 데모용 화면입니다.';
+  item.appendChild(bullet); item.appendChild(text);
+  el.appendChild(title); el.appendChild(item);
+}
+
+function renderBriefingDetail(){
+  const data=briefingData[selectedDateKey];
+  const [y,m,d]=selectedDateKey.split('-');
+  document.getElementById('detailDateLabel').textContent=`${y}.${m}.${d}`;
+  document.getElementById('todayBadge').classList.toggle('hidden', !(data&&data.isToday));
+
+  const allItems=data?Object.values(data.groups).flat():[];
+  document.getElementById('detailTotal').textContent=allItems.length;
+  const brandSet=new Set(); allItems.forEach(it=>(it.matched_brands||[]).forEach(b=>brandSet.add(b)));
+  document.getElementById('detailBrandCount').textContent=brandSet.size;
+
+  const groupsEl=document.getElementById('briefingGroups');
+  const emptyEl=document.getElementById('briefingEmpty');
+  if(!allItems.length){
+    groupsEl.innerHTML=''; emptyEl.classList.remove('hidden');
+  }else{
+    emptyEl.classList.add('hidden');
+    renderResultGroups(groupsEl, allItems);
+  }
+}
+
+document.getElementById('btnPrevWeek').addEventListener('click',()=>{
+  currentWeekStart=addDays(currentWeekStart,-7);
+  renderWeekNav(); renderCalendar();
+});
+document.getElementById('btnNextWeek').addEventListener('click',()=>{
+  currentWeekStart=addDays(currentWeekStart,7);
+  renderWeekNav(); renderCalendar();
+});
+
+renderWeekNav();
+renderCalendar();
+renderWeeklySummary();
+renderBriefingDetail();
