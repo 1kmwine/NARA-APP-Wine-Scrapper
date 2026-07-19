@@ -8,72 +8,62 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header class="app-header">
-    <p class="header-label">NARA Wine Intelligence</p>
-    <h1>와인 정보 수집 플랫폼</h1>
-    <p class="header-meta">스크래퍼 &middot; 데일리 브리핑</p>
+  <header class="header-bar">
+    <div class="header-brand">
+      <div class="header-logo">a5</div>
+      <div class="header-title">와인정보 스크래퍼</div>
+    </div>
+    <button id="btnOpenSourcePanel" class="btn-outline">+ 소스 데이터 추가</button>
   </header>
 
   <div class="tab-bar">
-    <button class="tab-btn active" data-tab="scraper">와인 스크래퍼</button>
+    <button class="tab-btn active" data-tab="scraper">스크래퍼</button>
     <button class="tab-btn" data-tab="briefing">데일리 브리핑</button>
   </div>
 
   <main class="container">
     <!-- 와인 스크래퍼 탭 -->
     <section id="tab-scraper" class="tab-panel active">
-      <div class="card">
-        <div class="card-header">
-          <h2>검색 조건</h2>
+
+      <div id="scraperSearchView" class="scraper-view search-view">
+        <div class="search-eyebrow">온디맨드 검색</div>
+        <div class="search-title">브랜드 또는 와인명으로<br>전체 소스를 한 번에 수집합니다</div>
+        <div class="search-subtitle" id="searchSubtitle">소스 정보를 불러오는 중…</div>
+        <div class="search-row">
+          <input type="text" id="queryInput" class="input" placeholder="예: Domaine Dugat-Py">
+          <button id="btnStartSearch" class="btn search-btn">스크래핑 시작</button>
         </div>
-        <div class="input-group">
-          <label class="input-label" for="wineName">와인명</label>
-          <input type="text" id="wineName" class="input" placeholder="예: Montes Alpha Cabernet Sauvignon">
-        </div>
-        <div class="input-group">
-          <label class="input-label" for="wineBrand">와인 브랜드</label>
-          <input type="text" id="wineBrand" class="input" placeholder="예: Montes">
-        </div>
+        <div class="recent-queries" id="recentQueries"></div>
       </div>
 
-      <div class="card">
-        <div class="card-header">
-          <h2>수집 소스</h2>
-          <span class="meta" id="sourceCount">0개 선택</span>
-        </div>
-        <div class="source-list" id="sourceList"></div>
+      <div id="scraperProgressView" class="scraper-view progress-view hidden">
+        <div class="progress-title"><span id="progressQuery"></span> 검색 중…</div>
+        <div class="progress-sub"><span id="progressDone">0</span> / <span id="progressTotal">0</span>개 소스 완료</div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="progressBarFill"></div></div>
+        <div class="progress-rows" id="progressRows"></div>
       </div>
 
-      <div class="actions">
-        <button id="btnScrapeStart" class="btn">스크래핑 시작</button>
-        <button id="btnScrapeStop" class="btn-outline" disabled>중지</button>
+      <div id="scraperResultsView" class="scraper-view results-view hidden">
+        <div class="results-head">
+          <div class="results-query" id="resultsQuery"></div>
+          <button id="btnResetSearch" class="btn-outline">새 검색</button>
+        </div>
+        <div class="results-count" id="resultsCount"></div>
+        <div id="resultsFailures" class="hidden">
+          <button id="btnToggleFailures" class="failures-toggle">
+            <span class="failure-dot"></span>
+            <span>실패 <span id="failureCount">0</span>건</span>
+            <span class="failures-toggle-label" id="failuresToggleLabel">보기</span>
+          </button>
+          <div id="failuresList" class="failures-list hidden"></div>
+        </div>
+        <div id="resultsGroups"></div>
       </div>
 
-      <div class="progress-area hidden" id="scrapeProgress">
-        <div class="progress-track"><div class="progress-fill" id="scrapeFill"></div></div>
-        <span id="scrapeText">0 / 0</span>
-      </div>
-
-      <div class="card result-card">
-        <div class="card-header">
-          <h2>수집 결과 <span class="chip-pill" id="resultBadge">0</span></h2>
-        </div>
-        <div class="table-wrap">
-          <table class="ds-table" id="resultTable">
-            <thead>
-              <tr><th>제목</th><th>소스</th><th>게시일</th><th>매칭 브랜드</th><th>상태</th></tr>
-            </thead>
-            <tbody id="resultBody">
-              <tr class="empty"><td colspan="5">검색 결과가 없습니다.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
     </section>
 
     <!-- 데일리 브리핑 탭 -->
     <section id="tab-briefing" class="tab-panel">
-      <!-- 주간 네비게이션 -->
       <div class="week-nav">
         <button class="btn-icon-round" id="btnPrevWeek" title="이전 주">‹</button>
         <div class="week-info">
@@ -83,53 +73,46 @@
         <button class="btn-icon-round" id="btnNextWeek" title="다음 주">›</button>
       </div>
 
-      <!-- 주간 달력 그리드 -->
       <div class="week-calendar" id="weekCalendar"></div>
 
-      <!-- 선택된 날짜 상세 브리핑 -->
-      <div class="card hidden" id="briefingDetail">
-        <div class="card-header">
-          <h2 id="detailDateLabel">브리핑 상세</h2>
-          <span class="meta">총 <span id="detailTotal">0</span>건</span>
-        </div>
-        <div class="tag-row" id="detailTags"></div>
-        <hr class="divider">
-        <div class="briefing-section" data-section="domestic">
-          <div class="section-title" style="color:var(--color-text)">📰 국내 뉴스·매거진</div>
-          <ul class="briefing-list" id="detailDomestic"></ul>
-        </div>
-        <div class="briefing-section" data-section="newsroom">
-          <div class="section-title" style="color:var(--color-text)">🏛 뉴스룸</div>
-          <ul class="briefing-list" id="detailNewsroom"></ul>
-        </div>
-        <div class="briefing-section" data-section="cafe">
-          <div class="section-title" style="color:var(--color-text)">🍷 와쌉 카페</div>
-          <ul class="briefing-list" id="detailCafe"></ul>
-        </div>
-        <div class="briefing-section" data-section="youtube">
-          <div class="section-title" style="color:var(--color-text)">🎬 YouTube</div>
-          <ul class="briefing-list" id="detailYoutube"></ul>
-        </div>
-        <div class="briefing-section" data-section="blog">
-          <div class="section-title" style="color:var(--color-text)">📝 네이버 블로그</div>
-          <ul class="briefing-list" id="detailBlog"></ul>
-        </div>
-        <div class="briefing-section" data-section="global">
-          <div class="section-title" style="color:var(--color-text)">🌐 해외·통계·이벤트</div>
-          <ul class="briefing-list" id="detailGlobal"></ul>
-        </div>
+      <div class="weekly-summary" id="weeklySummary"></div>
+
+      <div class="briefing-date-head">
+        <div class="briefing-date-label" id="detailDateLabel">브리핑 상세</div>
+        <span class="today-badge hidden" id="todayBadge">오늘</span>
       </div>
+      <div class="briefing-sub"><span id="detailTotal">0</span>건 수집됨 · <span id="detailBrandCount">0</span>개 브랜드 언급</div>
+
+      <div id="briefingGroups"></div>
+      <div id="briefingEmpty" class="briefing-empty hidden">해당 날짜에 수집된 항목이 없습니다.</div>
     </section>
   </main>
 
-  <!-- 모달: 스크래퍼 상세 -->
-  <div class="modal-overlay hidden" id="detailOverlay">
-    <div class="modal-panel">
-      <button class="close-btn" id="closeDetail">닫기</button>
-      <h3 id="detailTitle">와인 상세</h3>
-      <dl id="detailList"></dl>
+  <!-- 소스 추가 패널 -->
+  <div class="source-overlay hidden" id="sourceOverlay"></div>
+  <div class="source-panel hidden" id="sourcePanel">
+    <div class="source-panel-head">
+      <div class="source-panel-title">새 소스 추가</div>
+      <button class="source-panel-close" id="btnCloseSourcePanel">×</button>
+    </div>
+    <div class="source-panel-sub">scraping-sources.md에 새 행을 추가합니다</div>
+    <div class="source-cat-row" id="sourceCatRow"></div>
+    <div class="source-fields" id="sourceFields"></div>
+    <div class="source-helper hidden" id="sourceHelper"></div>
+    <button class="btn source-submit-btn" id="btnSubmitSource">scraping-sources.md에 추가</button>
+
+    <div class="source-existing">
+      <div class="source-existing-title">등록된 소스</div>
+      <div id="sourceExistingGroups">불러오는 중…</div>
+    </div>
+
+    <div class="source-added hidden" id="sourceAddedBlock">
+      <div class="source-existing-title">이번 세션에 추가됨</div>
+      <div id="sourceAddedList"></div>
     </div>
   </div>
+
+  <div class="toast hidden" id="toast"></div>
 
   <script src="js/app.js"></script>
 </body>
