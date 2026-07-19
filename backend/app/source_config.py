@@ -20,9 +20,24 @@ _INTERNATIONAL_ROW_RE = re.compile(
 _QUERY_BLOCK_RE = re.compile(r'```수집쿼리\s*(.*?)```', re.DOTALL)
 
 
+def _find_section_start(text: str, header_prefix: str) -> int:
+    """header_prefix로 시작하는 실제 마크다운 헤더의 시작 위치를 찾는다(줄 맨 앞에
+    있는 경우만 인정, 못 찾으면 -1). 순수 텍스트 검색(text.find)만으로는 문서 앞부분
+    설명("## 국내 뉴스·매거진` 표의 검색어" 같은 백틱 인용구)이 실제 헤더보다 먼저
+    매치돼 버려서, 그 뒤에 오는 진짜 헤더/표를 놓치는 문제가 있었다(2026-07-19 실제
+    배포 서버에서 GET /sources가 뉴스/유튜브를 0개로 반환해 발견)."""
+    marker = "\n" + header_prefix
+    idx = text.find(marker)
+    if idx != -1:
+        return idx + 1
+    if text.startswith(header_prefix):
+        return 0
+    return -1
+
+
 def _extract_section(text: str, header_prefix: str) -> str:
     """header_prefix로 시작하는 절을 다음 '\\n## ' 헤더 전까지 잘라 반환. 없으면 빈 문자열."""
-    start = text.find(header_prefix)
+    start = _find_section_start(text, header_prefix)
     if start == -1:
         return ""
     end = text.find("\n## ", start + len(header_prefix))
@@ -177,7 +192,7 @@ class SourcesWriteConflictError(Exception):
 
 
 def _insert_table_row_after_section(text: str, section_header_prefix: str, new_row: str) -> str:
-    start = text.find(section_header_prefix)
+    start = _find_section_start(text, section_header_prefix)
     if start == -1:
         raise ValueError(f"{section_header_prefix} 섹션을 찾을 수 없습니다")
     end = text.find("\n## ", start + len(section_header_prefix))
@@ -195,7 +210,7 @@ def _insert_table_row_after_section(text: str, section_header_prefix: str, new_r
 
 
 def _insert_bullet_after_section(text: str, section_header_prefix: str, new_bullet: str) -> str:
-    start = text.find(section_header_prefix)
+    start = _find_section_start(text, section_header_prefix)
     if start == -1:
         raise ValueError(f"{section_header_prefix} 섹션을 찾을 수 없습니다")
     end = text.find("\n### ", start + len(section_header_prefix))

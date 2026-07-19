@@ -101,6 +101,33 @@ def test_age_youtube_defaults_to_seven_when_block_missing():
     assert cfg.age_youtube == 7
 
 
+# 회귀 테스트: 실제 scraping-sources.md는 "## 국내 뉴스·매거진" 헤더보다 앞선
+# "스크립트 동작" 절에서 백틱 인용구로 헤더 이름을 미리 언급한다
+# ("- **국내 뉴스·매거진** — `## 국내 뉴스·매거진` 표의 검색어" 같은 문장). 순수
+# text.find()만 쓰면 이 인용구를 진짜 헤더로 오인해 그 뒤의 실제 표를 놓친다
+# (2026-07-19 실제 배포 서버에서 GET /sources가 뉴스/유튜브를 0개로 반환해 발견).
+FIXTURE_WITH_PREAMBLE = """# 스크래핑 소스 목록
+
+## 스크립트 동작 (scrape.py)
+
+스크립트가 이 문서에서 읽어가는 설정 (파싱 대상):
+- **유튜브 채널** — `## 유튜브` 표의 `youtube.com/@핸들` 과 `Channel ID`
+- **국내 뉴스·매거진** — `## 국내 뉴스·매거진` 표의 검색어
+
+""" + FIXTURE[FIXTURE.index("## 국내 뉴스·매거진"):]
+
+
+def test_parses_news_sources_even_when_header_name_quoted_in_earlier_preamble():
+    cfg = parse_sources_document(FIXTURE_WITH_PREAMBLE)
+    assert len(cfg.news) == 3
+    assert {s.name for s in cfg.news} == {"소믈리에타임즈", "와인21", "한국경제"}
+
+
+def test_parses_youtube_sources_even_when_header_name_quoted_in_earlier_preamble():
+    cfg = parse_sources_document(FIXTURE_WITH_PREAMBLE)
+    assert len(cfg.youtube) == 3
+
+
 import base64
 
 from app.source_config import load_sources_document, invalidate_sources_cache
