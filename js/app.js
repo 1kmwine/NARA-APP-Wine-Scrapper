@@ -1,5 +1,5 @@
 /* ============================================================
-   NARA Wine Intelligence JS
+   NARA Wine Intelligence — 와인 스크래퍼 + 데일리 브리핑
    ============================================================ */
 
 /* ========== 탭 ========== */
@@ -11,368 +11,474 @@ tabBtns.forEach(btn=>btn.addEventListener('click',()=>{
   tabPanels.forEach(p=>p.classList.toggle('active',p.id===`tab-${tab}`));
 }));
 
-/* ========== 소스 관리 ========== */
-const DEFAULT_SOURCES=[
-  {id:'sommelier',name:'소믈리에 타임즈',url:'https://www.sommeliertimes.com',on:true},
-  {id:'wine21',name:'와인21',url:'https://www.wine21.com',on:true},
-  {id:'winein',name:'와인인',url:'https://winein.co.kr',on:true},
-  {id:'hankyung',name:'한국경제',url:'https://www.hankyung.com',on:true},
-  {id:'mk',name:'매일경제',url:'https://www.mk.co.kr',on:false},
-  {id:'chosun',name:'조선비즈',url:'https://biz.chosun.com',on:false},
-  {id:'decanter',name:'Decanter',url:'https://www.decanter.com',on:true},
-  {id:'ws',name:'Wine-Searcher',url:'https://www.wine-searcher.com',on:true},
-  {id:'js',name:'James Suckling',url:'https://www.jamessuckling.com',on:true},
-  {id:'rp',name:'Wine Advocate',url:'https://winejournal.robertparker.com',on:true},
-  {id:'wspec',name:'Wine Spectator',url:'https://www.winespectator.com',on:true},
-  {id:'wmag',name:'Wine Enthusiast',url:'https://www.winemag.com',on:true},
-];
-function loadSources(){
-  try{ const s=JSON.parse(localStorage.getItem('naraSources')); if(Array.isArray(s)&&s.length) return s; }catch(e){}
-  return DEFAULT_SOURCES;
-}
-function saveSources(){ localStorage.setItem('naraSources', JSON.stringify(sources)); }
-let sources=loadSources();
-const sourceList=document.getElementById('sourceList');
-const sourceCount=document.getElementById('sourceCount');
-
-function renderSources(){
-  sourceList.innerHTML='';
-  sources.forEach((src,i)=>{
-    const label=document.createElement('label');
-    label.className='source-item';
-    label.innerHTML=`<input type="checkbox" ${src.on?'checked':''}> ${src.name}<span class="del" data-i="${i}">&times;</span>`;
-    const cb=label.querySelector('input');
-    cb.addEventListener('change',()=>{ src.on=cb.checked; saveSources(); updateCount(); });
-    label.querySelector('.del').addEventListener('click',e=>{ e.stopPropagation(); sources.splice(i,1); saveSources(); renderSources(); updateCount(); });
-    sourceList.appendChild(label);
-  });
-  updateCount();
-}
-function updateCount(){ sourceCount.textContent=`${sources.filter(s=>s.on).length}개 선택`; }
-renderSources();
-
-/* ========== 스크래퍼 (실제 API 연동) ========== */
+/* ========== API 기본 ========== */
 const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
   ? 'http://localhost:8001'
   : 'api';
 
-const btnStart=document.getElementById('btnScrapeStart');
-const btnStop=document.getElementById('btnScrapeStop');
-const progress=document.getElementById('scrapeProgress');
-const progressFill=document.getElementById('scrapeFill');
-const progressText=document.getElementById('scrapeText');
-const resultBody=document.getElementById('resultBody');
-const resultBadge=document.getElementById('resultBadge');
-const POLL_TIMEOUT_MS=60000;
-let polling=false,pollTimer=null,pollDeadline=null;
+/* 백엔드 run_job(jobs.py)의 카테고리 처리 순서와 반드시 일치해야 한다 —
+   뉴스 → 유튜브 → 와쌉 → 해외소스. 진행률 뷰가 누적 done 값을 이 순서로
+   구간별로 나눠 계산하기 때문(아래 computeProgressRows 참고). */
+const CATEGORY_META=[
+  {key:'news', label:'뉴스·매거진'},
+  {key:'youtube', label:'유튜브'},
+  {key:'wassap', label:'와쌉카페'},
+  {key:'international', label:'해외소스'},
+];
 
-function renderResult(list){
-  resultBody.innerHTML='';
-  if(!list.length){ resultBody.innerHTML='<tr class="empty"><td colspan="5">검색 결과가 없습니다.</td></tr>'; resultBadge.textContent='0'; return; }
-  resultBadge.textContent=list.length;
-  list.forEach(item=>{
-    const tr=document.createElement('tr');
-    const cellValues=[
-      item.title,
-      item.source_name,
-      item.published_date||'-',
-      (item.matched_brands||[]).join(', ')||'-',
-      item.status,
-    ];
-    cellValues.forEach(value=>{
-      const td=document.createElement('td');
-      td.textContent=value;
-      tr.appendChild(td);
-    });
-    tr.addEventListener('click',()=>showDetail(item));
-    resultBody.appendChild(tr);
+/* ========== 스크래퍼: DOM 참조 ========== */
+const searchView=document.getElementById('scraperSearchView');
+const progressView=document.getElementById('scraperProgressView');
+const resultsView=document.getElementById('scraperResultsView');
+const queryInput=document.getElementById('queryInput');
+const searchSubtitle=document.getElementById('searchSubtitle');
+const recentQueriesEl=document.getElementById('recentQueries');
+const btnStartSearch=document.getElementById('btnStartSearch');
+const progressQueryEl=document.getElementById('progressQuery');
+const progressDoneEl=document.getElementById('progressDone');
+const progressTotalEl=document.getElementById('progressTotal');
+const progressBarFill=document.getElementById('progressBarFill');
+const progressRowsEl=document.getElementById('progressRows');
+const resultsQueryEl=document.getElementById('resultsQuery');
+const resultsCountEl=document.getElementById('resultsCount');
+const resultsFailuresBlock=document.getElementById('resultsFailures');
+const failureCountEl=document.getElementById('failureCount');
+const failuresListEl=document.getElementById('failuresList');
+const failuresToggleLabelEl=document.getElementById('failuresToggleLabel');
+const btnToggleFailures=document.getElementById('btnToggleFailures');
+const resultsGroupsEl=document.getElementById('resultsGroups');
+const btnResetSearch=document.getElementById('btnResetSearch');
+
+let sourceCounts={news:0, youtube:0, wassap:0, international:0};
+let pollTimer=null, pollDeadline=null;
+const POLL_TIMEOUT_MS=60000;
+
+function showScraperView(name){
+  searchView.classList.toggle('hidden', name!=='search');
+  progressView.classList.toggle('hidden', name!=='progress');
+  resultsView.classList.toggle('hidden', name!=='results');
+}
+
+/* ---- 소스 개수/이름 로드 (검색 화면 문구 + 소스 패널 "등록된 소스"용) ---- */
+async function loadSourceCounts(){
+  try{
+    const res=await fetch(`${API_BASE}/sources`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const body=await res.json();
+    sourceCounts=body.counts;
+    renderSearchSubtitle();
+    renderExistingSources(body.names);
+  }catch(e){
+    searchSubtitle.textContent='소스 정보를 불러오지 못했습니다.';
+  }
+}
+
+function renderSearchSubtitle(){
+  const total=Object.values(sourceCounts).reduce((a,b)=>a+b,0);
+  const parts=CATEGORY_META.map(c=>`${c.label} ${sourceCounts[c.key]||0}`).join(' · ');
+  searchSubtitle.textContent=`등록된 소스 ${total}개 전체 대상 · ${parts}`;
+}
+
+/* ---- 최근 검색어 (localStorage) ---- */
+const RECENT_QUERIES_KEY='naraRecentQueries';
+function getRecentQueries(){
+  try{ const v=JSON.parse(localStorage.getItem(RECENT_QUERIES_KEY)); return Array.isArray(v)?v:[]; }catch(e){ return []; }
+}
+function addRecentQuery(q){
+  const list=getRecentQueries().filter(x=>x!==q);
+  list.unshift(q);
+  localStorage.setItem(RECENT_QUERIES_KEY, JSON.stringify(list.slice(0,5)));
+  renderRecentQueries();
+}
+function renderRecentQueries(){
+  recentQueriesEl.innerHTML='';
+  getRecentQueries().forEach(q=>{
+    const btn=document.createElement('button');
+    btn.className='recent-chip';
+    btn.textContent=q;
+    btn.addEventListener('click',()=>{ queryInput.value=q; });
+    recentQueriesEl.appendChild(btn);
   });
 }
 
-function stopPolling(){
-  polling=false;
-  if(pollTimer) clearTimeout(pollTimer);
-  pollTimer=null;
-  pollDeadline=null;
-  btnStart.disabled=false; btnStop.disabled=true;
+/* ---- 검색 시작 ---- */
+async function startSearch(){
+  const query=queryInput.value.trim();
+  if(!query){ alert('와인명 또는 브랜드를 입력해주세요.'); return; }
+  addRecentQuery(query);
+  progressQueryEl.textContent=`"${query}"`;
+  progressDoneEl.textContent='0';
+  progressTotalEl.textContent='0';
+  progressBarFill.style.width='0%';
+  progressRowsEl.innerHTML='';
+  showScraperView('progress');
+
+  try{
+    const res=await fetch(`${API_BASE}/jobs`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wine_name:query, brand:''}),
+    });
+    if(!res.ok){ const body=await res.json().catch(()=>({})); throw new Error(body.detail||`HTTP ${res.status}`); }
+    const {job_id}=await res.json();
+    pollDeadline=Date.now()+POLL_TIMEOUT_MS;
+    pollJob(job_id, query);
+  }catch(e){
+    alert(`검색 시작 실패: ${e.message}`);
+    showScraperView('search');
+  }
+}
+btnStartSearch.addEventListener('click', startSearch);
+queryInput.addEventListener('keydown', e=>{ if(e.key==='Enter') startSearch(); });
+
+/* ---- 진행률: 누적 done을 카테고리 순서(뉴스→유튜브→와쌉→해외소스)로 구간 분할 ---- */
+function computeProgressRows(done){
+  let remaining=done;
+  return CATEGORY_META.map(c=>{
+    const total=sourceCounts[c.key]||0;
+    const rowDone=Math.max(0, Math.min(total, remaining));
+    remaining=Math.max(0, remaining-total);
+    return {label:c.label, done:rowDone, total, complete: total>0 && rowDone>=total, spinning: rowDone<total};
+  });
 }
 
-async function pollJob(jobId){
-  if(!polling) return;
+function renderProgressRows(done){
+  const rows=computeProgressRows(done);
+  progressRowsEl.innerHTML='';
+  rows.forEach(row=>{
+    const div=document.createElement('div');
+    div.className='progress-row';
+    const indicator = row.total===0 ? ''
+      : row.complete ? '<div class="check-badge">✓</div>'
+      : row.spinning ? '<div class="spinner"></div>' : '';
+    div.innerHTML=`
+      <div class="progress-row-label">${row.label}</div>
+      <div class="progress-row-right">
+        <div class="progress-row-count">${row.done}/${row.total}</div>
+        ${indicator}
+      </div>`;
+    progressRowsEl.appendChild(div);
+  });
+}
+
+async function pollJob(jobId, query){
   if(Date.now()>pollDeadline){
-    stopPolling();
+    if(pollTimer) clearTimeout(pollTimer);
     alert('60초 안에 끝나지 않아 중단했습니다. 다시 시도해주세요.');
+    showScraperView('search');
     return;
   }
   try{
     const res=await fetch(`${API_BASE}/jobs/${jobId}`);
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const job=await res.json();
-    if(!polling) return;
-    progressFill.style.width=`${job.total?(job.done/job.total)*100:0}%`;
-    progressText.textContent=`${job.done} / ${job.total}`;
-    renderResult(job.results);
+    progressDoneEl.textContent=job.done;
+    progressTotalEl.textContent=job.total;
+    progressBarFill.style.width=`${job.total?(job.done/job.total)*100:0}%`;
+    renderProgressRows(job.done);
 
     if(job.status==='succeeded'||job.status==='partial'||job.status==='failed'){
-      stopPolling();
-      if(job.status==='failed'){ alert(`스크래핑 실패: ${job.error||'알 수 없는 오류'}`); }
+      if(job.status==='failed'){
+        alert(`스크래핑 실패: ${job.error||'알 수 없는 오류'}`);
+        showScraperView('search');
+        return;
+      }
+      renderResultsView(query, job.results, job.failures||[]);
+      showScraperView('results');
       return;
     }
-    pollTimer=setTimeout(()=>pollJob(jobId), 1000);
+    pollTimer=setTimeout(()=>pollJob(jobId, query), 1000);
   }catch(e){
-    stopPolling();
     alert(`상태 조회 실패: ${e.message}`);
+    showScraperView('search');
   }
 }
 
-btnStart.addEventListener('click', async ()=>{
-  if(polling) return;
-  const wineName=document.getElementById('wineName').value.trim();
-  if(!wineName){ alert('와인명을 입력해주세요.'); return; }
-  const wineBrand=document.getElementById('wineBrand').value.trim();
-  const sourceIds=sources.filter(s=>s.on).map(s=>s.id);
-  if(!sourceIds.length){ alert('수집 소스를 하나 이상 선택해주세요.'); return; }
+/* ---- 카드 그리드 렌더링 (스크래퍼 결과 뷰 + 데일리 브리핑 상세가 공유) ---- */
+function groupByCategory(items){
+  const groups={};
+  CATEGORY_META.forEach(c=>{ groups[c.key]=[]; });
+  items.forEach(item=>{ (groups[item.source_category]||(groups[item.source_category]=[])).push(item); });
+  return groups;
+}
 
-  polling=true; btnStart.disabled=true; btnStop.disabled=false; progress.classList.remove('hidden');
-  progressFill.style.width='0%'; progressText.textContent=`0 / ${sourceIds.length}`;
-  renderResult([]);
+function itemInitial(sourceName){
+  return (sourceName||'').replace('YouTube: ','').charAt(0) || '?';
+}
+
+function renderResultGroups(container, items){
+  // title/excerpt/source_name은 스크래핑된 외부 콘텐츠이므로 innerHTML이 아니라
+  // textContent로만 채운다 — HTML 인젝션을 원천 차단하기 위해서다.
+  const groups=groupByCategory(items);
+  container.innerHTML='';
+  CATEGORY_META.forEach(c=>{
+    const groupItems=groups[c.key]||[];
+    if(!groupItems.length) return;
+
+    const groupEl=document.createElement('div');
+    groupEl.className='result-group';
+    const groupTitle=document.createElement('div');
+    groupTitle.className='result-group-title';
+    const countSpan=document.createElement('span');
+    countSpan.className='result-group-count';
+    countSpan.textContent=groupItems.length;
+    groupTitle.textContent=c.label+' ';
+    groupTitle.appendChild(countSpan);
+    groupEl.appendChild(groupTitle);
+
+    const grid=document.createElement('div');
+    grid.className='result-grid';
+    groupItems.forEach(item=>{
+      const a=document.createElement('a');
+      a.href=item.external_url || '#';
+      a.target='_blank';
+      a.rel='noopener';
+      a.className='result-card';
+
+      const avatar=document.createElement('div');
+      avatar.className='result-card-avatar';
+      avatar.textContent=itemInitial(item.source_name);
+
+      const body=document.createElement('div');
+      body.className='result-card-body';
+
+      const title=document.createElement('div');
+      title.className='result-card-title';
+      title.textContent=item.title;
+
+      const excerpt=document.createElement('div');
+      excerpt.className='result-card-excerpt';
+      excerpt.textContent=item.excerpt||'';
+
+      body.appendChild(title);
+      body.appendChild(excerpt);
+
+      if((item.matched_brands||[]).length){
+        const chipsWrap=document.createElement('div');
+        chipsWrap.className='result-card-chips';
+        item.matched_brands.forEach(b=>{
+          const chip=document.createElement('span');
+          chip.className='result-card-chip';
+          chip.textContent=b;
+          chipsWrap.appendChild(chip);
+        });
+        body.appendChild(chipsWrap);
+      }
+
+      const meta=document.createElement('div');
+      meta.className='result-card-meta';
+      const src=document.createElement('span'); src.textContent=item.source_name;
+      const date=document.createElement('span'); date.textContent=item.published_date||'';
+      meta.appendChild(src); meta.appendChild(date);
+      body.appendChild(meta);
+
+      a.appendChild(avatar);
+      a.appendChild(body);
+      grid.appendChild(a);
+    });
+    groupEl.appendChild(grid);
+    container.appendChild(groupEl);
+  });
+}
+
+function renderResultsView(query, results, failures){
+  resultsQueryEl.textContent=query;
+  resultsCountEl.textContent=`${results.length}건 수집됨`;
+  renderResultGroups(resultsGroupsEl, results);
+
+  if(failures.length){
+    resultsFailuresBlock.classList.remove('hidden');
+    failureCountEl.textContent=failures.length;
+    failuresListEl.innerHTML='';
+    failures.forEach(f=>{
+      const row=document.createElement('div');
+      row.className='failure-row';
+      const s1=document.createElement('span'); s1.textContent=f.source_name;
+      const s2=document.createElement('span'); s2.textContent=f.reason;
+      row.appendChild(s1); row.appendChild(s2);
+      failuresListEl.appendChild(row);
+    });
+  }else{
+    resultsFailuresBlock.classList.add('hidden');
+  }
+  failuresListEl.classList.add('hidden');
+  failuresToggleLabelEl.textContent='보기';
+}
+
+btnToggleFailures.addEventListener('click', ()=>{
+  const open=failuresListEl.classList.toggle('hidden');
+  failuresToggleLabelEl.textContent = open ? '보기' : '닫기';
+});
+
+btnResetSearch.addEventListener('click', ()=>{
+  queryInput.value='';
+  showScraperView('search');
+  loadSourceCounts();
+});
+
+/* ========== 소스 추가 패널 ========== */
+const sourceOverlay=document.getElementById('sourceOverlay');
+const sourcePanel=document.getElementById('sourcePanel');
+const btnOpenSourcePanel=document.getElementById('btnOpenSourcePanel');
+const btnCloseSourcePanel=document.getElementById('btnCloseSourcePanel');
+const sourceCatRow=document.getElementById('sourceCatRow');
+const sourceFieldsEl=document.getElementById('sourceFields');
+const sourceHelperEl=document.getElementById('sourceHelper');
+const btnSubmitSource=document.getElementById('btnSubmitSource');
+const sourceExistingGroupsEl=document.getElementById('sourceExistingGroups');
+const sourceAddedBlock=document.getElementById('sourceAddedBlock');
+const sourceAddedListEl=document.getElementById('sourceAddedList');
+const toastEl=document.getElementById('toast');
+
+/* 각 카테고리의 필드 key는 backend/app/main.py의 AddSourceRequest 필드명과
+   정확히 일치해야 한다(Task 11/12 참고) — payload를 그대로 JSON.stringify해서
+   보낸다. */
+const SOURCE_FIELD_DEFS={
+  news:[
+    {key:'press', label:'매체명', placeholder:'예: 와인나라'},
+    {key:'news_category', label:'분류 (뉴스/매거진)', placeholder:'예: 매거진'},
+    {key:'query', label:'검색어', placeholder:'예: 뒤가피'},
+    {key:'url', label:'URL', placeholder:'https://...'},
+  ],
+  youtube:[
+    {key:'channel_name', label:'채널명', placeholder:'예: 소믈리에 리나'},
+    {key:'url', label:'채널 URL', placeholder:'https://youtube.com/@...'},
+    {key:'channel_id', label:'Channel ID (선택)', placeholder:'비우면 자동 추출 시도'},
+  ],
+  wassap:[
+    {key:'url', label:'카페 URL', placeholder:'https://cafe.naver.com/...'},
+    {key:'clubid', label:'clubid', placeholder:'예: 10050146'},
+  ],
+  international:[
+    {key:'source_name', label:'소스명', placeholder:'예: Wine Spectator'},
+    {key:'url', label:'URL', placeholder:'https://...'},
+    {key:'note', label:'비고 (선택)', placeholder:''},
+  ],
+};
+const SOURCE_HELPERS={
+  news:'', youtube:'Channel ID는 URL에서 자동 추출을 시도합니다. 실패하면 직접 입력해주세요.', wassap:'', international:'',
+};
+
+let sourceCategory='news';
+let addedSources=[];
+
+function openSourcePanel(){
+  sourceOverlay.classList.remove('hidden');
+  sourcePanel.classList.remove('hidden');
+  renderSourceCategories();
+  renderSourceFields();
+}
+function closeSourcePanel(){
+  sourceOverlay.classList.add('hidden');
+  sourcePanel.classList.add('hidden');
+}
+btnOpenSourcePanel.addEventListener('click', openSourcePanel);
+btnCloseSourcePanel.addEventListener('click', closeSourcePanel);
+sourceOverlay.addEventListener('click', closeSourcePanel);
+
+function renderSourceCategories(){
+  sourceCatRow.innerHTML='';
+  CATEGORY_META.forEach(c=>{
+    const btn=document.createElement('button');
+    btn.className='source-cat-pill'+(sourceCategory===c.key?' active':'');
+    btn.textContent=c.label;
+    btn.addEventListener('click', ()=>{ sourceCategory=c.key; renderSourceCategories(); renderSourceFields(); });
+    sourceCatRow.appendChild(btn);
+  });
+}
+
+function renderSourceFields(){
+  const fields=SOURCE_FIELD_DEFS[sourceCategory]||[];
+  sourceFieldsEl.innerHTML='';
+  fields.forEach(f=>{
+    const wrap=document.createElement('div');
+    const label=document.createElement('div');
+    label.className='source-field-label';
+    label.textContent=f.label;
+    const input=document.createElement('input');
+    input.type='text'; input.id=`srcfield_${f.key}`; input.className='input'; input.placeholder=f.placeholder||'';
+    wrap.appendChild(label); wrap.appendChild(input);
+    sourceFieldsEl.appendChild(wrap);
+  });
+  const helper=SOURCE_HELPERS[sourceCategory];
+  sourceHelperEl.textContent=helper||'';
+  sourceHelperEl.classList.toggle('hidden', !helper);
+}
+
+async function submitSourceForm(){
+  const fields=SOURCE_FIELD_DEFS[sourceCategory]||[];
+  const payload={category:sourceCategory};
+  fields.forEach(f=>{ payload[f.key]=document.getElementById(`srcfield_${f.key}`).value.trim(); });
+  const catMeta=CATEGORY_META.find(c=>c.key===sourceCategory);
+  const displayName=payload.press||payload.channel_name||payload.source_name||payload.url||'새 소스';
 
   try{
-    const res=await fetch(`${API_BASE}/jobs`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({wine_name:wineName, brand:wineBrand, source_ids:sourceIds}),
+    const res=await fetch(`${API_BASE}/sources`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload),
     });
-    if(!res.ok){ const body=await res.json().catch(()=>({})); throw new Error(body.detail||`HTTP ${res.status}`); }
-    const {job_id}=await res.json();
-    pollDeadline=Date.now()+POLL_TIMEOUT_MS;
-    pollJob(job_id);
+    const body=await res.json().catch(()=>({}));
+    if(!res.ok){ throw new Error(body.detail||`HTTP ${res.status}`); }
+
+    addedSources.unshift({name:displayName, category:catMeta.label});
+    renderAddedSources();
+    fields.forEach(f=>{ document.getElementById(`srcfield_${f.key}`).value=''; });
+    showToast(`"${displayName}" 소스가 scraping-sources.md에 추가되었습니다.`);
+    loadSourceCounts();
   }catch(e){
-    stopPolling();
-    alert(`검색 시작 실패: ${e.message}`);
-  }
-});
-
-btnStop.addEventListener('click',()=>{
-  stopPolling();
-  progress.classList.add('hidden');
-});
-
-const overlay=document.getElementById('detailOverlay');
-document.getElementById('closeDetail').addEventListener('click',()=>overlay.classList.add('hidden'));
-overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.classList.add('hidden'); });
-function showDetail(item){
-  document.getElementById('detailTitle').textContent=item.title;
-  const dl=document.getElementById('detailList');
-  dl.innerHTML='';
-  const fields={
-    '소스':item.source_name,
-    '게시일':item.published_date||'-',
-    '매칭 브랜드':(item.matched_brands||[]).join(', ')||'-',
-    '상태':item.status,
-    '원문 URL':item.external_url,
-  };
-  Object.entries(fields).forEach(([k,v])=>{ const dt=document.createElement('dt'); dt.textContent=k; const dd=document.createElement('dd'); dd.textContent=v; dl.appendChild(dt); dl.appendChild(dd); });
-  overlay.classList.remove('hidden');
-}
-
-/* ============================================================
-   데일리 브리핑 — 주간 달력
-   ============================================================ */
-const DAY_LABELS=['월','화','수','목','금','토','일'];
-
-/* 데모: 날짜 → 브리핑 데이터 매핑 (2주치)
-   실제로는 API/JSON에서 받아오거나 localStorage에 저장 */
-function generateDemoData(){
-  const data={};
-  const base=new Date();
-  for(let d=-14; d<=14; d++){
-    const dt=new Date(base); dt.setDate(base.getDate()+d);
-    const key=fmtDateKey(dt);
-    data[key]=createDayBriefing(dt, d===0);
-  }
-  return data;
-}
-function fmtDateKey(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-function createDayBriefing(date, isToday){
-  const rand=n=>Math.floor(Math.random()*(n+1));
-  const count=isToday?58:rand(45);
-  return {
-    count,
-    isToday,
-    sections:{
-      domestic:rand(isToday?14:8),
-      newsroom:rand(isToday?12:6),
-      cafe:rand(isToday?10:5),
-      youtube:rand(isToday?10:5),
-      blog:rand(isToday?12:7),
-      global:rand(isToday?0:3),
-    },
-    items:{
-      domestic:[
-        {title:"[와인21] 리오하 와인이 지금 걷고 있는 '제3의 길'",url:"#",new:!isToday,desc:"시간과 장소의 문제 와인의 가치를 장소에 둘 것인가 시간에 둘 것인가."},
-        {title:"[한국경제] 해외에 K소주 알리는 'LA 문화의 여왕'",url:"#",new:isToday,desc:'차례"라며 "한국이 문화·경제적으로 커진 만큼..."'},
-        {title:'[한국경제] "美 로버트 몬다비, 유행보다 전통 고수"',url:"#",new:false,desc:"어제보다 더 강해져야 한다는 단순한 생각이 60년의 역사를 만들었습니다."},
-      ].slice(0,isToday?3:rand(3)),
-      newsroom:[
-        {title:"[나라셀라 칼럼] 칠레 화이트 와인 추천｜몬테스가 제시하는 태평양 쿨-클라이밋",url:"#",new:false},
-        {title:"[나라셀라 칼럼] 페스테벌 와인 추천 2026 | 뮤직·워터밤·락·바다축제 무드별 추천와인 4선",url:"#",new:false},
-      ].slice(0,isToday?2:rand(2)),
-      cafe:[
-        {title:"크룩 질문이요! 💬17",url:"#",new:isToday,desc:"와인에대해 잘모르는 와린이지만 크룩이 유명하고 맛있다고해서..."},
-        {title:"일본 후쿠오카 르셉 가격 봐주세요 💬15",url:"#",new:isToday},
-      ].slice(0,isToday?2:rand(2)),
-      youtube:[
-        {title:"[비밀이야] [CEO의 삶] 비밀이야의 밀착 24시간",url:"#",new:false,meta:"1일 전·조회수 8.9만회"},
-        {title:'[양갱] "이 좋은걸 몰랐다니!" 일본 후쿠오카 보르도 와인 페스티벌',url:"#",new:false,meta:"14시간 전·1.5천"},
-      ].slice(0,isToday?2:rand(2)),
-      blog:[
-        {title:"부산 광안리데이트 뉼리｜결혼기념일을 더욱 특별하게",url:"#",new:isToday,desc:"또 하나 인상 깊었던 건 입구를 지나면 와인 창고 같은 공간이 보여요.",time:"6분 전"},
-        {title:"횡성 반값여행 저문강에 삽을 씻고 정식 먹으러",url:"#",new:isToday,desc:"와인 에이드 : 4,000원 저문강 정식 : 16,000원",time:"6분 전"},
-      ].slice(0,isToday?2:rand(2)),
-      global:[
-        {title:"[Decanter] 디캔터의 새로운 북미 지역 에디터를 만나보세요",url:"#",new:false,desc:"당첨자 발표..."},
-        {title:"[Wine Spectator] 로제, 응. 하지만 어느 것?",url:"#",new:false,desc:"2025 빈티지는 프랑스 남부의 다양한 스타일, 색상, 품질을 제공합니다."},
-        {title:"[OIV] 포도재배 부서장 채용 제안",url:"#",new:false},
-      ].slice(0,isToday?3:rand(3)),
-    }
-  };
-}
-
-const briefingData=generateDemoData();
-let currentWeekStart=getWeekStart(new Date());
-
-/* 해당 날짜가 속한 주의 월요일 구하기 */
-function getWeekStart(d){
-  const dt=new Date(d);
-  const day=dt.getDay(); // 0=일, 1=월,...
-  const diff=day===0?-6:1-day;
-  dt.setDate(dt.getDate()+diff);
-  dt.setHours(0,0,0,0);
-  return dt;
-}
-function addDays(d,n){ const dt=new Date(d); dt.setDate(dt.getDate()+n); return dt; }
-function fmtMonthDay(d){ return `${d.getMonth()+1}/${d.getDate()}`; }
-
-/* 주 네비게이션 렌더링 */
-function renderWeekNav(){
-  const start=currentWeekStart;
-  const end=addDays(start,6);
-  const year=start.getFullYear();
-  const month=start.getMonth()+1;
-  const weekNum=Math.ceil(start.getDate()/7); // 단순 근사
-  document.getElementById('weekLabel').textContent=`${year}년 ${month}월 ${weekNum}주차`;
-  document.getElementById('weekRange').textContent=`${fmtMonthDay(start)} ~ ${fmtMonthDay(end)}`;
-}
-
-/* 주간 달력 렌더링 */
-function renderCalendar(){
-  const grid=document.getElementById('weekCalendar');
-  grid.innerHTML='';
-  for(let i=0;i<7;i++){
-    const cellDate=addDays(currentWeekStart,i);
-    const key=fmtDateKey(cellDate);
-    const data=briefingData[key]||{count:0,sections:{},isToday:false,items:{}};
-    const isToday=data.isToday;
-    const hasNew=Object.values(data.sections||{}).some(v=>v>0);
-
-    const cell=document.createElement('div');
-    cell.className='calendar-cell'+(isToday?' today':'')+(data.count===0?' empty':'');
-    cell.dataset.date=key;
-
-    let countHtml='';
-    if(data.count>0){
-      const parts=[];
-      Object.entries(data.sections||{}).forEach(([k,v])=>{ if(v>0) parts.push(`${sectionLabel(k)} ${v}`); });
-      countHtml=parts.length?`<div class="day-count">${parts.slice(0,2).join('<br>')}</div>`:`<div class="day-count">${data.count}건</div>`;
-    }else{
-      countHtml='<div class="day-count">—</div>';
-    }
-
-    cell.innerHTML=`
-      <div class="day-name">${DAY_LABELS[i]}</div>
-      <div class="day-num">${cellDate.getDate()}</div>
-      ${countHtml}
-      ${isToday?'<div class="has-new" title="오늘"></div>':''}
-    `;
-
-    if(data.count>0){
-      cell.addEventListener('click',()=>{ showBriefingDetail(key, cellDate); });
-    }
-    grid.appendChild(cell);
+    showToast(`추가 실패: ${e.message}`);
   }
 }
+btnSubmitSource.addEventListener('click', submitSourceForm);
 
-function sectionLabel(key){
-  const map={domestic:'📰',newsroom:'🏛',cafe:'🍷',youtube:'🎬',blog:'📝',global:'🌐'};
-  return map[key]||key;
+function renderAddedSources(){
+  if(!addedSources.length){ sourceAddedBlock.classList.add('hidden'); return; }
+  sourceAddedBlock.classList.remove('hidden');
+  sourceAddedListEl.innerHTML='';
+  addedSources.forEach(a=>{
+    const row=document.createElement('div');
+    row.className='source-added-row';
+    const s1=document.createElement('span'); s1.textContent=a.name;
+    const s2=document.createElement('span'); s2.textContent=a.category;
+    row.appendChild(s1); row.appendChild(s2);
+    sourceAddedListEl.appendChild(row);
+  });
 }
 
-/* 날짜 클릭 시 상세 브리핑 표시 */
-function showBriefingDetail(dateKey, dateObj){
-  const data=briefingData[dateKey];
-  if(!data) return;
-
-  // 달력 선택 상태
-  document.querySelectorAll('.calendar-cell').forEach(c=>c.classList.remove('selected'));
-  const selected=document.querySelector(`.calendar-cell[data-date="${dateKey}"]`);
-  if(selected) selected.classList.add('selected');
-
-  // 상세 패널 표시
-  const detail=document.getElementById('briefingDetail');
-  detail.classList.remove('hidden');
-
-  const wd=['일','월','화','수','목','금','토'];
-  document.getElementById('detailDateLabel').textContent=
-    `${dateObj.getFullYear()}.${String(dateObj.getMonth()+1).padStart(2,'0')}.${String(dateObj.getDate()).padStart(2,'0')} (${wd[dateObj.getDay()]}) 브리핑`;
-  document.getElementById('detailTotal').textContent=data.count;
-
-  // 태그
-  const tags=Object.entries(data.sections||{})
-    .filter(([_,v])=>v>0)
-    .map(([k,v])=>`<span class="tag">${sectionLabel(k)} ${v}</span>`)
-    .join('');
-  document.getElementById('detailTags').innerHTML=tags;
-
-  // 각 섹션 아이템
-  function renderSection(elId, key){
-    const el=document.getElementById(elId);
-    const items=(data.items&&data.items[key])||[];
-    if(!items.length){ el.innerHTML='<li class="empty">수집된 항목이 없습니다.</li>'; return; }
-    el.innerHTML=items.map(item=>{
-      const newb=item.new?'<span class="new-badge">NEW</span>':'';
-      const meta=item.meta?` <span style="color:var(--color-text-faintest)">${item.meta}</span>`:'';
-      const desc=item.desc?`<div class="desc">${item.desc}</div>`:'';
-      return `<li>${newb}<a href="${item.url}" target="_blank">${item.title}</a>${meta}${desc}</li>`;
-    }).join('');
-  }
-  renderSection('detailDomestic','domestic');
-  renderSection('detailNewsroom','newsroom');
-  renderSection('detailCafe','cafe');
-  renderSection('detailYoutube','youtube');
-  renderSection('detailBlog','blog');
-  renderSection('detailGlobal','global');
-
-  // 스크롤 이동
-  detail.scrollIntoView({behavior:'smooth', block:'start'});
+function renderExistingSources(names){
+  sourceExistingGroupsEl.innerHTML='';
+  CATEGORY_META.forEach(c=>{
+    const list=(names && names[c.key]) || [];
+    const group=document.createElement('div');
+    group.className='source-existing-group';
+    const head=document.createElement('div');
+    head.className='source-existing-group-head';
+    head.textContent=c.label+' ';
+    const count=document.createElement('span');
+    count.className='source-existing-count';
+    count.textContent=list.length;
+    head.appendChild(count);
+    const namesEl=document.createElement('div');
+    namesEl.className='source-existing-names';
+    list.forEach(n=>{
+      const d=document.createElement('div');
+      d.className='source-existing-name';
+      d.textContent=n;
+      namesEl.appendChild(d);
+    });
+    group.appendChild(head);
+    group.appendChild(namesEl);
+    sourceExistingGroupsEl.appendChild(group);
+  });
 }
 
-/* 주 네비게이션 */
-document.getElementById('btnPrevWeek').addEventListener('click',()=>{
-  currentWeekStart=addDays(currentWeekStart,-7);
-  refreshWeek();
-});
-document.getElementById('btnNextWeek').addEventListener('click',()=>{
-  currentWeekStart=addDays(currentWeekStart,7);
-  refreshWeek();
-});
-
-function refreshWeek(){
-  renderWeekNav();
-  renderCalendar();
-  document.getElementById('briefingDetail').classList.add('hidden');
+let toastTimer=null;
+function showToast(msg){
+  if(toastTimer) clearTimeout(toastTimer);
+  toastEl.textContent=msg;
+  toastEl.classList.remove('hidden');
+  toastTimer=setTimeout(()=>toastEl.classList.add('hidden'), 1900);
 }
 
-/* 초기 렌더 */
-renderWeekNav();
-renderCalendar();
+/* ========== 초기화 ========== */
+renderRecentQueries();
+loadSourceCounts();
