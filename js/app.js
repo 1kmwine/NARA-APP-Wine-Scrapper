@@ -16,9 +16,8 @@ const API_BASE = (location.hostname === 'localhost' || location.hostname === '12
   ? 'http://localhost:8001'
   : 'api';
 
-/* 백엔드 run_job(jobs.py)의 카테고리 처리 순서와 반드시 일치해야 한다 —
-   뉴스 → 유튜브 → 와쌉 → 해외소스. 진행률 뷰가 누적 done 값을 이 순서로
-   구간별로 나눠 계산하기 때문(아래 computeProgressRows 참고). */
+/* CATEGORY_META: "소스 데이터 추가" 패널·"등록된 소스" 카운트용 — 블로그는
+   등록 소스 목록이 없는 항상-켜짐 검색이라 여긴 넣지 않는다. */
 const CATEGORY_META=[
   {key:'news', label:'뉴스·매거진'},
   {key:'youtube', label:'유튜브'},
@@ -26,17 +25,26 @@ const CATEGORY_META=[
   {key:'international', label:'해외소스'},
 ];
 
+/* RESULT_CATEGORY_META: 결과 그리드·진행률 표시용 — 백엔드 run_job(jobs.py)의
+   카테고리 처리 순서와 반드시 일치해야 한다: 뉴스 → 블로그 → 유튜브 → 와쌉 →
+   해외소스. 진행률 뷰가 누적 done 값을 이 순서로 구간별로 나눠 계산하기 때문
+   (아래 computeProgressRows 참고). */
+const RESULT_CATEGORY_META=[
+  {key:'news', label:'뉴스·매거진'},
+  {key:'blog', label:'네이버 블로그'},
+  {key:'youtube', label:'유튜브'},
+  {key:'wassap', label:'와쌉카페'},
+  {key:'international', label:'해외소스'},
+];
+
 /* ========== 스크래퍼: DOM 참조 ========== */
 const searchView=document.getElementById('scraperSearchView');
-const progressView=document.getElementById('scraperProgressView');
 const resultsView=document.getElementById('scraperResultsView');
 const queryInput=document.getElementById('queryInput');
 const searchSubtitle=document.getElementById('searchSubtitle');
 const recentQueriesEl=document.getElementById('recentQueries');
 const btnStartSearch=document.getElementById('btnStartSearch');
-const progressQueryEl=document.getElementById('progressQuery');
-const progressDoneEl=document.getElementById('progressDone');
-const progressTotalEl=document.getElementById('progressTotal');
+const resultsProgressEl=document.getElementById('resultsProgress');
 const progressBarFill=document.getElementById('progressBarFill');
 const progressRowsEl=document.getElementById('progressRows');
 const resultsQueryEl=document.getElementById('resultsQuery');
@@ -55,7 +63,6 @@ const POLL_TIMEOUT_MS=60000;
 
 function showScraperView(name){
   searchView.classList.toggle('hidden', name!=='search');
-  progressView.classList.toggle('hidden', name!=='progress');
   resultsView.classList.toggle('hidden', name!=='results');
 }
 
@@ -106,12 +113,15 @@ async function startSearch(){
   const query=queryInput.value.trim();
   if(!query){ alert('와인명 또는 브랜드를 입력해주세요.'); return; }
   addRecentQuery(query);
-  progressQueryEl.textContent=`"${query}"`;
-  progressDoneEl.textContent='0';
-  progressTotalEl.textContent='0';
+
+  resultsQueryEl.textContent=query;
+  resultsCountEl.textContent='0건 수집됨';
+  resultsFailuresBlock.classList.add('hidden');
+  resultsProgressEl.classList.remove('hidden');
   progressBarFill.style.width='0%';
   progressRowsEl.innerHTML='';
-  showScraperView('progress');
+  initIncrementalResults();
+  showScraperView('results');
 
   try{
     const res=await fetch(`${API_BASE}/jobs`, {
@@ -130,10 +140,10 @@ async function startSearch(){
 btnStartSearch.addEventListener('click', startSearch);
 queryInput.addEventListener('keydown', e=>{ if(e.key==='Enter') startSearch(); });
 
-/* ---- 진행률: 누적 done을 카테고리 순서(뉴스→유튜브→와쌉→해외소스)로 구간 분할 ---- */
+/* ---- 진행률: 누적 done을 카테고리 순서(뉴스→블로그→유튜브→와쌉→해외소스)로 구간 분할 ---- */
 function computeProgressRows(done){
   let remaining=done;
-  return CATEGORY_META.map(c=>{
+  return RESULT_CATEGORY_META.map(c=>{
     const total=sourceCounts[c.key]||0;
     const rowDone=Math.max(0, Math.min(total, remaining));
     remaining=Math.max(0, remaining-total);
@@ -171,10 +181,10 @@ async function pollJob(jobId, query){
     const res=await fetch(`${API_BASE}/jobs/${jobId}`);
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const job=await res.json();
-    progressDoneEl.textContent=job.done;
-    progressTotalEl.textContent=job.total;
     progressBarFill.style.width=`${job.total?(job.done/job.total)*100:0}%`;
     renderProgressRows(job.done);
+    appendIncrementalResults(job.results, query);
+    resultsCountEl.textContent=`${job.results.length}건 수집됨`;
 
     if(job.status==='succeeded'||job.status==='partial'||job.status==='failed'){
       if(job.status==='failed'){
@@ -182,8 +192,7 @@ async function pollJob(jobId, query){
         showScraperView('search');
         return;
       }
-      renderResultsView(query, job.results, job.failures||[]);
-      showScraperView('results');
+      finalizeResultsView(job.failures||[]);
       return;
     }
     pollTimer=setTimeout(()=>pollJob(jobId, query), 1000);
@@ -196,7 +205,7 @@ async function pollJob(jobId, query){
 /* ---- 카드 그리드 렌더링 (스크래퍼 결과 뷰 + 데일리 브리핑 상세가 공유) ---- */
 function groupByCategory(items){
   const groups={};
-  CATEGORY_META.forEach(c=>{ groups[c.key]=[]; });
+  RESULT_CATEGORY_META.forEach(c=>{ groups[c.key]=[]; });
   items.forEach(item=>{ (groups[item.source_category]||(groups[item.source_category]=[])).push(item); });
   return groups;
 }
@@ -205,12 +214,116 @@ function itemInitial(sourceName){
   return (sourceName||'').replace('YouTube: ','').charAt(0) || '?';
 }
 
-function renderResultGroups(container, items){
-  // title/excerpt/source_name은 스크래핑된 외부 콘텐츠이므로 innerHTML이 아니라
-  // textContent로만 채운다 — HTML 인젝션을 원천 차단하기 위해서다.
+function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+/* 글자 사이에 \s*를 끼워 넣어 표기 스페이싱 차이를 허용한다("파니엔테" 검색어가
+   본문엔 "파 니엔테"로 적혀 있는 경우가 실제로 흔했다) — 백엔드 fuzzy_find와
+   동일한 개념. */
+function fuzzyPattern(term){
+  return term.split('').filter(ch=>!/\s/.test(ch)).map(escapeRegExp).join('\\s*');
+}
+
+/* 검색어/매칭 브랜드가 title·excerpt 어디에 나오는지 <mark>로 표시한다.
+   scrapped 텍스트는 여전히 textContent/createTextNode로만 넣는다 — <mark>는
+   우리가 직접 만든 빈 엘리먼트일 뿐, 외부 콘텐츠를 HTML로 파싱하지 않는다.
+   패턴 전체를 하나의 캡처 그룹으로 묶어서 split() 했을 때 홀수 인덱스가
+   항상 매칭 부분이 되게 한다 — fuzzy 매칭이라 실제로 잡힌 문자열이 term과
+   글자 그대로 똑같지 않을 수 있어(스페이싱 차이) 텍스트 비교로는 매칭 여부를
+   되짚을 수 없다. */
+function renderHighlighted(el, text, terms){
+  el.textContent='';
+  const patterns=terms.map(fuzzyPattern).filter(Boolean).sort((a,b)=>b.length-a.length);
+  if(!patterns.length){ el.textContent=text; return; }
+  const re=new RegExp(`(${patterns.join('|')})`, 'gi');
+  text.split(re).forEach((part, i)=>{
+    if(!part) return;
+    if(i%2===1){
+      const mark=document.createElement('mark');
+      mark.className='result-card-highlight';
+      mark.textContent=part;
+      el.appendChild(mark);
+    }else{
+      el.appendChild(document.createTextNode(part));
+    }
+  });
+}
+
+// title/excerpt/source_name은 스크래핑된 외부 콘텐츠이므로 innerHTML이 아니라
+// textContent(혹은 renderHighlighted의 createTextNode)로만 채운다 —
+// HTML 인젝션을 원천 차단하기 위해서다. img.src는 텍스트가 아니라 URL 속성이라
+// 별도 이스케이프 불필요.
+function buildResultCard(item, highlightQuery, animate){
+  const a=document.createElement('a');
+  a.href=item.external_url || '#';
+  a.target='_blank';
+  a.rel='noopener';
+  a.className='result-card'+(animate ? ' result-card-enter' : '');
+
+  if(item.thumbnail_url){
+    const img=document.createElement('img');
+    img.className='result-card-thumb';
+    img.src=item.thumbnail_url;
+    img.loading='lazy';
+    img.alt='';
+    img.referrerPolicy='no-referrer';
+    // 썸네일 로드 실패(만료된 CDN 서명 URL 등) 시 이니셜 블록으로 대체
+    img.addEventListener('error', ()=>{
+      const fallback=document.createElement('div');
+      fallback.className='result-card-thumb-fallback';
+      fallback.textContent=itemInitial(item.source_name);
+      img.replaceWith(fallback);
+    });
+    a.appendChild(img);
+  }else{
+    const fallback=document.createElement('div');
+    fallback.className='result-card-thumb-fallback';
+    fallback.textContent=itemInitial(item.source_name);
+    a.appendChild(fallback);
+  }
+
+  const body=document.createElement('div');
+  body.className='result-card-body';
+
+  const terms=[highlightQuery, ...(item.matched_brands||[])].filter(Boolean);
+
+  const title=document.createElement('div');
+  title.className='result-card-title';
+  renderHighlighted(title, item.title, terms);
+
+  const excerpt=document.createElement('div');
+  excerpt.className='result-card-excerpt';
+  renderHighlighted(excerpt, item.excerpt||'', terms);
+
+  body.appendChild(title);
+  body.appendChild(excerpt);
+
+  if((item.matched_brands||[]).length){
+    const chipsWrap=document.createElement('div');
+    chipsWrap.className='result-card-chips';
+    item.matched_brands.forEach(b=>{
+      const chip=document.createElement('span');
+      chip.className='result-card-chip';
+      chip.textContent=b;
+      chipsWrap.appendChild(chip);
+    });
+    body.appendChild(chipsWrap);
+  }
+
+  const meta=document.createElement('div');
+  meta.className='result-card-meta';
+  const src=document.createElement('span'); src.textContent=item.source_name;
+  const date=document.createElement('span'); date.textContent=item.published_date||'';
+  meta.appendChild(src); meta.appendChild(date);
+  body.appendChild(meta);
+
+  a.appendChild(body);
+  return a;
+}
+
+function renderResultGroups(container, items, highlightQuery){
   const groups=groupByCategory(items);
   container.innerHTML='';
-  CATEGORY_META.forEach(c=>{
+  RESULT_CATEGORY_META.forEach(c=>{
     const groupItems=groups[c.key]||[];
     if(!groupItems.length) return;
 
@@ -228,62 +341,59 @@ function renderResultGroups(container, items){
     const grid=document.createElement('div');
     grid.className='result-grid';
     groupItems.forEach(item=>{
-      const a=document.createElement('a');
-      a.href=item.external_url || '#';
-      a.target='_blank';
-      a.rel='noopener';
-      a.className='result-card';
-
-      const avatar=document.createElement('div');
-      avatar.className='result-card-avatar';
-      avatar.textContent=itemInitial(item.source_name);
-
-      const body=document.createElement('div');
-      body.className='result-card-body';
-
-      const title=document.createElement('div');
-      title.className='result-card-title';
-      title.textContent=item.title;
-
-      const excerpt=document.createElement('div');
-      excerpt.className='result-card-excerpt';
-      excerpt.textContent=item.excerpt||'';
-
-      body.appendChild(title);
-      body.appendChild(excerpt);
-
-      if((item.matched_brands||[]).length){
-        const chipsWrap=document.createElement('div');
-        chipsWrap.className='result-card-chips';
-        item.matched_brands.forEach(b=>{
-          const chip=document.createElement('span');
-          chip.className='result-card-chip';
-          chip.textContent=b;
-          chipsWrap.appendChild(chip);
-        });
-        body.appendChild(chipsWrap);
-      }
-
-      const meta=document.createElement('div');
-      meta.className='result-card-meta';
-      const src=document.createElement('span'); src.textContent=item.source_name;
-      const date=document.createElement('span'); date.textContent=item.published_date||'';
-      meta.appendChild(src); meta.appendChild(date);
-      body.appendChild(meta);
-
-      a.appendChild(avatar);
-      a.appendChild(body);
-      grid.appendChild(a);
+      grid.appendChild(buildResultCard(item, highlightQuery, false));
     });
     groupEl.appendChild(grid);
     container.appendChild(groupEl);
   });
 }
 
-function renderResultsView(query, results, failures){
-  resultsQueryEl.textContent=query;
-  resultsCountEl.textContent=`${results.length}건 수집됨`;
-  renderResultGroups(resultsGroupsEl, results);
+/* ---- 스크래퍼 결과: 폴링마다 새로 도착한 아이템만 카드로 추가(애니메이션) ----
+   groupByCategory을 매번 다시 돌리는 대신, 카테고리별 그리드를 처음에 고정
+   순서로 미리 만들어두고(비어있으면 숨김) 새 URL만 골라 append한다 — 그래야
+   카테고리가 도착 순서에 따라 화면에서 뒤섞이지 않는다. */
+let renderedResultUrls=new Set();
+
+function initIncrementalResults(){
+  renderedResultUrls=new Set();
+  resultsGroupsEl.innerHTML='';
+  RESULT_CATEGORY_META.forEach(c=>{
+    const groupEl=document.createElement('div');
+    groupEl.className='result-group hidden';
+    groupEl.dataset.category=c.key;
+    const groupTitle=document.createElement('div');
+    groupTitle.className='result-group-title';
+    const countSpan=document.createElement('span');
+    countSpan.className='result-group-count';
+    countSpan.textContent='0';
+    groupTitle.textContent=c.label+' ';
+    groupTitle.appendChild(countSpan);
+    const grid=document.createElement('div');
+    grid.className='result-grid';
+    groupEl.appendChild(groupTitle);
+    groupEl.appendChild(grid);
+    resultsGroupsEl.appendChild(groupEl);
+  });
+}
+
+function appendIncrementalResults(items, highlightQuery){
+  const groups=groupByCategory(items);
+  RESULT_CATEGORY_META.forEach(c=>{
+    const newItems=(groups[c.key]||[]).filter(item=>!renderedResultUrls.has(item.external_url));
+    if(!newItems.length) return;
+    const groupEl=resultsGroupsEl.querySelector(`[data-category="${c.key}"]`);
+    groupEl.classList.remove('hidden');
+    const grid=groupEl.querySelector('.result-grid');
+    newItems.forEach(item=>{
+      renderedResultUrls.add(item.external_url);
+      grid.appendChild(buildResultCard(item, highlightQuery, true));
+    });
+    groupEl.querySelector('.result-group-count').textContent=grid.children.length;
+  });
+}
+
+function finalizeResultsView(failures){
+  resultsProgressEl.classList.add('hidden');
 
   if(failures.length){
     resultsFailuresBlock.classList.remove('hidden');
@@ -485,44 +595,78 @@ loadSourceCounts();
 
 
 /* ============================================================
-   데일리 브리핑 — 주간 달력 (데모 데이터, 실 연동은 범위 밖)
+   데일리 브리핑 — 주간 달력 (실 데이터: docs/data/{date}/*.json,
+   깃허브 저장소에서 clone해온 스크래핑 결과를 그대로 fetch해 사용한다.
+   파일이 없는 날짜는 빈 상태로 표시)
    ============================================================ */
 const DAY_LABELS=['일','월','화','수','목','금','토'];
 
-function generateDemoData(){
-  const data={};
-  const base=new Date();
-  for(let d=-14; d<=14; d++){
-    const dt=new Date(base); dt.setDate(base.getDate()+d);
-    const key=fmtDateKey(dt);
-    data[key]=createDayBriefing(dt, d===0, d>0);
-  }
-  return data;
+/* 스크래퍼 탭의 CATEGORY_META(4종)와 달리, 실제 브리핑 데이터에는
+   뉴스룸(나라셀라 자체 칼럼)·블로그가 별도 카테고리로 존재한다. */
+const BRIEFING_CATEGORY_META=[
+  {key:'news', label:'뉴스·매거진', emoji:'📰'},
+  {key:'newsroom', label:'뉴스룸', emoji:'🏛'},
+  {key:'wassap', label:'와쌉카페', emoji:'🍷'},
+  {key:'youtube', label:'유튜브', emoji:'🎬'},
+  {key:'blog', label:'블로그', emoji:'📝'},
+  {key:'international', label:'해외소스', emoji:'🌐'},
+];
+function emptyBriefingGroups(){
+  const g={}; BRIEFING_CATEGORY_META.forEach(c=>{ g[c.key]=[]; }); return g;
 }
-function fmtDateKey(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-function createDayBriefing(date, isToday, isFuture){
-  if(isFuture) return {isToday:false, isFuture:true, groups:{news:[],youtube:[],wassap:[],international:[]}};
-  const rand=n=>Math.floor(Math.random()*(n+1));
-  // renderResultGroups()가 item.source_category로 그룹핑하므로, 데모 아이템에도
-  // 실제 API 응답과 동일하게 이 필드를 채워야 한다(빠뜨리면 카드가 전혀 안 보임).
-  const mk=(sourceName, brand, category)=>({
-    title:`[데모] ${sourceName} 관련 소식`, excerpt:'실 데이터 연동은 범위 밖 — 데모용 텍스트입니다.',
-    source_name:sourceName, published_date:fmtDateKey(date), external_url:'#', matched_brands:[brand],
-    source_category:category,
-  });
-  const groups={
-    news: isToday ? [mk('와인나라','오퍼스원','news'), mk('디캔터코리아','샤토 마고','news')] : (rand(1)?[mk('와인나라','뒤가피','news')]:[]),
-    youtube: isToday ? [mk('YouTube: 와인클래스 준','케이머스','youtube')] : [],
-    wassap: isToday ? [mk('와쌉','오퍼스원','wassap')] : (rand(1)?[mk('와쌉','뒤가피','wassap')]:[]),
-    international: isToday ? [mk('Wine Spectator','샤토 마고','international')] : [],
+
+async function fetchJSON(path){
+  try{
+    const res=await fetch(path);
+    if(!res.ok) return null;
+    return await res.json();
+  }catch(e){ return null; }
+}
+
+function toItems(list, category, dateKey, sourceName){
+  return (list||[]).map(it=>({
+    title: it.title || it.title_ko || '(제목 없음)',
+    excerpt: it.snippet || it.summary_ko || '',
+    source_name: sourceName || it.press || it.source || '',
+    published_date: dateKey, external_url: it.url || '#',
+    matched_brands: [], source_category: category,
+  }));
+}
+function youtubeItems(byChannel, dateKey){
+  return Object.entries(byChannel||{}).flatMap(([channel, vids])=>(vids||[]).map(v=>({
+    title: v.title || '(제목 없음)', excerpt:'', source_name:`YouTube: ${channel}`,
+    published_date: dateKey, external_url: v.url || '#',
+    matched_brands: [], source_category:'youtube',
+  })));
+}
+function internationalItems(intl, dateKey){
+  if(!intl) return [];
+  const buckets=['foreign_magazines','foreign_stats','domestic_stats','events','downstream_market'];
+  return buckets.flatMap(k=>(intl[k]||[]).map(it=>({
+    title: it.title_ko || it.title || '(제목 없음)',
+    excerpt: it.summary_ko || it.snippet || '',
+    source_name: it.source || '해외소스',
+    published_date: dateKey, external_url: it.url || '#',
+    matched_brands: [], source_category:'international',
+  })));
+}
+
+async function fetchDayGroups(dateKey){
+  const base=`docs/data/${dateKey}`;
+  const [news, newsroom, wassap, youtube, blog, international]=await Promise.all(
+    ['news','newsroom','wassap','youtube','blog','international'].map(f=>fetchJSON(`${base}/${f}.json`))
+  );
+  return {
+    news: toItems(news, 'news', dateKey),
+    newsroom: toItems(newsroom, 'newsroom', dateKey),
+    wassap: toItems(wassap, 'wassap', dateKey, '와쌉카페'),
+    youtube: youtubeItems(youtube, dateKey),
+    blog: toItems(blog, 'blog', dateKey, '네이버 블로그'),
+    international: internationalItems(international, dateKey),
   };
-  return {isToday, isFuture:false, groups};
 }
 
-const briefingData=generateDemoData();
-let currentWeekStart=getWeekStart(new Date());
-let selectedDateKey=fmtDateKey(new Date());
-
+function fmtDateKey(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function getWeekStart(d){
   const dt=new Date(d);
   const day=dt.getDay();
@@ -533,6 +677,28 @@ function getWeekStart(d){
 }
 function addDays(d,n){ const dt=new Date(d); dt.setDate(dt.getDate()+n); return dt; }
 function fmtMonthDay(d){ return `${d.getMonth()+1}/${d.getDate()}`; }
+
+/* ±14일 범위만 fetch한다 — 실제 파일이 있는 날짜가 며칠뿐이라 대부분 빈 배열로
+   끝나지만, 로컬 정적 서버 fetch라 부담이 없다(원격 API였다면 주 단위 지연 로드로
+   바꿔야 한다). */
+async function loadBriefingData(){
+  const data={};
+  const base=new Date();
+  const todayKey=fmtDateKey(base);
+  const tasks=[];
+  for(let d=-14; d<=14; d++){
+    const dt=addDays(base,d);
+    const key=fmtDateKey(dt);
+    if(key>todayKey){ data[key]={isToday:false, isFuture:true, groups:emptyBriefingGroups()}; continue; }
+    tasks.push(fetchDayGroups(key).then(groups=>{ data[key]={isToday:key===todayKey, isFuture:false, groups}; }));
+  }
+  await Promise.all(tasks);
+  return data;
+}
+
+let briefingData={};
+let currentWeekStart=getWeekStart(new Date());
+let selectedDateKey=fmtDateKey(new Date());
 
 function renderWeekNav(){
   const start=currentWeekStart;
@@ -554,7 +720,7 @@ function renderCalendar(){
   for(let i=0;i<7;i++){
     const cellDate=addDays(currentWeekStart,i);
     const key=fmtDateKey(cellDate);
-    const data=briefingData[key]||{isToday:false,isFuture:false,groups:{news:[],youtube:[],wassap:[],international:[]}};
+    const data=briefingData[key]||{isToday:false,isFuture:false,groups:emptyBriefingGroups()};
     const count=countOf(data);
     const isSelected=key===selectedDateKey;
 
@@ -575,51 +741,142 @@ function renderCalendar(){
   }
 }
 
+/* 글로벌 동향=해외소스, 소비자 동향=유튜브·와쌉·블로그(소비자 채널), 수입사 주요
+   활동=뉴스·뉴스룸(나라셀라 자체 칼럼 포함). */
+const SUMMARY_CATEGORIES=[
+  {key:'global', badge:'글', title:'글로벌 동향', match:['international']},
+  {key:'consumer', badge:'소', title:'소비자 동향', match:['youtube','wassap','blog']},
+  {key:'importer', badge:'수', title:'수입사 주요 활동', match:['news','newsroom']},
+];
+
+/* 대응 방향 제시 없이 그 주 실제 수집 항목의 제목만 뽑아 현황을 서술한다
+   (프론트에서 LLM 호출 없이 만드는 발췌 요약 — 진짜 이해·요약이 필요하면
+   백엔드 요약 엔드포인트가 따로 필요하다). */
+function buildCategoryProse(items){
+  if(!items.length) return '이번 주 수집된 소식 없음';
+  const titles=items.map(it=>it.title).filter(Boolean).slice(0,3)
+    .map(t=> t.length>26 ? t.slice(0,26)+'…' : t);
+  return `이번 주 ${items.length}건 수집. 주요 소식: ${titles.map(t=>`"${t}"`).join(', ')}.`;
+}
+
 function renderWeeklySummary(){
   const el=document.getElementById('weeklySummary');
   el.innerHTML='';
+
+  const weekItems=[];
+  for(let i=0;i<7;i++){
+    const data=briefingData[fmtDateKey(addDays(currentWeekStart,i))];
+    if(data && !data.isFuture) weekItems.push(...Object.values(data.groups).flat());
+  }
+
   const title=document.createElement('div');
   title.className='weekly-summary-title';
-  title.textContent='주간 요약';
-  const item=document.createElement('div');
-  item.className='weekly-summary-item';
-  const bullet=document.createElement('span'); bullet.className='weekly-summary-bullet'; bullet.textContent='•';
-  const text=document.createElement('span'); text.textContent='실 데이터 연동은 범위 밖입니다 — 데모용 화면입니다.';
-  item.appendChild(bullet); item.appendChild(text);
-  el.appendChild(title); el.appendChild(item);
+  title.textContent='이번 주 종합';
+  el.appendChild(title);
+
+  SUMMARY_CATEGORIES.forEach((cat,idx)=>{
+    const items=weekItems.filter(it=>cat.match.includes(it.source_category));
+
+    const section=document.createElement('div');
+    section.className='summary-category';
+    section.style.setProperty('--stagger-index', idx);
+
+    const head=document.createElement('div'); head.className='summary-category-head';
+    const badge=document.createElement('span'); badge.className='summary-category-badge'; badge.textContent=cat.badge;
+    const name=document.createElement('span'); name.className='summary-category-name'; name.textContent=cat.title;
+    const count=document.createElement('span'); count.className='summary-category-count'; count.textContent=`${items.length}건`;
+    head.appendChild(badge); head.appendChild(name); head.appendChild(count);
+
+    const body=document.createElement('p'); body.className='summary-category-body';
+    body.textContent=buildCategoryProse(items);
+    if(!items.length) body.classList.add('is-empty');
+
+    section.appendChild(head); section.appendChild(body);
+    el.appendChild(section);
+  });
+}
+
+/* 데일리 상세 히어로 — docs/briefings/*.html(실제 발송되는 이메일 브리핑) 레이아웃 참고:
+   그라디언트 헤드라인 + "오늘의 요약" 카드(소스별 건수 칩 + 카테고리별 하이라이트 2건).
+   요청에 따라 하단 카드 그리드는 없음 — 히어로가 그날 상세의 전부. */
+function weekdayLabel(dateObj){ return DAY_LABELS[dateObj.getDay()]; }
+
+function renderBriefingHero(data){
+  const heroEl=document.getElementById('briefingHero');
+  heroEl.innerHTML='';
+  const [y,m,d]=selectedDateKey.split('-');
+  const dateObj=new Date(Number(y), Number(m)-1, Number(d));
+  const allItems=data?Object.values(data.groups).flat():[];
+
+  const hero=document.createElement('div'); hero.className='briefing-hero';
+  const eyebrow=document.createElement('div'); eyebrow.className='hero-eyebrow'; eyebrow.textContent='나라셀라 데일리 와인 브리핑';
+  const titleRow=document.createElement('div'); titleRow.className='hero-title-row';
+  const title=document.createElement('span'); title.className='hero-title';
+  title.textContent=`🍾 ${y}년 ${m}월 ${d}일 (${weekdayLabel(dateObj)}) 와인 업계 동향`;
+  titleRow.appendChild(title);
+  if(data&&data.isToday){ const badge=document.createElement('span'); badge.className='hero-today-badge'; badge.textContent='오늘'; titleRow.appendChild(badge); }
+  const activeCats=BRIEFING_CATEGORY_META.filter(c=>(data&&data.groups[c.key]||[]).length>0);
+  const sub=document.createElement('div'); sub.className='hero-sub';
+  sub.textContent=activeCats.length?activeCats.map(c=>c.label).join(' · '):'수집된 소스 없음';
+  hero.appendChild(eyebrow); hero.appendChild(titleRow); hero.appendChild(sub);
+
+  const summaryCard=document.createElement('div'); summaryCard.className='hero-summary-card';
+  const summaryHead=document.createElement('div'); summaryHead.className='hero-summary-head';
+  const summaryLabel=document.createElement('span'); summaryLabel.textContent='📊 오늘의 요약';
+  const summaryTotal=document.createElement('span'); summaryTotal.className='hero-summary-total';
+  summaryTotal.textContent=`총 ${allItems.length}건 수집`;
+  summaryHead.appendChild(summaryLabel); summaryHead.appendChild(summaryTotal);
+  summaryCard.appendChild(summaryHead);
+
+  const chipRow=document.createElement('div'); chipRow.className='hero-chip-row';
+  BRIEFING_CATEGORY_META.forEach(c=>{
+    const n=(data&&data.groups[c.key]||[]).length;
+    const chip=document.createElement('span'); chip.className='hero-chip';
+    chip.textContent=`${c.emoji} ${c.label} ${n}`;
+    chipRow.appendChild(chip);
+  });
+  summaryCard.appendChild(chipRow);
+
+  if(activeCats.length){
+    summaryCard.appendChild(document.createElement('hr')).className='hero-divider';
+    const highlights=document.createElement('div'); highlights.className='hero-highlights';
+    activeCats.forEach(c=>{
+      const items=data.groups[c.key].slice(0,2);
+      const group=document.createElement('div'); group.className='hero-highlight-group';
+      const label=document.createElement('div'); label.className='hero-highlight-label'; label.textContent=`${c.emoji} ${c.label}`;
+      const list=document.createElement('ul');
+      items.forEach(it=>{
+        const li=document.createElement('li');
+        const a=document.createElement('a'); a.href=it.external_url||'#'; a.target='_blank'; a.rel='noopener'; a.textContent=it.title;
+        li.appendChild(a); list.appendChild(li);
+      });
+      group.appendChild(label); group.appendChild(list);
+      highlights.appendChild(group);
+    });
+    summaryCard.appendChild(highlights);
+  }
+
+  heroEl.appendChild(hero);
+  heroEl.appendChild(summaryCard);
 }
 
 function renderBriefingDetail(){
-  const data=briefingData[selectedDateKey];
-  const [y,m,d]=selectedDateKey.split('-');
-  document.getElementById('detailDateLabel').textContent=`${y}.${m}.${d}`;
-  document.getElementById('todayBadge').classList.toggle('hidden', !(data&&data.isToday));
-
-  const allItems=data?Object.values(data.groups).flat():[];
-  document.getElementById('detailTotal').textContent=allItems.length;
-  const brandSet=new Set(); allItems.forEach(it=>(it.matched_brands||[]).forEach(b=>brandSet.add(b)));
-  document.getElementById('detailBrandCount').textContent=brandSet.size;
-
-  const groupsEl=document.getElementById('briefingGroups');
-  const emptyEl=document.getElementById('briefingEmpty');
-  if(!allItems.length){
-    groupsEl.innerHTML=''; emptyEl.classList.remove('hidden');
-  }else{
-    emptyEl.classList.add('hidden');
-    renderResultGroups(groupsEl, allItems);
-  }
+  renderBriefingHero(briefingData[selectedDateKey]);
 }
 
 document.getElementById('btnPrevWeek').addEventListener('click',()=>{
   currentWeekStart=addDays(currentWeekStart,-7);
-  renderWeekNav(); renderCalendar();
+  renderWeekNav(); renderCalendar(); renderWeeklySummary();
 });
 document.getElementById('btnNextWeek').addEventListener('click',()=>{
   currentWeekStart=addDays(currentWeekStart,7);
-  renderWeekNav(); renderCalendar();
+  renderWeekNav(); renderCalendar(); renderWeeklySummary();
 });
 
-renderWeekNav();
-renderCalendar();
-renderWeeklySummary();
-renderBriefingDetail();
+(async function initBriefing(){
+  briefingData=await loadBriefingData();
+  renderWeekNav();
+  renderCalendar();
+  renderWeeklySummary();
+  renderBriefingDetail();
+})();

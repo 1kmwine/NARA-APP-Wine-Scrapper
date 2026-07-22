@@ -3,9 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 로컬 개발 서버(python http.server)는 캐시 헤더를 안 보내는데도 브라우저가
+       휴리스틱 캐싱으로 이 문서 자체를 계속 재사용하는 문제가 있었다 — 재검증을
+       강제한다. 단, 이 메타 태그는 문서 자체에만 적용되고 <link>/<script>로 불러오는
+       별도 리소스(app.js/style.css)의 캐싱에는 영향이 없다 — 그 파일들은 아래처럼
+       ?v= 쿼리스트링을 매번 다른 값으로 바꿔서 캐시를 무력화한다(CACHE_BUST 참고). -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>NARA Wine Intelligence</title>
   <link rel="stylesheet" href="css/design-system.css">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body>
   <header class="header-bar">
@@ -36,19 +44,18 @@
         <div class="recent-queries" id="recentQueries"></div>
       </div>
 
-      <div id="scraperProgressView" class="scraper-view progress-view hidden">
-        <div class="progress-title"><span id="progressQuery"></span> 검색 중…</div>
-        <div class="progress-sub"><span id="progressDone">0</span> / <span id="progressTotal">0</span>개 소스 완료</div>
-        <div class="progress-bar-track"><div class="progress-bar-fill" id="progressBarFill"></div></div>
-        <div class="progress-rows" id="progressRows"></div>
-      </div>
-
       <div id="scraperResultsView" class="scraper-view results-view hidden">
         <div class="results-head">
           <div class="results-query" id="resultsQuery"></div>
           <button id="btnResetSearch" class="btn-outline">새 검색</button>
         </div>
         <div class="results-count" id="resultsCount"></div>
+        <!-- job이 running인 동안만 보임 — 카드는 아래 resultsGroups에 실시간으로
+             하나씩 추가되고(애니메이션), 이 블록은 진행 상황만 보여준다. -->
+        <div id="resultsProgress" class="results-progress hidden">
+          <div class="progress-bar-track"><div class="progress-bar-fill" id="progressBarFill"></div></div>
+          <div class="progress-rows" id="progressRows"></div>
+        </div>
         <div id="resultsFailures" class="hidden">
           <button id="btnToggleFailures" class="failures-toggle">
             <span class="failure-dot"></span>
@@ -73,18 +80,11 @@
         <button class="btn-icon-round" id="btnNextWeek" title="다음 주">›</button>
       </div>
 
-      <div class="week-calendar" id="weekCalendar"></div>
-
       <div class="weekly-summary" id="weeklySummary"></div>
 
-      <div class="briefing-date-head">
-        <div class="briefing-date-label" id="detailDateLabel">브리핑 상세</div>
-        <span class="today-badge hidden" id="todayBadge">오늘</span>
-      </div>
-      <div class="briefing-sub"><span id="detailTotal">0</span>건 수집됨 · <span id="detailBrandCount">0</span>개 브랜드 언급</div>
+      <div class="week-calendar" id="weekCalendar"></div>
 
-      <div id="briefingGroups"></div>
-      <div id="briefingEmpty" class="briefing-empty hidden">해당 날짜에 수집된 항목이 없습니다.</div>
+      <div id="briefingHero"></div>
     </section>
   </main>
 
@@ -114,6 +114,6 @@
 
   <div class="toast hidden" id="toast"></div>
 
-  <script src="js/app.js"></script>
+  <script src="js/app.js?v=7"></script>
 </body>
 </html>
