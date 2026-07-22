@@ -1,6 +1,6 @@
 import pytest
 
-from app.db import get_known_brands, article_exists, insert_article
+from app.db import get_known_brands, find_english_name, article_exists, get_article, insert_article
 from app.parse import ParsedArticle
 
 
@@ -50,6 +50,21 @@ def test_get_known_brands_returns_distinct_names():
     assert get_known_brands(conn) == ["Montes", "Kaiken"]
 
 
+def test_find_english_name_returns_matching_row():
+    conn = FakeConnection(fetch_results=[("The Better half Marlborough Sauvignon Blanc",)])
+    assert find_english_name(conn, "베터하프") == "The Better half Marlborough Sauvignon Blanc"
+
+
+def test_find_english_name_returns_none_when_no_match():
+    conn = FakeConnection(fetch_results=[])
+    assert find_english_name(conn, "존재하지않음") is None
+
+
+def test_find_english_name_returns_none_for_blank_query():
+    conn = FakeConnection(fetch_results=[("아무거나",)])
+    assert find_english_name(conn, "   ") is None
+
+
 def test_article_exists_true_when_row_found():
     conn = FakeConnection(fetch_results=[(1,)])
     assert article_exists(conn, "https://wine21.com/1") is True
@@ -58,6 +73,18 @@ def test_article_exists_true_when_row_found():
 def test_article_exists_false_when_no_row():
     conn = FakeConnection(fetch_results=[])
     assert article_exists(conn, "https://wine21.com/1") is False
+
+
+def test_get_article_returns_stored_fields_when_found():
+    conn = FakeConnection(fetch_results=[("제목", "요약", "https://x/y.jpg", "2026-07-01")])
+    assert get_article(conn, "https://wine21.com/1") == {
+        "title": "제목", "excerpt": "요약", "thumbnail_url": "https://x/y.jpg", "published_date": "2026-07-01",
+    }
+
+
+def test_get_article_returns_none_when_no_row():
+    conn = FakeConnection(fetch_results=[])
+    assert get_article(conn, "https://wine21.com/1") is None
 
 
 def test_insert_article_writes_article_and_brand_rows():

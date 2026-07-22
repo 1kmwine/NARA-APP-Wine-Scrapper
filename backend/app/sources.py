@@ -42,4 +42,7 @@ class SourcesConfig:
     age_youtube: int = 7  # scraping-sources.md 수집쿼리 블록의 최근_유튜브_일수
 
     def total_count(self) -> int:
-        return len(self.news) + len(self.youtube) + len(self.wassap) + len(self.international)
+        # +2는 블로그 검색 + 유튜브 검색 — 둘 다 등록 소스 목록이 없는 항상-켜짐
+        # 검색이라(블로거는 수천 명, 유튜브도 등록 채널 11개로는 커버리지가 너무
+        # 좁음) "검색어로 1회 검색"이라는 단일 작업으로 센다.
+        return len(self.news) + len(self.youtube) + len(self.wassap) + len(self.international) + 2

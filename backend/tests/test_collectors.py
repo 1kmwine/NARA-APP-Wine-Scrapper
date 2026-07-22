@@ -24,7 +24,7 @@ class FakeYoutubeClient:
         raise AssertionError(f"예상치 못한 URL: {url}")
 
 
-def _channel_page(video_id, title, date_text):
+def _channel_page(video_id, title, date_text, thumbnail_url="https://i.ytimg.com/vi/abc123/hqdefault.jpg"):
     data = {
         "contents": {"twoColumnBrowseResultsRenderer": {"tabs": [
             {},
@@ -33,6 +33,7 @@ def _channel_page(video_id, title, date_text):
                     "videoId": video_id,
                     "title": {"runs": [{"text": title}]},
                     "publishedTimeText": {"simpleText": date_text},
+                    "thumbnail": {"thumbnails": [{"url": thumbnail_url, "width": 360, "height": 202}]},
                 }}}}
             ]}}}},
         ]}}
@@ -52,6 +53,7 @@ def test_collect_youtube_with_known_channel_id():
     assert items[0].external_url == "https://youtu.be/abc123"
     assert items[0].source_name == "YouTube: 비밀이야"
     assert items[0].published_date == (date.today() - timedelta(days=1)).isoformat()
+    assert items[0].thumbnail_url == "https://i.ytimg.com/vi/abc123/hqdefault.jpg"
 
 
 def test_collect_youtube_resolves_channel_id_when_blank():
@@ -86,6 +88,68 @@ def test_collect_youtube_filters_out_videos_older_than_max_age():
     items = collect_youtube(source, client, max_age_days=7)
 
     assert items == []
+
+
+from app.collectors import collect_youtube_search
+
+
+class FakeYoutubeSearchClient:
+    def __init__(self, html):
+        self._html = html
+
+    def get(self, url, params=None, headers=None, timeout=None):
+        return FakeYoutubeResponse(self._html)
+
+
+def _search_results_page(*videos):
+    """videos: (video_id, title, date_text, channel_name, thumbnail_url) 튜플들."""
+    content_items = []
+    for video_id, title, date_text, channel, thumbnail_url in videos:
+        content_items.append({"videoRenderer": {
+            "videoId": video_id,
+            "title": {"runs": [{"text": title}]},
+            "publishedTimeText": {"simpleText": date_text},
+            "longBylineText": {"runs": [{"text": channel}]},
+            "thumbnail": {"thumbnails": [{"url": thumbnail_url, "width": 360, "height": 202}]},
+        }})
+    # 채널 렌더러 같은 비디오 아님 항목도 섞여 있는 게 실제 상황 — 걸러지는지 같이 검증
+    content_items.insert(1 if len(content_items) > 1 else 0, {"channelRenderer": {"channelId": "UCxxx"}})
+    data = {"contents": {"twoColumnSearchResultsRenderer": {"primaryContents": {"sectionListRenderer": {"contents": [
+        {"itemSectionRenderer": {"contents": content_items}},
+    ]}}}}}
+    return f"<html><script>var ytInitialData = {json.dumps(data)};</script></html>"
+
+
+def test_collect_youtube_search_returns_videos_skipping_non_video_items():
+    html = _search_results_page(
+        ("v1", "로저구라트 까바 리뷰", "2일 전", "와인 마시는 아톰", "https://i.ytimg.com/vi/v1/hqdefault.jpg"),
+    )
+    client = FakeYoutubeSearchClient(html)
+
+    items = collect_youtube_search("로저구라트", client)
+
+    assert len(items) == 1
+    assert items[0].title == "로저구라트 까바 리뷰"
+    assert items[0].external_url == "https://youtu.be/v1"
+    assert items[0].source_name == "YouTube: 와인 마시는 아톰"
+    assert items[0].thumbnail_url == "https://i.ytimg.com/vi/v1/hqdefault.jpg"
+
+
+def test_collect_youtube_search_caps_at_max_items():
+    html = _search_results_page(*[
+        (f"v{i}", f"영상{i}", "1일 전", "채널", "https://i.ytimg.com/vi/x/hqdefault.jpg")
+        for i in range(20)
+    ])
+    client = FakeYoutubeSearchClient(html)
+
+    items = collect_youtube_search("로저구라트", client, max_items=12)
+
+    assert len(items) == 12
+
+
+def test_collect_youtube_search_returns_empty_when_no_ytinitialdata():
+    client = FakeYoutubeSearchClient("<html>no data here</html>")
+    assert collect_youtube_search("로저구라트", client) == []
 
 
 def test_collected_item_title_truncated_to_500_chars():
@@ -145,20 +209,22 @@ def test_collect_wassap_parses_list_and_excludes_notices():
     assert items[0].source_name == "와쌉"
 
 
-def test_collect_wassap_sorts_by_comment_count_desc():
+def test_collect_wassap_sorts_by_recency_not_comment_count():
+    # 댓글 수가 아니라 article id(최신순)로 정렬돼야 한다 — 인기글에 밀려
+    # 최신 관련 글이 빠지는 걸 막기 위해 2026-07-21에 정렬 기준을 바꿨다.
     html = (
-        '<a href="/ArticleRead.nhn?clubid=10050146&amp;articleid=1" title="답0/댓1">'
-        '<div class="ellipsis tcol-c">댓글적음</div></a>'
-        '<a href="/ArticleRead.nhn?clubid=10050146&amp;articleid=2" title="답0/댓20">'
-        '<div class="ellipsis tcol-c">댓글많음</div></a>'
+        '<a href="/ArticleRead.nhn?clubid=10050146&amp;articleid=1" title="답0/댓20">'
+        '<div class="ellipsis tcol-c">오래됐지만 댓글많음</div></a>'
+        '<a href="/ArticleRead.nhn?clubid=10050146&amp;articleid=2" title="답0/댓1">'
+        '<div class="ellipsis tcol-c">최신이지만 댓글적음</div></a>'
     )
     source = WassapSource(id="winerack24-10050146", name="와쌉", cafe_id="winerack24", clubid="10050146")
     client = FakeWassapClient(html)
 
     items = collect_wassap(source, client, naver_cookie="fake-cookie")
 
-    assert items[0].title == "댓글많음"
-    assert items[1].title == "댓글적음"
+    assert items[0].title == "최신이지만 댓글적음"
+    assert items[1].title == "오래됐지만 댓글많음"
 
 
 def test_collect_wassap_limits_to_ten_items():
@@ -255,3 +321,86 @@ def test_collect_international_unsupported_source_raises():
     import pytest
     with pytest.raises(NotImplementedError):
         collect_international(source, client, translate=_identity_translate)
+
+
+from app.collectors import collect_naver_blog
+
+
+class FakeBlogResponse:
+    def __init__(self, payload=None, text=""):
+        self._payload = payload
+        self.text = text
+
+    def raise_for_status(self):
+        pass
+
+    def json(self):
+        return self._payload
+
+
+class FakeBlogClient:
+    """검색 API(openapi.naver.com)와 썸네일용 PostView.naver 요청을 URL로 구분한다."""
+    def __init__(self, payload, thumbnail_html_by_lognum=None):
+        self._payload = payload
+        self._thumbnails = thumbnail_html_by_lognum or {}
+
+    def get(self, url, params=None, headers=None, timeout=None):
+        if "openapi.naver.com" in url:
+            return FakeBlogResponse(payload=self._payload)
+        log_no = (params or {}).get("logNo", "")
+        return FakeBlogResponse(text=self._thumbnails.get(log_no, "<html></html>"))
+
+
+def test_collect_naver_blog_builds_items_from_search_api():
+    client = FakeBlogClient(
+        {"items": [{
+            "title": "<b>로저 구라트</b> 데미세크",
+            "description": "<b>로저 구라트</b> 카바 시음기...",
+            "link": "https://blog.naver.com/naracellar/224352889386",
+            "bloggername": "나라셀라",
+            "postdate": "20260721",
+        }]},
+        thumbnail_html_by_lognum={
+            "224352889386": '<meta property="og:image" content="https://blogthumb.pstatic.net/x.jpg">',
+        },
+    )
+
+    items = collect_naver_blog("로저구라트", "id", "secret", client)
+
+    assert len(items) == 1
+    assert items[0].title == "로저 구라트 데미세크"
+    assert items[0].excerpt == "로저 구라트 카바 시음기..."
+    assert items[0].external_url == "https://blog.naver.com/naracellar/224352889386"
+    assert items[0].published_date == "2026-07-21"
+    assert items[0].source_name == "블로그: 나라셀라"
+    assert items[0].thumbnail_url == "https://blogthumb.pstatic.net/x.jpg"
+
+
+def test_collect_naver_blog_thumbnail_fetch_failure_falls_back_to_none():
+    class BrokenThumbnailClient(FakeBlogClient):
+        def get(self, url, params=None, headers=None, timeout=None):
+            if "openapi.naver.com" in url:
+                return super().get(url, params, headers, timeout)
+            raise RuntimeError("network down")
+
+    client = BrokenThumbnailClient({"items": [{
+        "title": "제목", "description": "", "link": "https://blog.naver.com/x/1",
+        "bloggername": "x", "postdate": "20260721",
+    }]})
+
+    items = collect_naver_blog("로저구라트", "id", "secret", client)
+
+    assert items[0].thumbnail_url is None
+
+
+def test_collect_naver_blog_caps_at_max_items():
+    payload = {"items": [
+        {"title": f"글{i}", "description": "", "link": f"https://blog.naver.com/x/{i}",
+         "bloggername": "x", "postdate": "20260721"}
+        for i in range(20)
+    ]}
+    client = FakeBlogClient(payload)
+
+    items = collect_naver_blog("로저구라트", "id", "secret", client, max_items=15)
+
+    assert len(items) == 15

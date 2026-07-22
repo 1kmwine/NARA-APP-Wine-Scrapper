@@ -37,8 +37,8 @@ def test_create_job_and_poll_status(monkeypatch):
     assert status_response.status_code == 200
     body = status_response.json()
     assert body["status"] == "succeeded"
-    assert body["done"] == 1
-    assert body["total"] == 1
+    assert body["done"] == 3  # 뉴스 소스 1개 + 블로그 검색 1 + 유튜브 검색 1(항상 켜짐)
+    assert body["total"] == 3
     assert body["results"] == []
     assert body["failures"] == []
 
@@ -51,12 +51,20 @@ def test_create_job_rejects_blank_wine_name(monkeypatch):
     assert response.status_code == 400
 
 
-def test_create_job_rejects_when_no_sources_configured(monkeypatch):
+def test_create_job_allows_blog_only_when_no_other_sources_configured(monkeypatch):
+    # 블로그 검색은 등록 소스 목록이 없는 항상-켜짐 카테고리라, 다른 소스가 전부
+    # 비어 있어도 total_count()가 0이 아니게 됐다 — "설정된 소스가 없습니다" 거부는
+    # 더 이상 트리거되지 않는다(블로그만으로도 작업이 의미가 있으므로 의도된 변화).
     monkeypatch.setattr(main_module.threading, "Thread", ImmediateThread)
     monkeypatch.setattr(main_module, "_load_current_sources", lambda: SourcesConfig())
+
+    def fake_run_job(job_id, store, sources, wine_name, brand, **deps):
+        store.update(job_id, status="succeeded", done=sources.total_count())
+
+    monkeypatch.setattr(main_module, "run_job", fake_run_job)
     client = TestClient(main_module.app)
     response = client.post("/jobs", json={"wine_name": "몬테스", "brand": ""})
-    assert response.status_code == 400
+    assert response.status_code == 200
 
 
 def test_get_job_missing_returns_404():
@@ -154,7 +162,7 @@ def test_get_sources_returns_counts_and_names(monkeypatch):
     response = client.get("/sources")
     assert response.status_code == 200
     body = response.json()
-    assert body["counts"] == {"news": 1, "youtube": 0, "wassap": 0, "international": 0}
+    assert body["counts"] == {"news": 1, "youtube": 1, "wassap": 0, "international": 0, "blog": 1}
     assert body["names"]["news"] == ["와인21"]
     assert body["names"]["youtube"] == []
 

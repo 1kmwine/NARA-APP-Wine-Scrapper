@@ -1,4 +1,5 @@
 from __future__ import annotations
+import html
 import re
 
 _TAG_RE = re.compile(r"<[^>]+>")
@@ -12,13 +13,43 @@ _MAX_MATCH_TEXT_LENGTH = 50_000
 
 
 def make_excerpt(html_or_text: str, max_length: int = 200) -> str:
-    text = _TAG_RE.sub(" ", html_or_text)
+    # 네이버 검색 API(블로그 등)는 description에 &quot; 같은 HTML 엔티티를 문자
+    # 그대로 남겨서 반환한다 — 안 풀면 카드에 "&quot;"가 글자 그대로 노출된다.
+    text = html.unescape(html_or_text)
+    text = _TAG_RE.sub(" ", text)
     text = _WS_RE.sub(" ", text).strip()
     if len(text) <= max_length:
         return text
     truncated = text[:max_length]
     last_space = truncated.rfind(" ")
     return (truncated[:last_space] if last_space > 0 else truncated).strip()
+
+
+def fuzzy_find(text: str, needle: str) -> re.Match | None:
+    """대소문자 무시 + 공백 유무 차이를 허용하고 needle을 찾는다. 한글 와인/브랜드명이
+    "파니엔테"/"파 니엔테"처럼 표기마다 스페이싱이 다른 경우가 흔해서, 정확한
+    부분일치로는 실제로 매칭된 브랜드도 본문에서 못 찾아 하이라이트/요약 센터링이
+    조용히 실패하는 문제가 있었다."""
+    letters = [ch for ch in needle if not ch.isspace()]
+    if not letters:
+        return None
+    pattern = r"\s*".join(re.escape(ch) for ch in letters)
+    return re.search(pattern, text, re.IGNORECASE)
+
+
+def make_context_excerpt(full_text: str, highlight: str, fallback_excerpt: str, window: int = 90) -> str:
+    """검색어/매칭된 브랜드가 실제로 등장하는 위치를 중심으로 요약을 만든다.
+    og:description(기사 도입부)엔 매칭된 브랜드가 아예 안 나오는 경우가 흔해서
+    (예: '올해의 샴페인 브랜드 TOP10' 기사의 도입부는 특정 브랜드를 언급하지 않음),
+    카드에 왜 이 결과가 매칭됐는지 보이지 않는 문제가 있었다."""
+    if not highlight:
+        return fallback_excerpt
+    match = fuzzy_find(full_text, highlight)
+    if not match:
+        return fallback_excerpt
+    start = max(0, match.start() - window)
+    end = min(len(full_text), match.end() + window)
+    return make_excerpt(full_text[start:end])
 
 
 def _is_ascii_word_char(ch: str | None) -> bool:

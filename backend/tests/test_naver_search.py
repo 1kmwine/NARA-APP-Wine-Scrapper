@@ -1,5 +1,5 @@
 from app.naver_search import (
-    naver_search, fetch_all_items, items_for_domain, NAVER_NEWS_URL, NAVER_BLOG_URL,
+    naver_search, fetch_all_items, items_for_domain, search_blog, NAVER_NEWS_URL, NAVER_BLOG_URL,
 )
 
 
@@ -65,6 +65,12 @@ def test_naver_search_strips_bold_tags_from_title():
     assert result == [{"title": "몬테스 알파 신제품", "link": "https://wine21.com/1", "originallink": ""}]
 
 
+def test_naver_search_unescapes_html_entities_in_title():
+    client = FakeClient({"items": [{"title": "&quot;로저 구라트&quot; 신제품", "link": "https://wine21.com/1", "originallink": ""}]})
+    result = naver_search("로저구라트", NAVER_NEWS_URL, "id", "secret", client)
+    assert result[0]["title"] == '"로저 구라트" 신제품'
+
+
 def test_naver_search_sends_client_credentials_header():
     client = FakeClient({"items": []})
     naver_search("몬테스", NAVER_NEWS_URL, "my-id", "my-secret", client)
@@ -99,6 +105,24 @@ def test_fetch_all_items_calls_news_and_blog_exactly_once_each():
     assert len(news_calls) == 1
     assert len(blog_calls) == 1
     assert len(items) == 2
+
+
+def test_search_blog_extracts_description_postdate_and_bloggername():
+    client = FakeClient({"items": [{
+        "title": "<b>로저 구라트</b> 데미세크",
+        "description": "<b>로저 구라트</b> 카바 시음기...",
+        "link": "https://blog.naver.com/naracellar/224352889386",
+        "bloggername": "나라셀라",
+        "postdate": "20260721",
+    }]})
+    result = search_blog("로저구라트", "id", "secret", client)
+    assert result == [{
+        "title": "로저 구라트 데미세크",
+        "description": "로저 구라트 카바 시음기...",
+        "link": "https://blog.naver.com/naracellar/224352889386",
+        "bloggername": "나라셀라",
+        "postdate": "20260721",
+    }]
 
 
 def test_items_for_domain_prefers_originallink_over_rewritten_link():

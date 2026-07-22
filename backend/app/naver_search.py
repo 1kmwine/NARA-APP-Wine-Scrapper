@@ -1,4 +1,5 @@
 from __future__ import annotations
+import html
 import re
 import time
 from typing import Protocol
@@ -18,7 +19,7 @@ class HttpClient(Protocol):
 
 
 def _strip_tags(value: str) -> str:
-    return _TAG_RE.sub("", value)
+    return html.unescape(_TAG_RE.sub("", value))
 
 
 def _url_host_matches_domain(url: str, domain: str) -> bool:
@@ -27,14 +28,14 @@ def _url_host_matches_domain(url: str, domain: str) -> bool:
     return host == domain or host == f"www.{domain}" or host.endswith(f".{domain}")
 
 
-def naver_search(
+def _call_naver_api(
     query: str,
     api_url: str,
     client_id: str,
     client_secret: str,
     client: HttpClient,
-    display: int = 30,
-    retry_delay_seconds: float = _DEFAULT_RETRY_DELAY_SECONDS,
+    display: int,
+    retry_delay_seconds: float,
 ) -> list[dict]:
     """네이버 뉴스/블로그 검색 API 호출. 429 응답 시 최대 2회, 지수 백오프로 재시도한다."""
     headers = {
@@ -53,7 +54,19 @@ def naver_search(
         break
 
     response.raise_for_status()
-    items = response.json().get("items", [])
+    return response.json().get("items", [])
+
+
+def naver_search(
+    query: str,
+    api_url: str,
+    client_id: str,
+    client_secret: str,
+    client: HttpClient,
+    display: int = 30,
+    retry_delay_seconds: float = _DEFAULT_RETRY_DELAY_SECONDS,
+) -> list[dict]:
+    items = _call_naver_api(query, api_url, client_id, client_secret, client, display, retry_delay_seconds)
     return [
         {
             "title": _strip_tags(item.get("title", "")),
@@ -61,6 +74,30 @@ def naver_search(
             # 네이버와 제휴된 언론사(예: 한국경제)는 link가 n.news.naver.com으로
             # 재작성되고, 원본 도메인은 originallink에만 남는다.
             "originallink": item.get("originallink", ""),
+        }
+        for item in items
+    ]
+
+
+def search_blog(
+    query: str,
+    client_id: str,
+    client_secret: str,
+    client: HttpClient,
+    display: int = 30,
+    retry_delay_seconds: float = _DEFAULT_RETRY_DELAY_SECONDS,
+) -> list[dict]:
+    """블로그 검색은 뉴스와 달리 도메인 커스레이션 대상이 아니라(블로거가 수천명이라
+    "등록된 소스" 목록 개념이 안 맞음) title/description/postdate/bloggername까지
+    바로 써서 CollectedItem으로 변환한다 — og:meta 재수집 불필요."""
+    items = _call_naver_api(query, NAVER_BLOG_URL, client_id, client_secret, client, display, retry_delay_seconds)
+    return [
+        {
+            "title": _strip_tags(item.get("title", "")),
+            "description": _strip_tags(item.get("description", "")),
+            "link": item.get("link", ""),
+            "bloggername": item.get("bloggername", ""),
+            "postdate": item.get("postdate", ""),
         }
         for item in items
     ]

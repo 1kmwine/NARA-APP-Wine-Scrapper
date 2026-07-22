@@ -28,6 +28,7 @@ app.add_middleware(
 
 store = JobStore()
 settings = get_settings()
+YOUTUBE_MAX_AGE_DAYS = 365 * 5
 
 
 class CreateJobRequest(BaseModel):
@@ -66,8 +67,12 @@ def _get_known_brands() -> list[str]:
     return _with_connection(db.get_known_brands)
 
 
-def _article_exists(url: str) -> bool:
-    return _with_connection(lambda conn: db.article_exists(conn, url))
+def _get_existing_article(url: str) -> dict | None:
+    return _with_connection(lambda conn: db.get_article(conn, url))
+
+
+def _find_english_name(query: str) -> str | None:
+    return _with_connection(lambda conn: db.find_english_name(conn, query))
 
 
 def _insert_article(source_name: str, url: str, article, matched: list[str]) -> int:
@@ -90,10 +95,35 @@ def _run_job_in_background(job_id: str, sources, wine_name: str, brand: str) -> 
                 return response.text
 
             def fetch_naver_items(query: str) -> list[dict]:
-                return fetch_all_items(query, settings.naver_client_id, settings.naver_client_secret, client)
+                # "와인"을 붙여서 검색하면 노래 제목·일반명사와 겹치는 와인명(예:
+                # "베러하프")도 와인 관련 기사 위주로 나온다(구글에서 "베러하프 와인"으로
+                # 검색하면 실제로 이렇게 됨 — 2026-07-22 확인). 매칭된 제품의 nameEn이
+                # 검색어와 다르면(예: "Better Half") 그걸로도 한 번 더 검색해 영문
+                # 표기만 쓰는 국내 기사도 잡는다.
+                items = fetch_all_items(
+                    f"{query} 와인", settings.naver_client_id, settings.naver_client_secret, client,
+                )
+                english = _find_english_name(query)
+                if english and english.strip().lower() != query.strip().lower():
+                    time.sleep(0.3)
+                    items += fetch_all_items(
+                        english, settings.naver_client_id, settings.naver_client_secret, client,
+                    )
+                return items
+
+            def fetch_blog_items(query: str) -> list:
+                return collectors.collect_naver_blog(
+                    query, settings.naver_client_id, settings.naver_client_secret, client,
+                )
 
             def fetch_youtube_items(source) -> list:
-                return collectors.collect_youtube(source, client, max_age_days=sources.age_youtube)
+                # scraping-sources.md의 "최근_유튜브_일수"보다 넓게, 최근 5년까지 본다 —
+                # 어차피 채널당 최신 3개만 가져오므로(collect_youtube의 videos[:3]) 너무
+                # 타이트한 기간 제한이 관련 영상을 놓치는 문제가 있었다.
+                return collectors.collect_youtube(source, client, max_age_days=YOUTUBE_MAX_AGE_DAYS)
+
+            def fetch_youtube_search_items(query: str) -> list:
+                return collectors.collect_youtube_search(query, client)
 
             def fetch_wassap_items(source) -> list:
                 return collectors.collect_wassap(source, client, settings.naver_cookie)
@@ -110,11 +140,13 @@ def _run_job_in_background(job_id: str, sources, wine_name: str, brand: str) -> 
                 fetch_naver_items=fetch_naver_items,
                 fetch_html=fetch_html,
                 get_known_brands=_get_known_brands,
-                article_exists=_article_exists,
+                get_existing_article=_get_existing_article,
                 insert_article=_insert_article,
                 parse_article_meta=parse_article_meta,
                 match_brands=match_brands,
                 extract_visible_text=extract_visible_text,
+                fetch_blog_items=fetch_blog_items,
+                fetch_youtube_search_items=fetch_youtube_search_items,
                 fetch_youtube_items=fetch_youtube_items,
                 fetch_wassap_items=fetch_wassap_items,
                 fetch_international_items=fetch_international_items,
@@ -192,15 +224,21 @@ def get_sources():
     return {
         "counts": {
             "news": len(sources.news),
-            "youtube": len(sources.youtube),
+            # +1은 등록 채널과 별개로 항상 도는 유튜브 검색(유튜브 결과가 0건만
+            # 나오던 문제 개선) — 진행률 바의 done/total 계산에 맞춰 넣어준다.
+            "youtube": len(sources.youtube) + 1,
             "wassap": len(sources.wassap),
             "international": len(sources.international),
+            # 블로그는 등록 소스 목록이 없는 항상-켜짐 검색이라 개수 개념이 없다 —
+            # 진행률 바가 다른 카테고리와 같은 방식(done/total)으로 계산하도록 1로 고정.
+            "blog": 1,
         },
         "names": {
             "news": [s.name for s in sources.news],
             "youtube": [s.name for s in sources.youtube],
             "wassap": [s.name for s in sources.wassap],
             "international": [s.name for s in sources.international],
+            "blog": ["네이버 블로그 전체"],
         },
     }
 
