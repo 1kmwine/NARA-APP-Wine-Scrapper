@@ -191,6 +191,7 @@ def run_job(
     extract_visible_text: Callable[[str], str],
     fetch_blog_items: Callable[[str], list[CollectedItem]],
     fetch_youtube_search_items: Callable[[str], list[CollectedItem]],
+    fetch_web_items: Callable[[str], list[CollectedItem]],
     fetch_youtube_items: Callable[[object], list[CollectedItem]],
     fetch_wassap_items: Callable[[object], list[CollectedItem]],
     fetch_international_items: Callable[[object], list[CollectedItem]],
@@ -377,10 +378,17 @@ def run_job(
     # 유튜브도 여기 포함 — 검색과 같은 category="youtube"로 합쳐진다) ──
     category_sources = [
         ("youtube", sources.youtube, fetch_youtube_items, False),
-        # 와쌉은 "와인 싸게 사는 사람들" 카페 전체가 와인 얘기라 소스 자체가
-        # 이미 100% 걸러져 있다 — 게시글 텍스트로 다시 관련성 판정 안 함.
+        # fetch_wassap_items가 이제 collect_wassap(최신글)이 아니라
+        # search_wassap(검색어)를 호출한다 — 네이버 통합검색이 이미 검색어
+        # 관련성을 판정해서 준 결과라 게시글 텍스트로 다시 판정 안 함.
         ("wassap", sources.wassap, fetch_wassap_items, True),
-        ("international", sources.international, fetch_international_items, False),
+        # collect_international이 Wine Spectator/OIV는 영문 번역 검색어로 실제
+        # 사이트 검색을 한다(2026-07-22) — 번역된 한글 제목("케이무스")이 원래
+        # 한글 검색어("케이머스")와 표기가 달라 문자 매칭 재판정이 항상 실패하는
+        # 문제가 있었다(구글번역 음역이 사용자 입력 표기와 다름). 이미 영문
+        # 검색으로 관련성이 검증된 결과라 재판정 안 함. Decanter만 검색이 안 돼
+        # 최신글을 그대로 주지만, 그래도 와인 전문지 콘텐츠라 무관하진 않다.
+        ("international", sources.international, fetch_international_items, True),
     ]
     for category, source_list, fetch_items, trust_source in category_sources:
         if timed_out:
@@ -414,6 +422,44 @@ def run_job(
                     had_failure = True
                     store.append_result(job_id, JobResultItem(
                         source_id=source.id, source_name=item.source_name, source_category=category,
+                        title="", published_date=None, external_url=item.external_url, status="실패",
+                        reason=f"저장 실패: {exc}",
+                    ))
+            store.increment_done(job_id)
+
+    # ── 웹 검색: Decanter/Wine Spectator/OIV 3곳으로는 커버리지가 너무 좁아
+    # (2026-07-22 실측 — 다수 브랜드가 3곳 다 0건) DuckDuckGo로 와인 관련 웹
+    # 전체를 검색한다. 블로그/유튜브검색처럼 등록 소스 목록이 없는 항상-켜짐
+    # 단위, category="international"이라 위 category_sources의 해외소스
+    # 결과와 합쳐진다(진행률 바 순서를 맞추려 international 처리 바로 뒤에 둠). ──
+    if not timed_out:
+        if deadline_passed():
+            timed_out = True
+        else:
+            try:
+                web_items = fetch_web_items(query)
+            except Exception as exc:  # noqa: BLE001
+                logger.exception("웹 검색 실패")
+                had_failure = True
+                store.append_result(job_id, JobResultItem(
+                    source_id="web-search", source_name="웹 검색", source_category="international",
+                    title="", published_date=None, external_url="", status="실패",
+                    reason=f"웹 검색 실패: {exc}",
+                ))
+                web_items = []
+
+            for item in web_items:
+                try:
+                    _process_collected_item(
+                        job_id, store, "web-search", "international", item, known_brands, query,
+                        get_existing_article, insert_article, match_brands,
+                        trust_source=True,
+                    )
+                except Exception as exc:  # noqa: BLE001 — 이 아이템만 실패 처리하고 계속 진행
+                    logger.exception("%s 저장 실패", item.external_url)
+                    had_failure = True
+                    store.append_result(job_id, JobResultItem(
+                        source_id="web-search", source_name=item.source_name, source_category="international",
                         title="", published_date=None, external_url=item.external_url, status="실패",
                         reason=f"저장 실패: {exc}",
                     ))

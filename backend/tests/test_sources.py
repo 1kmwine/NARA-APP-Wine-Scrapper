@@ -14,14 +14,14 @@ def test_sources_config_total_count_sums_all_categories():
         international=[InternationalSource(id="decanter", name="Decanter", url="https://www.decanter.com/wine-news/")],
         age_youtube=7,
     )
-    assert cfg.total_count() == 7  # 등록 소스 5개 + 블로그 검색 1 + 유튜브 검색 1
+    assert cfg.total_count() == 8  # 등록 소스 5개 + 블로그 검색 1 + 유튜브 검색 1 + 웹 검색 1
 
 
 def test_sources_config_total_count_counts_always_on_searches_even_when_everything_else_empty():
-    # 블로그·유튜브 검색은 등록 소스 목록이 없는 항상-켜짐 검색이라, 다른
-    # 카테고리가 전부 비어 있어도 total_count는 0이 아니라 2여야 한다.
+    # 블로그·유튜브검색·웹검색은 등록 소스 목록이 없는 항상-켜짐 검색이라, 다른
+    # 카테고리가 전부 비어 있어도 total_count는 0이 아니라 3이어야 한다.
     cfg = SourcesConfig(news=[], youtube=[], wassap=[], international=[], age_youtube=7)
-    assert cfg.total_count() == 2
+    assert cfg.total_count() == 3
 
 
 def test_news_source_is_frozen_dataclass():

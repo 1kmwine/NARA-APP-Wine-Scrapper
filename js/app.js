@@ -210,10 +210,6 @@ function groupByCategory(items){
   return groups;
 }
 
-function itemInitial(sourceName){
-  return (sourceName||'').replace('YouTube: ','').charAt(0) || '?';
-}
-
 function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 /* 글자 사이에 \s*를 끼워 넣어 표기 스페이싱 차이를 허용한다("파니엔테" 검색어가
@@ -266,19 +262,14 @@ function buildResultCard(item, highlightQuery, animate){
     img.loading='lazy';
     img.alt='';
     img.referrerPolicy='no-referrer';
-    // 썸네일 로드 실패(만료된 CDN 서명 URL 등) 시 이니셜 블록으로 대체
-    img.addEventListener('error', ()=>{
-      const fallback=document.createElement('div');
-      fallback.className='result-card-thumb-fallback';
-      fallback.textContent=itemInitial(item.source_name);
-      img.replaceWith(fallback);
-    });
+    // 썸네일 로드 실패(만료된 CDN 서명 URL 등) 시 이미지 영역 자체를 접는다 —
+    // 이니셜 박스로 때우면 오히려 빈 색상 블록만 남아 자리만 차지한다.
+    img.addEventListener('error', ()=>{ img.remove(); a.classList.add('result-card-no-thumb'); });
     a.appendChild(img);
   }else{
-    const fallback=document.createElement('div');
-    fallback.className='result-card-thumb-fallback';
-    fallback.textContent=itemInitial(item.source_name);
-    a.appendChild(fallback);
+    // 썸네일을 구할 수 없는 소스(와쌉 등)는 빈 이니셜 박스 대신 썸네일 영역을
+    // 아예 없애고 카드를 낮춘다 — 대신 본문(제목+미리보기)이 폭을 다 쓴다.
+    a.classList.add('result-card-no-thumb');
   }
 
   const body=document.createElement('div');

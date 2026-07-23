@@ -6,7 +6,7 @@ from datetime import date, timedelta
 
 import httpx
 
-from .brand_match import make_excerpt
+from .brand_match import fuzzy_find, make_excerpt
 from .naver_search import search_blog
 
 
@@ -289,6 +289,61 @@ def collect_wassap(source, client, naver_cookie: str, max_items: int = 10) -> li
     ]
 
 
+def search_wassap(query: str, source, client, naver_cookie: str, max_items: int = 10) -> list[CollectedItem]:
+    """카페 자체 리스트/검색(ArticleList.nhn/ArticleSearchList.nhn)은 검색어를
+    무시하거나(2026-07-21 실측) 빈 응답을 준다(2026-07-22 실측 — 신형 SPA 카페라
+    게시글 상세/검색 모두 클라이언트 XHR). 대신 그 SPA가 실제로 호출하는 내부
+    검색 API(apis.cafe.naver.com)를 직접 부른다 — page.js 번들에서 URL 패턴과
+    필수 헤더(X-Cafe-Product/Version/Phase, 없으면 400)를 확인해서 알아냄
+    (2026-07-23). title/snippet/thumbnail이 API 응답에 다 있어 별도 스니펫
+    보강이 필요 없다.
+
+    cafe_numeric_id(신형 카페 전용 숫자 ID, clubid와 무관)가 없으면 이 소스는
+    건너뛴다 — WassapSource 문서 참고."""
+    if not source.cafe_numeric_id:
+        return []
+
+    headers = {
+        "Cookie": naver_cookie,
+        "Referer": f"https://cafe.naver.com/f-e/cafes/{source.cafe_numeric_id}/menus/0",
+        "Origin": "https://cafe.naver.com",
+        "Accept": "application/json, text/plain, */*",
+        "User-Agent": "Mozilla/5.0",
+        "X-Cafe-Product": "pc",
+        "X-Cafe-Version": "1.0",
+        "X-Cafe-Phase": "real",
+    }
+    response = client.get(
+        f"https://apis.cafe.naver.com/search/v2/cafes/{source.cafe_numeric_id}/search/articles",
+        params={"query": query, "perPage": max_items, "page": 1},
+        headers=headers, timeout=15.0,
+    )
+    response.raise_for_status()
+    data = response.json()
+    entries = data.get("result", {}).get("articleList") or []
+
+    items: list[CollectedItem] = []
+    for entry in entries:
+        if entry.get("type") != "ARTICLE":
+            continue
+        it = entry.get("item") or {}
+        title = _strip_tags(it.get("subject") or "")
+        if not title:
+            continue
+        article_id = it.get("articleId")
+        items.append(_build_item(
+            title=title,
+            excerpt=_strip_tags(it.get("summary") or "")[:150],
+            thumbnail_url=it.get("thumbnailImageUrl") or None,
+            external_url=f"https://cafe.naver.com/{source.cafe_id}/{article_id}",
+            published_date=(it.get("addDate") or "")[:10] or None,
+            source_name="와쌉",
+        ))
+        if len(items) >= max_items:
+            break
+    return items
+
+
 # ─────────────────────────── 해외소스 (scrape_international 포팅) ───────────────────────────
 _PLACEHOLDER_RE = re.compile(r'[A-Z0-9_]+')
 
@@ -314,7 +369,36 @@ def default_translate_to_ko(text: str) -> str:
         return text
 
 
-def _parse_decanter(client, translate) -> list[CollectedItem]:
+def default_translate_to_en(text: str) -> str:
+    """한국어 → 영문 (무료 Google Translate 엔드포인트). 해외소스는 전부 영어라
+    한글 검색어 그대로 넘기면 아무것도 안 걸린다 — 검색 전에 영문으로 바꾼다.
+    실패 시 원문 그대로 반환.
+
+    이미 영문(ASCII)이면 그대로 반환한다 — main.py가 integrated_item_info DB에서
+    먼저 정확한 영문 표기를 찾고(find_english_name), 못 찾을 때만 이 함수로
+    넘어오는데, DB에서 이미 영문을 찾은 경우 여기서 또 번역기를 태우면 오히려
+    표기가 깨질 수 있다(예: 이미 "Caymus"인데 재번역 위험)."""
+    if not text:
+        return ""
+    if text.isascii():
+        return text
+    try:
+        response = httpx.get(
+            "https://translate.googleapis.com/translate_a/single",
+            params={"client": "gtx", "sl": "ko", "tl": "en", "dt": "t", "q": text},
+            timeout=10.0,
+        )
+        response.raise_for_status()
+        data = response.json()
+        return "".join(segment[0] for segment in data[0])
+    except Exception:  # noqa: BLE001
+        return text
+
+
+def _parse_decanter(client, translate, query: str) -> list[CollectedItem]:
+    # Decanter는 검색이 자바스크립트 위젯이라(2026-07-22 실측 — /?s=로 정적
+    # 요청해도 검색 결과가 아니라 홈 화면이 그대로 옴) 서버 사이드로 검색을 못 한다.
+    # query가 있어도 최신 wine-news만 가져온다 — 검색어 무관 소스 중 유일하게 남음.
     response = client.get("https://www.decanter.com/wine-news/", timeout=15.0)
     response.raise_for_status()
     html = response.text
@@ -332,7 +416,31 @@ def _parse_decanter(client, translate) -> list[CollectedItem]:
     return items
 
 
-def _parse_wine_spectator(client, translate) -> list[CollectedItem]:
+def _parse_wine_spectator(client, translate, query: str) -> list[CollectedItem]:
+    if query:
+        # 실제 사이트 검색(/search?q=, 헤더 검색폼의 name="q" — 2026-07-22 확인).
+        # 기사(articles)뿐 아니라 와인 평점 DB(site-search__result-title)까지
+        # 같이 나오는데, 특정 와인명 검색에선 오히려 이쪽이 더 자주 걸린다.
+        response = client.get(
+            "https://www.winespectator.com/search", params={"q": query}, timeout=15.0,
+        )
+        response.raise_for_status()
+        matches = re.findall(
+            r'<h2 class="site-search__result-title"><a href="([^"]+)">([^<]*)</a></h2>', response.text)
+        items = []
+        for path, title in matches[:3]:
+            title = title.strip()
+            if not title or _is_placeholder(title):
+                continue
+            url = path if path.startswith("http") else f"https://www.winespectator.com{path}"
+            items.append(_build_item(
+                title=translate(title), excerpt="", thumbnail_url=None,
+                external_url=url, published_date=None, source_name="Wine Spectator",
+            ))
+        if items:
+            return items
+        # 검색 결과 0건이면 최신 기사로 폴백 — 완전히 빈 카테고리보다 낫다.
+
     response = client.get("https://www.winespectator.com/", timeout=15.0)
     response.raise_for_status()
     html = response.text
@@ -354,8 +462,16 @@ def _parse_wine_spectator(client, translate) -> list[CollectedItem]:
     return items
 
 
-def _parse_oiv(client, translate) -> list[CollectedItem]:
-    response = client.get("https://www.oiv.int/news/press", timeout=15.0)
+def _parse_oiv(client, translate, query: str) -> list[CollectedItem]:
+    # OIV는 Drupal Views 노출 필터라 rendered_item 파라미터로 실제 서버사이드
+    # 검색이 된다(2026-07-22 확인 — "congress"로 필터링하면 그 단어가 들어간
+    # 글만 옴, 무필터 결과와 다름).
+    if query:
+        response = client.get(
+            "https://www.oiv.int/news/press", params={"rendered_item": query}, timeout=15.0,
+        )
+    else:
+        response = client.get("https://www.oiv.int/news/press", timeout=15.0)
     response.raise_for_status()
     html = response.text
     items_found = re.findall(r'href="(/press/[a-z0-9-]+)"[^>]*>\s*([^<]{10,150})\s*<', html)
@@ -375,15 +491,74 @@ _INTERNATIONAL_PARSERS = {
 }
 
 
-def collect_international(source, client, translate=default_translate_to_ko) -> list[CollectedItem]:
+def collect_international(
+    source, client, translate=default_translate_to_ko, query: str = "",
+    translate_query=default_translate_to_en,
+) -> list[CollectedItem]:
     """소스명으로 전용 파서를 찾아 실행한다. Decanter/Wine Spectator/OIV만 지원 —
     scraping-sources.md에 새 해외소스가 ✅로 추가돼도 여기 전용 파서가 없으면
     NotImplementedError로 실패 처리된다 (사이트마다 HTML 구조가 달라 범용 파서를
-    만들지 않음 — 새 사이트 추가 시 이 함수에 파서를 직접 구현해야 한다)."""
+    만들지 않음 — 새 사이트 추가 시 이 함수에 파서를 직접 구현해야 한다).
+
+    query(한글 검색어)는 영문으로 번역해서 넘긴다 — 해외소스에 한글 그대로
+    검색해봐야 걸리는 게 없다. Decanter는 검색 자체가 안 돼 이 값을 무시한다."""
     parser = _INTERNATIONAL_PARSERS.get(source.name)
     if parser is None:
         raise NotImplementedError(f"지원되지 않는 해외소스: {source.name}")
-    return parser(client, translate)
+    english_query = translate_query(query) if query else ""
+    return parser(client, translate, english_query)
+
+
+# ─────────────────────────── 해외소스 — 웹 전체 검색 ───────────────────────────
+_DDG_RESULT_RE = re.compile(
+    r'class="result__a"[^>]*href="([^"]+)"[^>]*>(.*?)</a>.*?class="result__snippet"[^>]*>(.*?)</a>',
+    re.DOTALL,
+)
+
+
+def _ddg_target_url(href: str) -> str:
+    """DuckDuckGo HTML 결과 링크(//duckduckgo.com/l/?uddg=<실제URL>&rut=...)에서
+    실제 목적지 URL을 꺼낸다."""
+    from urllib.parse import parse_qs, urlparse
+    full = href if href.startswith("http") else f"https:{href}"
+    return (parse_qs(urlparse(full).query).get("uddg") or [""])[0]
+
+
+def _domain_of(url: str) -> str:
+    from urllib.parse import urlparse
+    host = urlparse(url).netloc
+    return host[4:] if host.startswith("www.") else host
+
+
+def search_web(query: str, client, translate=default_translate_to_ko, max_items: int = 5) -> list[CollectedItem]:
+    """Decanter/Wine Spectator/OIV 3곳으로는 커버리지가 너무 좁다(2026-07-22 실측
+    — "로저구라트"류 브랜드는 3곳 다 0건). scraping-sources.md에 등록된 소스에
+    국한하지 않고 DuckDuckGo HTML 검색(로그인/API 키 불필요)으로 와인 관련 웹
+    전체를 훑는다."""
+    response = client.get(
+        "https://html.duckduckgo.com/html/",
+        params={"q": f"{query} wine"},
+        headers={"User-Agent": "Mozilla/5.0"},
+        timeout=15.0,
+    )
+    response.raise_for_status()
+    html = response.text
+
+    items: list[CollectedItem] = []
+    for match in _DDG_RESULT_RE.finditer(html):
+        href, raw_title, raw_snippet = match.groups()
+        target = _ddg_target_url(href)
+        title = _strip_tags(raw_title)
+        if not target or not title or _is_placeholder(title):
+            continue
+        items.append(_build_item(
+            title=translate(title), excerpt=translate(_strip_tags(raw_snippet)),
+            thumbnail_url=None, external_url=target, published_date=None,
+            source_name=_domain_of(target),
+        ))
+        if len(items) >= max_items:
+            break
+    return items
 
 
 # ─────────────────────────── 네이버 블로그 검색 ───────────────────────────

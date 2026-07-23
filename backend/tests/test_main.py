@@ -37,8 +37,8 @@ def test_create_job_and_poll_status(monkeypatch):
     assert status_response.status_code == 200
     body = status_response.json()
     assert body["status"] == "succeeded"
-    assert body["done"] == 3  # 뉴스 소스 1개 + 블로그 검색 1 + 유튜브 검색 1(항상 켜짐)
-    assert body["total"] == 3
+    assert body["done"] == 4  # 뉴스 소스 1개 + 블로그/유튜브검색/웹검색 각 1(항상 켜짐)
+    assert body["total"] == 4
     assert body["results"] == []
     assert body["failures"] == []
 
@@ -162,7 +162,7 @@ def test_get_sources_returns_counts_and_names(monkeypatch):
     response = client.get("/sources")
     assert response.status_code == 200
     body = response.json()
-    assert body["counts"] == {"news": 1, "youtube": 1, "wassap": 0, "international": 0, "blog": 1}
+    assert body["counts"] == {"news": 1, "youtube": 1, "wassap": 0, "international": 1, "blog": 1}
     assert body["names"]["news"] == ["와인21"]
     assert body["names"]["youtube"] == []
 

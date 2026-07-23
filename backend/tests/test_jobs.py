@@ -33,6 +33,7 @@ def _news_deps(**overrides):
         extract_visible_text=lambda html: "본문",
         fetch_blog_items=lambda query: [],
         fetch_youtube_search_items=lambda query: [],
+        fetch_web_items=lambda query: [],
         fetch_youtube_items=lambda source: [],
         fetch_wassap_items=lambda source: [],
         fetch_international_items=lambda source: [],
@@ -52,7 +53,7 @@ def test_run_job_succeeds_with_only_news_source():
 
     result = store.get(job.id)
     assert result.status == "succeeded"
-    assert result.done == 3  # 뉴스 소스 1개 + 블로그 검색 1 + 유튜브 검색 1(항상 켜짐)
+    assert result.done == 4  # 뉴스 소스 1개 + 블로그/유튜브검색/웹검색 각 1(항상 켜짐)
     assert len(result.results) == 1
     assert result.results[0].status == "저장됨"
     assert result.results[0].source_category == "news"
@@ -117,7 +118,7 @@ def test_run_job_news_search_failure_marks_all_news_sources_failed():
 
     result = store.get(job.id)
     assert result.status == "partial"
-    assert result.done == 4  # 뉴스 소스 2개 + 블로그 검색 1 + 유튜브 검색 1(항상 켜짐)
+    assert result.done == 5  # 뉴스 소스 2개 + 블로그/유튜브검색/웹검색 각 1(항상 켜짐)
     assert all(r.status == "실패" for r in result.results)
     assert all(r.reason for r in result.results)
 
@@ -138,7 +139,7 @@ def test_run_job_youtube_source_saves_prebuilt_items():
 
     result = store.get(job.id)
     assert result.status == "succeeded"
-    assert result.done == 3  # 유튜브 소스 1개 + 블로그 검색 1 + 유튜브 검색 1(항상 켜짐)
+    assert result.done == 4  # 유튜브 소스 1개 + 블로그/유튜브검색/웹검색 각 1(항상 켜짐)
     assert result.results[0].source_category == "youtube"
     assert result.results[0].title == "몬테스 알파 리뷰"
     assert result.results[0].matched_brands == ["몬테스"]
@@ -183,7 +184,7 @@ def test_run_job_youtube_item_unrelated_to_query_is_dropped():
 
     result = store.get(job.id)
     assert result.status == "succeeded"
-    assert result.done == 3  # 유튜브 소스 1개 + 블로그 검색 1 + 유튜브 검색 1(항상 켜짐)
+    assert result.done == 4  # 유튜브 소스 1개 + 블로그/유튜브검색/웹검색 각 1(항상 켜짐)
     assert result.results == []
 
 
@@ -205,7 +206,7 @@ def test_run_job_blog_item_saved_and_counted_as_one_unit():
 
     result = store.get(job.id)
     assert result.status == "succeeded"
-    assert result.done == 2  # 블로그 검색 1 + 유튜브 검색 1(항상 켜짐)
+    assert result.done == 3  # 블로그/유튜브검색/웹검색 각 1(항상 켜짐)
     assert len(result.results) == 1
     assert result.results[0].source_category == "blog"
     assert result.results[0].title == "몬테스 알파 후기"
@@ -288,7 +289,7 @@ def test_run_job_blog_fetch_failure_marked_and_isolated():
 
     result = store.get(job.id)
     assert result.status == "partial"
-    assert result.done == 2  # 블로그 검색 1(실패) + 유튜브 검색 1(항상 켜짐)
+    assert result.done == 3  # 블로그 검색 1(실패) + 유튜브검색/웹검색 각 1(항상 켜짐)
     blog_result = next(r for r in result.results if r.source_category == "blog")
     assert blog_result.status == "실패"
 
@@ -311,7 +312,7 @@ def test_run_job_youtube_search_item_saved_alongside_channel_results():
 
     result = store.get(job.id)
     assert result.status == "succeeded"
-    assert result.done == 2  # 블로그 검색 1 + 유튜브 검색 1(항상 켜짐)
+    assert result.done == 3  # 블로그/유튜브검색/웹검색 각 1(항상 켜짐)
     assert len(result.results) == 1
     assert result.results[0].source_category == "youtube"
     assert result.results[0].title == "몬테스 시음 영상"
@@ -441,7 +442,7 @@ def test_run_job_international_source_failure_isolated_from_others():
 
     result = store.get(job.id)
     assert result.status == "partial"
-    assert result.done == 4  # 해외소스 2개 + 블로그 검색 1 + 유튜브 검색 1(항상 켜짐)
+    assert result.done == 5  # 해외소스 2개 + 블로그/유튜브검색/웹검색 각 1(항상 켜짐)
     statuses = {r.source_name: r.status for r in result.results}
     assert statuses["Decanter"] == "실패"
     assert statuses["OIV"] == "저장됨"

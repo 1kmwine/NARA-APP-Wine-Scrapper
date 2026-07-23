@@ -126,10 +126,25 @@ def _run_job_in_background(job_id: str, sources, wine_name: str, brand: str) -> 
                 return collectors.collect_youtube_search(query, client)
 
             def fetch_wassap_items(source) -> list:
-                return collectors.collect_wassap(source, client, settings.naver_cookie)
+                return collectors.search_wassap(wine_name, source, client, settings.naver_cookie)
+
+            def _resolve_english_query() -> str:
+                # 해외소스는 전부 영어라 한글 검색어를 그대로 넘기면 안 걸린다.
+                # integrated_item_info(나라셀라가 실제 취급하는 상품)에 정확한
+                # 영문 표기가 있으면 그걸 우선 쓴다 — 구글번역 음역(예: "케이머스"
+                # → "케이무스")은 사용자가 입력한 한글 표기와 달라져서 이후
+                # 재판정에 안 걸리는 문제가 있었다(2026-07-22). DB에 없는
+                # 브랜드만 구글번역 폴백(collectors 내부에서 처리). run_job이
+                # 실제로 international/web-search를 호출할 때만 DB를 조회하도록
+                # 지연 평가한다(테스트에서 run_job을 통째로 mock하는 경우 등
+                # 불필요한 DB 접근을 막기 위함).
+                return _find_english_name(wine_name) or wine_name
 
             def fetch_international_items(source) -> list:
-                return collectors.collect_international(source, client)
+                return collectors.collect_international(source, client, query=_resolve_english_query())
+
+            def fetch_web_items(query: str) -> list:
+                return collectors.search_web(_resolve_english_query(), client)
 
             run_job(
                 job_id,
@@ -147,6 +162,7 @@ def _run_job_in_background(job_id: str, sources, wine_name: str, brand: str) -> 
                 extract_visible_text=extract_visible_text,
                 fetch_blog_items=fetch_blog_items,
                 fetch_youtube_search_items=fetch_youtube_search_items,
+                fetch_web_items=fetch_web_items,
                 fetch_youtube_items=fetch_youtube_items,
                 fetch_wassap_items=fetch_wassap_items,
                 fetch_international_items=fetch_international_items,
@@ -228,7 +244,9 @@ def get_sources():
             # 나오던 문제 개선) — 진행률 바의 done/total 계산에 맞춰 넣어준다.
             "youtube": len(sources.youtube) + 1,
             "wassap": len(sources.wassap),
-            "international": len(sources.international),
+            # +1은 등록 소스(Decanter/Wine Spectator/OIV) 3곳과 별개로 항상 도는
+            # 웹 검색(DuckDuckGo) — 3곳만으론 커버리지가 너무 좁아서 추가.
+            "international": len(sources.international) + 1,
             # 블로그는 등록 소스 목록이 없는 항상-켜짐 검색이라 개수 개념이 없다 —
             # 진행률 바가 다른 카테고리와 같은 방식(done/total)으로 계산하도록 1로 고정.
             "blog": 1,

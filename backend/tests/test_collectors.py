@@ -241,6 +241,80 @@ def test_collect_wassap_limits_to_ten_items():
     assert len(items) == 10
 
 
+from app.collectors import search_wassap
+
+
+class FakeWassapApiResponse:
+    def __init__(self, payload):
+        self._payload = payload
+
+    def raise_for_status(self):
+        pass
+
+    def json(self):
+        return self._payload
+
+
+class FakeWassapApiClient:
+    def __init__(self, payload):
+        self._payload = payload
+        self.last_call = None
+
+    def get(self, url, *, params=None, headers=None, timeout=None):
+        assert "apis.cafe.naver.com/search/v2/cafes/20564405/search/articles" in url
+        assert headers["X-Cafe-Product"] == "pc"
+        self.last_call = {"url": url, "params": params}
+        return FakeWassapApiResponse(self._payload)
+
+
+WASSAP_API_PAYLOAD = {
+    "result": {
+        "articleList": [
+            {
+                "type": "ARTICLE",
+                "item": {
+                    "articleId": 111,
+                    "subject": "<mark>디코이</mark> 후기",
+                    "summary": "<b>디코이</b> 마셔봤는데 진짜 좋았어요",
+                    "thumbnailImageUrl": "https://cafeptthumb-phinf.pstatic.net/x.jpg",
+                    "addDate": "2026-07-21T10:00:00.000",
+                },
+            },
+            {"type": "NOTICE", "item": {"subject": "공지"}},
+        ]
+    }
+}
+
+
+def test_search_wassap_uses_real_search_api():
+    # 신형 카페(SPA)는 ArticleList.nhn/검색 둘 다 서버렌더링 안 됨(2026-07-22 확인) —
+    # 그 SPA가 실제로 부르는 내부 검색 API를 그대로 쓴다. NOTICE 타입은 걸러낸다.
+    source = WassapSource(
+        id="winerack24-10050146", name="와쌉", cafe_id="winerack24", clubid="10050146",
+        cafe_numeric_id="20564405",
+    )
+    client = FakeWassapApiClient(WASSAP_API_PAYLOAD)
+
+    items = search_wassap("디코이", source, client, naver_cookie="fake-cookie")
+
+    assert len(items) == 1
+    assert items[0].title == "디코이 후기"
+    assert items[0].excerpt == "디코이 마셔봤는데 진짜 좋았어요"
+    assert items[0].external_url == "https://cafe.naver.com/winerack24/111"
+    assert items[0].thumbnail_url == "https://cafeptthumb-phinf.pstatic.net/x.jpg"
+    assert items[0].published_date == "2026-07-21"
+    assert client.last_call["params"]["query"] == "디코이"
+
+
+def test_search_wassap_skips_when_no_cafe_numeric_id():
+    source = WassapSource(id="winerack24-10050146", name="와쌉", cafe_id="winerack24", clubid="10050146")
+    client = FakeWassapApiClient(WASSAP_API_PAYLOAD)
+
+    items = search_wassap("디코이", source, client, naver_cookie="fake-cookie")
+
+    assert items == []
+
+
 from app.collectors import collect_international
 from app.sources import InternationalSource
 
@@ -315,12 +389,123 @@ def test_collect_international_oiv():
     assert items[0].external_url == "https://www.oiv.int/press/oiv-report-2026"
 
 
+class FakeWSSearchClient:
+    def __init__(self, search_html):
+        self._search_html = search_html
+
+    def get(self, url, *, params=None, timeout=None):
+        assert url == "https://www.winespectator.com/search"
+        assert params == {"q": "Opus One"}
+        return FakeInternationalResponse(self._search_html)
+
+
+WS_SEARCH_HTML = (
+    '<h2 class="site-search__result-title">'
+    '<a href="/wine/wine-detail/id/1/name/opus-one-2022">Opus One</a></h2>'
+)
+
+
+def test_collect_international_wine_spectator_searches_when_query_given():
+    source = InternationalSource(id="wine-spectator", name="Wine Spectator", url="https://www.winespectator.com/")
+    client = FakeWSSearchClient(WS_SEARCH_HTML)
+
+    items = collect_international(
+        source, client, translate=_identity_translate, query="오퍼스원",
+        translate_query=lambda q: "Opus One",
+    )
+
+    assert len(items) == 1
+    assert items[0].title == "[번역]Opus One"
+    assert items[0].external_url == "https://www.winespectator.com/wine/wine-detail/id/1/name/opus-one-2022"
+
+
+class FakeOIVSearchClient:
+    def __init__(self, filtered_html, unfiltered_html):
+        self._filtered = filtered_html
+        self._unfiltered = unfiltered_html
+
+    def get(self, url, *, params=None, timeout=None):
+        assert url == "https://www.oiv.int/news/press"
+        if params:
+            assert params == {"rendered_item": "congress"}
+            return FakeInternationalResponse(self._filtered)
+        return FakeInternationalResponse(self._unfiltered)
+
+
+def test_collect_international_oiv_uses_rendered_item_filter_when_query_given():
+    source = InternationalSource(id="oiv", name="OIV", url="https://www.oiv.int/news/press")
+    client = FakeOIVSearchClient(
+        filtered_html='<a href="/press/congress-2026">World Congress 2026</a>',
+        unfiltered_html=OIV_HTML,
+    )
+
+    items = collect_international(
+        source, client, translate=_identity_translate, query="총회",
+        translate_query=lambda q: "congress",
+    )
+
+    assert len(items) == 1
+    assert items[0].title == "[번역]World Congress 2026"
+
+
 def test_collect_international_unsupported_source_raises():
     source = InternationalSource(id="jamessuckling", name="James Suckling", url="https://www.jamessuckling.com/")
     client = FakeInternationalClient({})
     import pytest
     with pytest.raises(NotImplementedError):
         collect_international(source, client, translate=_identity_translate)
+
+
+from app.collectors import search_web
+
+
+class FakeDdgResponse:
+    def __init__(self, text):
+        self.text = text
+
+    def raise_for_status(self):
+        pass
+
+
+class FakeDdgClient:
+    def __init__(self, html):
+        self._html = html
+        self.last_params = None
+
+    def get(self, url, *, params=None, headers=None, timeout=None):
+        assert url == "https://html.duckduckgo.com/html/"
+        self.last_params = params
+        return FakeDdgResponse(self._html)
+
+
+DDG_HTML = (
+    '<a class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fexample.com%2Fpage&amp;rut=x">'
+    'Roger Goulart | Winery</a>'
+    '<a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fexample.com%2Fpage&amp;rut=x">'
+    'Discover Roger Goulart wines</a>'
+)
+
+
+def test_search_web_extracts_title_snippet_and_real_url():
+    # Decanter/Wine Spectator/OIV 3곳만으론 커버리지가 좁아서(니치 브랜드는
+    # 다 0건) DuckDuckGo로 와인 관련 웹 전체를 훑는다.
+    client = FakeDdgClient(DDG_HTML)
+
+    items = search_web("Roger Goulart", client, translate=_identity_translate)
+
+    assert len(items) == 1
+    assert items[0].title == "[번역]Roger Goulart | Winery"
+    assert items[0].excerpt == "[번역]Discover Roger Goulart wines"
+    assert items[0].external_url == "https://example.com/page"
+    assert items[0].source_name == "example.com"
+    assert client.last_params["q"] == "Roger Goulart wine"
+
+
+def test_default_translate_to_en_skips_already_english_text():
+    from app.collectors import default_translate_to_en
+    # DB(integrated_item_info)에서 이미 정확한 영문 표기를 찾은 경우 여기서 또
+    # 번역기를 태우면 표기가 깨질 위험이 있다 — ASCII면 그냥 통과시킨다.
+    assert default_translate_to_en("Caymus Cabernet Sauvignon") == "Caymus Cabernet Sauvignon"
 
 
 from app.collectors import collect_naver_blog

@@ -49,6 +49,11 @@ def make_context_excerpt(full_text: str, highlight: str, fallback_excerpt: str, 
         return fallback_excerpt
     start = max(0, match.start() - window)
     end = min(len(full_text), match.end() + window)
+    if start == 0 and end == len(full_text):
+        # 앞뒤로 잘라낼 게 없다 — full_text가 제목(+빈 excerpt)뿐이라 "문맥"이라
+        # 부를 본문이 없다(예: 와쌉 검색 결과에 본문 snippet을 못 구한 글). 이럴 땐
+        # 제목을 그대로 되풀이하는 대신 원래 excerpt(비어 있을 수도 있음)를 쓴다.
+        return fallback_excerpt
     return make_excerpt(full_text[start:end])
 
 

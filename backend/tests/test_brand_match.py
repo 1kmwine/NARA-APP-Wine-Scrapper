@@ -61,6 +61,14 @@ def test_make_context_excerpt_falls_back_when_no_highlight_given():
     assert result == "도입부 요약"
 
 
+def test_make_context_excerpt_falls_back_when_full_text_is_just_the_title():
+    # full_text가 제목뿐이면(본문 snippet을 못 구한 경우) 앞뒤로 잘라낼 게
+    # 없어서 "문맥 요약"이 사실상 제목을 그대로 되풀이하게 된다 — 그 경우
+    # 원래 excerpt(비어 있어도)를 그대로 쓴다.
+    result = make_context_excerpt("케이머스 까쇼를 구매하고 싶습니다.", "케이머스", fallback_excerpt="")
+    assert result == ""
+
+
 def test_match_brands_finds_exact_word():
     assert match_brands("Montes Alpha is great", ["Montes"]) == ["Montes"]
 

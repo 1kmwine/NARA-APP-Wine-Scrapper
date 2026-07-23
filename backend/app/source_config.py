@@ -13,7 +13,7 @@ _NEWS_ROW_RE = re.compile(
 _YOUTUBE_ROW_RE = re.compile(
     r'\|\s*([^|]+?)\s*\|\s*https?://www\.youtube\.com/@([\w.-]+)\s*\|\s*(UC[\w-]{22}|[^|]*?)\s*\|'
 )
-_WASSAP_BULLET_RE = re.compile(r'-\s*(https?://\S+?)\s*\(clubid:\s*(\d+)\)')
+_WASSAP_BULLET_RE = re.compile(r'-\s*(https?://\S+?)\s*\(clubid:\s*(\d+)(?:,\s*cafeId:\s*(\d+))?\)')
 _INTERNATIONAL_ROW_RE = re.compile(
     r'\|\s*([^|]+?)\s*\|\s*(✅[^|]*|❌[^|]*)\s*\|\s*(https?://[^\s|]+)\s*\|'
 )
@@ -81,12 +81,15 @@ def _parse_youtube(text: str) -> list[YoutubeSource]:
 def _parse_wassap(text: str) -> list[WassapSource]:
     section = _extract_section(text, "### 와쌉")
     sources = []
-    for url, clubid in _WASSAP_BULLET_RE.findall(section):
+    for url, clubid, cafe_numeric_id in _WASSAP_BULLET_RE.findall(section):
         path = urlparse(url).path.strip("/")
         cafe_id = path.split("/")[0] if path else ""
         if not cafe_id:
             continue
-        sources.append(WassapSource(id=f"{cafe_id}-{clubid}", name="와쌉", cafe_id=cafe_id, clubid=clubid))
+        sources.append(WassapSource(
+            id=f"{cafe_id}-{clubid}", name="와쌉", cafe_id=cafe_id, clubid=clubid,
+            cafe_numeric_id=cafe_numeric_id,
+        ))
     return sources
 
 
