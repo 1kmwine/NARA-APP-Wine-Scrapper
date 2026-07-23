@@ -142,12 +142,17 @@
 
 ### 와쌉 (네이버 카페) **[브리핑]**
 
-> **실행 위치: 로컬 PC** · **수집 방식: urllib + NID_AUT/NID_SES 쿠키**
+> **실행 위치: 로컬 PC** · **수집 방식: apis.cafe.naver.com 검색 API + NID_AUT/NID_SES 쿠키**
 > "★와쌉★ 와인 싸게 사는 사람들" — 한국 최대 와인 소비자 커뮤니티 (17.5만 회원). clubid: 10050146.
-> ① 카페 메인 리스트(EUC-KR, `iframe_url`) → 실제 제목 + 반응수. ② `where=cafearticle` 검색 → snippet 보강.
-> 반응수 기준 상위 10건. ⚠️ 쿠키 만료 시 403. 쿠키: `scrape.py` `NAVER_COOKIE`.
+> 신형 카페(SPA)라 `ArticleSearchList.nhn` 등 구 API는 검색이 안 됨(2026-07-22 확인) —
+> `GET https://apis.cafe.naver.com/search/v2/cafes/{cafeId}/search/articles?query=&perPage=&page=`
+> (요청 헤더에 `X-Cafe-Product: pc` / `X-Cafe-Version: 1.0` / `X-Cafe-Phase: real` 필요, 없으면 400)
+> 를 검색어로 직접 호출한다 — `subject`(제목)/`summary`(스니펫, `<b>` 하이라이트 포함)/
+> `thumbnailImageUrl`(썸네일)이 한 번에 옴. **cafeId는 clubid와 다른 별도 숫자**라(winerack24
+> 기준 cafeId 20564405) 새 카페 등록 시 브라우저로 `cafe.naver.com/f-e/cafes/{cafeId}/...`
+> 열어서 URL의 숫자를 직접 확인해야 한다.
 
-- https://cafe.naver.com/winerack24 (clubid: 10050146)
+- https://cafe.naver.com/winerack24 (clubid: 10050146, cafeId: 20564405)
 
 ### 네이버 블로그 (와인 시음/구매 후기) **[공통]**
 
