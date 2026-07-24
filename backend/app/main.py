@@ -1,6 +1,8 @@
 from __future__ import annotations
+import os
 import threading
 import time
+from datetime import datetime
 
 import httpx
 from fastapi import FastAPI, HTTPException
@@ -15,6 +17,7 @@ from .jobs import JobStore, run_job
 from . import db
 from . import source_config
 from . import collectors
+from . import briefing_summary
 
 app = FastAPI(title="NARA Wine Scraper API")
 # 이 서비스는 127.0.0.1에만 바인딩되어 nginx 리버스 프록시를 통해서만 접근되고
@@ -308,3 +311,26 @@ def add_source(payload: AddSourceRequest):
     finally:
         client.close()
     return {"ok": True}
+
+
+@app.get("/briefings/weekly-summary")
+def get_weekly_summary(week_start: str):
+    """docs/data/{그 주 7일}/*.json을 모아 LLM(Gemini, 무료 티어)으로 글로벌
+    동향/소비자 트렌드/업계 활동 3분류 요약을 만든다. 같은 주 재요청은 fingerprint가
+    같으면 캐시(docs/summaries/{week_start}.json)를 그대로 쓴다 — LLM 재호출 없음.
+    GEMINI_API_KEY 미설정 시 502 — 프론트가 기존 발췌 요약으로 폴백한다."""
+    try:
+        start_date = datetime.strptime(week_start, "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="week_start는 YYYY-MM-DD 형식이어야 합니다")
+    if start_date.weekday() != 0:
+        raise HTTPException(status_code=400, detail="week_start는 월요일이어야 합니다")
+
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=502, detail="GEMINI_API_KEY가 설정되지 않았습니다")
+
+    try:
+        return briefing_summary.build_weekly_summary(week_start, api_key)
+    except Exception as exc:  # noqa: BLE001 — LLM/네트워크 오류는 폴백 대상이라 그대로 502로
+        raise HTTPException(status_code=502, detail=f"주간 요약 생성 실패: {exc}") from exc

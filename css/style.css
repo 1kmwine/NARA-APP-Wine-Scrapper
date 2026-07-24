@@ -198,6 +198,7 @@
 .source-added-row{ display:flex; justify-content:space-between; font-size:12.5px; padding:8px 10px; background:var(--color-surface-muted); border-radius:6px; margin-bottom:8px; }
 
 /* ── 주간 네비게이션 / 달력 (데일리 브리핑) ── */
+/* 순서: 주차 선택 → 일별 캘린더 → 주간요약 → 일별 브리핑(가까운 것끼리 붙임). */
 .week-nav{ display:flex; align-items:center; justify-content:center; gap:16px; margin:24px 0 16px; padding:0 24px; }
 .week-info{ text-align:center; }
 .week-label{ display:block; font-size:14px; font-weight:700; color:var(--color-text-secondary); }
@@ -223,23 +224,31 @@
 .calendar-cell.selected .calendar-daynum{ color:color-mix(in srgb, var(--accent) 72%, #000); }
 .calendar-dot{ width:5px; height:5px; border-radius:50%; }
 
-.weekly-summary{ max-width:900px; margin:0 auto 20px; padding:12px 20px 2px; background:var(--color-surface-tint); border-radius:var(--radius-lg); }
-.weekly-summary-title{ font-size:12px; font-weight:700; color:var(--color-text-faint); text-transform:uppercase; letter-spacing:.03em; margin-bottom:2px; }
+/* 줄글 요약을 없애고 반복/인기 키워드 칩 나열로 바꾸면서 훨씬 작아졌다(전의
+   1/3 수준) — 3개 카테고리를 세로로 안 쌓고 가로 3칸에 나란히 둔다. */
+.weekly-summary{ max-width:900px; margin:0 auto 24px; padding:0 24px; }
+.weekly-summary-title{ font-size:11px; font-weight:700; color:var(--color-text-faint); text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px; }
+.weekly-summary-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }
 
+/* 카테고리마다 선(border)이 아니라 면(배경색 타일)으로 구분한다. */
 .summary-category{
-  padding:7px 0; border-top:1px solid var(--color-border);
+  padding:10px 12px; border-radius:var(--radius-lg); background:var(--color-surface-tint);
   animation:fadeUp .35s ease backwards; animation-delay:calc(var(--stagger-index) * 60ms);
 }
-.summary-category-head{ display:flex; align-items:center; gap:7px; margin-bottom:2px; }
+.summary-category-head{ display:flex; align-items:center; gap:6px; margin-bottom:7px; }
 .summary-category-badge{
-  width:18px; height:18px; border-radius:50%; flex-shrink:0;
-  background:var(--accent); color:#fff; font-size:10px; font-weight:700;
+  width:16px; height:16px; border-radius:50%; flex-shrink:0;
+  background:var(--accent); color:#fff; font-size:9px; font-weight:700;
   display:flex; align-items:center; justify-content:center;
 }
-.summary-category-name{ font-size:12.5px; font-weight:700; }
-.summary-category-count{ margin-left:auto; font-size:11px; color:var(--color-text-faint); }
-.summary-category-body{ margin:0; font-size:12.5px; color:var(--color-text-secondary); line-height:1.55; padding-left:25px; }
-.summary-category-body.is-empty{ color:var(--color-text-faint); }
+.summary-category-name{ font-size:11.5px; font-weight:700; }
+.summary-category-count{ margin-left:auto; font-size:10px; color:var(--color-text-faint); }
+.summary-keywords{ display:flex; flex-wrap:wrap; gap:5px; }
+.summary-keyword-chip{
+  font-size:11px; line-height:1.4; padding:3px 8px; border-radius:999px;
+  background:var(--color-surface); color:var(--color-text-secondary); border:1px solid var(--color-border);
+}
+.summary-category-empty{ font-size:11px; color:var(--color-text-faint); }
 
 /* ── 데일리 상세 히어로 (docs/briefings 이메일 브리핑 레이아웃 참고) ── */
 #briefingHero{ max-width:900px; margin:0 auto 8px; }
@@ -272,4 +281,5 @@
 @media (max-width:600px){
   .search-row{ flex-direction:column; }
   .source-panel{ width:100%; }
+  .weekly-summary-grid{ grid-template-columns:1fr; }
 }

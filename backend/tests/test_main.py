@@ -175,3 +175,46 @@ def test_get_sources_returns_502_on_load_failure(monkeypatch):
     client = TestClient(main_module.app)
     response = client.get("/sources")
     assert response.status_code == 502
+
+
+def test_weekly_summary_rejects_bad_date_format():
+    client = TestClient(main_module.app)
+    response = client.get("/briefings/weekly-summary", params={"week_start": "2026/07/20"})
+    assert response.status_code == 400
+
+
+def test_weekly_summary_rejects_non_monday():
+    client = TestClient(main_module.app)
+    response = client.get("/briefings/weekly-summary", params={"week_start": "2026-07-21"})  # 화요일
+    assert response.status_code == 400
+
+
+def test_weekly_summary_returns_502_when_no_api_key(monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    client = TestClient(main_module.app)
+    response = client.get("/briefings/weekly-summary", params={"week_start": "2026-07-20"})
+    assert response.status_code == 502
+
+
+def test_weekly_summary_returns_build_result_on_success(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    monkeypatch.setattr(
+        main_module.briefing_summary, "build_weekly_summary",
+        lambda week_start, api_key: {"week_start": week_start, "categories": []},
+    )
+    client = TestClient(main_module.app)
+    response = client.get("/briefings/weekly-summary", params={"week_start": "2026-07-20"})
+    assert response.status_code == 200
+    assert response.json() == {"week_start": "2026-07-20", "categories": []}
+
+
+def test_weekly_summary_returns_502_when_build_fails(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+
+    def broken(week_start, api_key):
+        raise RuntimeError("gemini timeout")
+
+    monkeypatch.setattr(main_module.briefing_summary, "build_weekly_summary", broken)
+    client = TestClient(main_module.app)
+    response = client.get("/briefings/weekly-summary", params={"week_start": "2026-07-20"})
+    assert response.status_code == 502

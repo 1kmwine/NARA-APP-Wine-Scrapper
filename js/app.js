@@ -732,41 +732,68 @@ function renderCalendar(){
   }
 }
 
-/* 글로벌 동향=해외소스, 소비자 동향=유튜브·와쌉·블로그(소비자 채널), 수입사 주요
-   활동=뉴스·뉴스룸(나라셀라 자체 칼럼 포함). */
+/* 글로벌 동향=해외소스, 소비자 트렌드=유튜브·와쌉·블로그(소비자 채널), 업계
+   활동=뉴스·뉴스룸(나라셀라 자체 칼럼 포함). 백엔드 briefing_summary.py의
+   BUCKETS와 key/분류가 반드시 일치해야 한다. */
 const SUMMARY_CATEGORIES=[
   {key:'global', badge:'글', title:'글로벌 동향', match:['international']},
-  {key:'consumer', badge:'소', title:'소비자 동향', match:['youtube','wassap','blog']},
-  {key:'importer', badge:'수', title:'수입사 주요 활동', match:['news','newsroom']},
+  {key:'consumer', badge:'소', title:'소비자 트렌드', match:['youtube','wassap','blog']},
+  {key:'importer', badge:'업', title:'업계 활동', match:['news','newsroom']},
 ];
 
-/* 대응 방향 제시 없이 그 주 실제 수집 항목의 제목만 뽑아 현황을 서술한다
-   (프론트에서 LLM 호출 없이 만드는 발췌 요약 — 진짜 이해·요약이 필요하면
-   백엔드 요약 엔드포인트가 따로 필요하다). */
-function buildCategoryProse(items){
-  if(!items.length) return '이번 주 수집된 소식 없음';
-  const titles=items.map(it=>it.title).filter(Boolean).slice(0,3)
-    .map(t=> t.length>26 ? t.slice(0,26)+'…' : t);
-  return `이번 주 ${items.length}건 수집. 주요 소식: ${titles.map(t=>`"${t}"`).join(', ')}.`;
+/* 백엔드 LLM 키워드 추출(/briefings/weekly-summary)이 실패했을 때만 쓰는 폴백 —
+   그 주 제목 중 중복 등장(같은 브랜드/단어가 여러 건에 반복)하는 것 위주로 짧게
+   뽑는다. 문장 아니라 칩으로 보여줄 짧은 구 목록. */
+function buildCategoryKeywords(items){
+  if(!items.length) return [];
+  // 단어 빈도 대신 실제 제목 2건을 그대로 보여준다 — LLM 없이는 "일반 단어
+  // 제외하고 고유명사 위주로" 같은 판단을 못 해서, 최소한 진짜 헤드라인을
+  // 보여주는 게 의미 없는 빈출 단어 나열보다 낫다.
+  return items.map(it=>it.title).filter(Boolean).slice(0,2)
+    .map(t=> t.length>28 ? t.slice(0,28)+'…' : t);
 }
 
-function renderWeeklySummary(){
-  const el=document.getElementById('weeklySummary');
-  el.innerHTML='';
+let _weeklySummaryToken=0;
+
+async function renderWeeklySummary(){
+  // 다른 주로 넘어가면 이전 요청의 늦은 응답이 화면을 덮어쓰지 않도록 토큰으로 막는다.
+  const token=++_weeklySummaryToken;
+  const weekStart=fmtDateKey(currentWeekStart);
 
   const weekItems=[];
   for(let i=0;i<7;i++){
     const data=briefingData[fmtDateKey(addDays(currentWeekStart,i))];
     if(data && !data.isFuture) weekItems.push(...Object.values(data.groups).flat());
   }
+  const bucketItems={};
+  SUMMARY_CATEGORIES.forEach(cat=>{ bucketItems[cat.key]=weekItems.filter(it=>cat.match.includes(it.source_category)); });
 
+  let llmKeywords=null;
+  try{
+    const res=await fetch(`${API_BASE}/briefings/weekly-summary?week_start=${weekStart}`);
+    if(res.ok){
+      const data=await res.json();
+      llmKeywords={};
+      data.categories.forEach(c=>{ llmKeywords[c.key]=c.keywords; });
+    }
+  }catch(e){ /* 네트워크 실패 — 아래 발췌 키워드로 폴백 */ }
+
+  if(token!==_weeklySummaryToken) return;
+
+  const el=document.getElementById('weeklySummary');
+  el.innerHTML='';
   const title=document.createElement('div');
   title.className='weekly-summary-title';
   title.textContent='이번 주 종합';
   el.appendChild(title);
 
+  const grid=document.createElement('div'); grid.className='weekly-summary-grid';
+  el.appendChild(grid);
+
   SUMMARY_CATEGORIES.forEach((cat,idx)=>{
-    const items=weekItems.filter(it=>cat.match.includes(it.source_category));
+    const items=bucketItems[cat.key];
+    const keywords=(llmKeywords && llmKeywords[cat.key] && llmKeywords[cat.key].length)
+      ? llmKeywords[cat.key] : buildCategoryKeywords(items);
 
     const section=document.createElement('div');
     section.className='summary-category';
@@ -777,13 +804,22 @@ function renderWeeklySummary(){
     const name=document.createElement('span'); name.className='summary-category-name'; name.textContent=cat.title;
     const count=document.createElement('span'); count.className='summary-category-count'; count.textContent=`${items.length}건`;
     head.appendChild(badge); head.appendChild(name); head.appendChild(count);
+    section.appendChild(head);
 
-    const body=document.createElement('p'); body.className='summary-category-body';
-    body.textContent=buildCategoryProse(items);
-    if(!items.length) body.classList.add('is-empty');
+    if(keywords.length){
+      const list=document.createElement('div'); list.className='summary-keywords';
+      keywords.forEach(k=>{
+        const chip=document.createElement('span'); chip.className='summary-keyword-chip'; chip.textContent=k;
+        list.appendChild(chip);
+      });
+      section.appendChild(list);
+    }else{
+      const empty=document.createElement('div'); empty.className='summary-category-empty';
+      empty.textContent='이번 주 수집된 소식 없음';
+      section.appendChild(empty);
+    }
 
-    section.appendChild(head); section.appendChild(body);
-    el.appendChild(section);
+    grid.appendChild(section);
   });
 }
 

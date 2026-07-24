@@ -4,3 +4,4 @@ backend/.env
 backend/__pycache__/
 backend/**/__pycache__/
 .DS_Store
+docs/summaries/
