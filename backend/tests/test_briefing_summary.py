@@ -142,6 +142,22 @@ def test_build_weekly_summary_uses_cache_when_fingerprint_matches(data_dir):
     assert importer["keywords"] == ["첫 생성"]
 
 
+def test_build_weekly_summary_forces_empty_keywords_when_bucket_has_no_items(data_dir):
+    # 실측(2026-07-24): international.json이 없는 주(global 버킷 0건)인데도
+    # Gemini가 "global" 키에 다른 버킷 내용을 오분류해 채워서 응답한 적이
+    # 있었다 — 원본 소스가 0건이면 LLM이 뭘 반환하든 무조건 빈 배열로 덮는다.
+    _write_json(data_dir / "2026-07-20" / "news.json", [{"title": "뉴스1"}])
+    client = _FakeGeminiClient(
+        '{"global": ["엉뚱하게 채워진 키워드"], "consumer": [], "importer": ["업계 키워드"]}'
+    )
+
+    result = bs.build_weekly_summary("2026-07-20", "fake-key", client=client)
+
+    global_cat = next(c for c in result["categories"] if c["key"] == "global")
+    assert global_cat["item_count"] == 0
+    assert global_cat["keywords"] == []
+
+
 def test_build_weekly_summary_skips_llm_when_week_is_completely_empty(data_dir):
     client = _FakeGeminiClient("should not be called")
 

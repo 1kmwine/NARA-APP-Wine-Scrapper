@@ -216,7 +216,12 @@ def build_weekly_summary(week_start: str, api_key: str, client=None, force: bool
         "categories": [
             {
                 "key": b["key"], "title": b["title"],
-                "item_count": counts[b["key"]], "keywords": keywords.get(b["key"]) or [],
+                # counts[key]==0인데 keywords만 있으면 LLM이 다른 버킷 내용을
+                # 오분류해서 채운 것이다(실측 2026-07-24, "글로벌 동향" 입력이
+                # 아예 없는데도 응답엔 채워져 있었음) — 원본 소스가 없으면
+                # 무조건 빈 배열로 강제한다.
+                "item_count": counts[b["key"]],
+                "keywords": (keywords.get(b["key"]) or []) if counts[b["key"]] > 0 else [],
             }
             for b in BUCKETS
         ],

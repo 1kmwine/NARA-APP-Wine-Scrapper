@@ -1,0 +1,56 @@
+{
+  "foreign_magazines": [
+    {
+      "title": "여름 더위에 와인을 배송해야 합니까?",
+      "title_ko": "여름 더위에 와인을 배송해야 합니까?",
+      "summary_ko": "병 손상 위험에 대해 알아야 할 사항",
+      "source": "Wine Spectator",
+      "url": "https://www.winespectator.com/articles/should-you-ship-wine-in-the-heat-of-summer",
+      "date": ""
+    },
+    {
+      "title": "너무 뜨거워서 다룰 수 없음",
+      "title_ko": "너무 뜨거워서 다룰 수 없음",
+      "summary_ko": "심지어 나파 최고의 생산자들조차 카베르네의 뜨거운 2022 빈티지에서 어려움을 겪었습니다.",
+      "source": "Wine Spectator",
+      "url": "https://www.winespectator.com/articles/2022-california-cabernet-too-hot-to-handle-111525",
+      "date": ""
+    },
+    {
+      "title": "와인 한 병을 빨리 식히는 가장 좋은 방법은 무엇입니까?",
+      "title_ko": "와인 한 병을 빨리 식히는 가장 좋은 방법은 무엇입니까?",
+      "summary_ko": "30분 안에 와인을 차갑게 만드는 비법",
+      "source": "Wine Spectator",
+      "url": "https://www.winespectator.com/articles/how-to-quickly-chill-down-wine-bottle-best-way-tips",
+      "date": ""
+    },
+    {
+      "title": "포도재배 부서장 채용 제안",
+      "title_ko": "포도재배 부서장 채용 제안",
+      "summary_ko": "",
+      "source": "OIV",
+      "url": "https://www.oiv.int/press/viticulture-head-unit-job-offer",
+      "date": ""
+    },
+    {
+      "title": "OIV, 디종에서 창립 대사의 날 개최",
+      "title_ko": "OIV, 디종에서 창립 대사의 날 개최",
+      "summary_ko": "",
+      "source": "OIV",
+      "url": "https://www.oiv.int/press/oiv-hosts-inaugural-ambassadors-day-dijon",
+      "date": ""
+    },
+    {
+      "title": "OIV 본부는 \"외교 유산\" 라벨을 수상했습니다.",
+      "title_ko": "OIV 본부는 \"외교 유산\" 라벨을 수상했습니다.",
+      "summary_ko": "",
+      "source": "OIV",
+      "url": "https://www.oiv.int/press/oiv-headquarters-awarded-heritage-diplomacy-label",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}

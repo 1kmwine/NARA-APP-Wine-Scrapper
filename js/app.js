@@ -669,15 +669,18 @@ function getWeekStart(d){
 function addDays(d,n){ const dt=new Date(d); dt.setDate(dt.getDate()+n); return dt; }
 function fmtMonthDay(d){ return `${d.getMonth()+1}/${d.getDate()}`; }
 
-/* ±14일 범위만 fetch한다 — 실제 파일이 있는 날짜가 며칠뿐이라 대부분 빈 배열로
-   끝나지만, 로컬 정적 서버 fetch라 부담이 없다(원격 API였다면 주 단위 지연 로드로
+/* 과거 -45일 ~ 미래 +7일 fetch한다 — docs/briefings 백필로 6월 중순부터
+   과거 데이터가 생겼는데(2026-07-24 기준 가장 오래된 날짜 2026-06-17) 예전
+   ±14일 범위로는 캘린더를 아무리 넘겨도 그 주들이 아예 안 불려와서 안 뜨는
+   문제가 있었다. 실제 파일이 있는 날짜가 일부뿐이라 대부분 빈 배열로 끝나지만,
+   로컬 정적 서버 fetch라 부담이 없다(원격 API였다면 주 단위 지연 로드로
    바꿔야 한다). */
 async function loadBriefingData(){
   const data={};
   const base=new Date();
   const todayKey=fmtDateKey(base);
   const tasks=[];
-  for(let d=-14; d<=14; d++){
+  for(let d=-45; d<=7; d++){
     const dt=addDays(base,d);
     const key=fmtDateKey(dt);
     if(key>todayKey){ data[key]={isToday:false, isFuture:true, groups:emptyBriefingGroups()}; continue; }
