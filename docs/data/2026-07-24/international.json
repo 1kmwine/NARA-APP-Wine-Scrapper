@@ -1,0 +1,73 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "Chenin heyday: How one grape became South Africa's star at DWWA 2026",
+      "title_ko": "Chenin 전성기: 어떻게 한 포도가 DWWA 2026에서 남아프리카의 스타가 되었습니까?",
+      "summary_ko": "'볼수록 놀랍다'…",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Historic California wine from 'Judgement of Paris' sells for record $22,500 at Christie&rsquo;s auction",
+      "title_ko": "'파리의 심판'의 역사적인 캘리포니아 와인이 크리스티 경매에서 22,500달러에 기록적으로 판매되었습니다.",
+      "summary_ko": "이탈리아 거주 와인 작가, 교육자, 대회 심사위원",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Neighbourhood wine merchant wins sustainable wine buyer award",
+      "title_ko": "동네 와인 상인, 지속 가능한 와인 구매자상 수상",
+      "summary_ko": "당첨자 발표...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Chef Andrew Carmellini’s Rise",
+      "title_ko": "셰프 앤드루 카멜리니의 라이즈",
+      "summary_ko": "Carmellini는 뉴욕의 야망과 이탈리아의 뿌리를 바탕으로 와인 중심 레스토랑 제국을 건설했습니다.",
+      "url": "https://www.winespectator.com/articles/andrew-carmellini-profile-nyc-cafe-restaurants-wine",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Recipe: Pappardelle with Lamb Ragù",
+      "title_ko": "레시피: 양고기 라구를 곁들인 파파르델레",
+      "summary_ko": "앤드류 카멜리니(Andrew Carmellini) 셰프의 클래식하고 깊은 맛이 나는 레시피",
+      "url": "https://www.winespectator.com/articles/dining-tip-pappardelle-with-lamb-ragu-48184",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "47th World Congress of Vine and Wine useful information",
+      "title_ko": "제47차 세계포도나무대회 유용한 정보",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/47th-world-congress-vine-and-wine-useful-information",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "Viticulture Head of Unit job offer",
+      "title_ko": "포도재배 부서장 채용 제안",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/viticulture-head-unit-job-offer",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "title_ko": "OIV, 디종에서 창립 대사의 날 개최",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-hosts-inaugural-ambassadors-day-dijon",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
