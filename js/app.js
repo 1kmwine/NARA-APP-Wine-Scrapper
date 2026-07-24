@@ -730,7 +730,12 @@ function renderCalendar(){
     dot.style.background = count>0 ? 'var(--accent)' : 'transparent';
     cell.appendChild(dow); cell.appendChild(num); cell.appendChild(dot);
 
-    if(!data.isFuture){ cell.addEventListener('click', ()=>{ selectedDateKey=key; renderCalendar(); renderBriefingDetail(); }); }
+    if(!data.isFuture){
+      cell.addEventListener('click', ()=>{
+        selectedDateKey=key; renderCalendar(); renderBriefingDetail();
+        document.getElementById('briefingHero').scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    }
     grid.appendChild(cell);
   }
 }
@@ -787,7 +792,7 @@ async function renderWeeklySummary(){
   el.innerHTML='';
   const title=document.createElement('div');
   title.className='weekly-summary-title';
-  title.textContent='이번 주 종합';
+  title.textContent='주간 요약';
   el.appendChild(title);
 
   const grid=document.createElement('div'); grid.className='weekly-summary-grid';

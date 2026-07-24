@@ -241,14 +241,12 @@
   background:var(--accent); color:#fff; font-size:9px; font-weight:700;
   display:flex; align-items:center; justify-content:center;
 }
-.summary-category-name{ font-size:11.5px; font-weight:700; }
+.summary-category-name{ font-size:12.5px; font-weight:700; }
 .summary-category-count{ margin-left:auto; font-size:10px; color:var(--color-text-faint); }
-.summary-keywords{ display:flex; flex-wrap:wrap; gap:5px; }
-.summary-keyword-chip{
-  font-size:11px; line-height:1.4; padding:3px 8px; border-radius:999px;
-  background:var(--color-surface); color:var(--color-text-secondary); border:1px solid var(--color-border);
-}
-.summary-category-empty{ font-size:11px; color:var(--color-text-faint); }
+/* 둥근 흰색 칩 없이 바로 텍스트로 — 문장이라 칩보다 줄글 나열이 더 잘 읽힌다. */
+.summary-keywords{ display:flex; flex-direction:column; gap:6px; }
+.summary-keyword-chip{ font-size:13px; line-height:1.5; color:var(--color-text-secondary); }
+.summary-category-empty{ font-size:12px; color:var(--color-text-faint); }
 
 /* ── 데일리 상세 히어로 (docs/briefings 이메일 브리핑 레이아웃 참고) ── */
 #briefingHero{ max-width:900px; margin:0 auto 8px; }
