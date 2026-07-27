@@ -1,9 +1,10 @@
 /* ============================================================
    NARA Wine Intelligence — 블록 전용 스타일 (design-system.css 기반)
    ============================================================ */
-/* accent는 design-system.css의 기본값(#7BA23E, 나라셀라 그린)을 그대로 쓴다 —
-   목업이 오버라이드 없이 기본 accent를 사용하고 있어 이 블록 전용 오버라이드를
-   제거했다(과거엔 --accent:#5B4B8A로 커스터마이즈했었음). */
+/* accent는 design-system.css의 기본값(#2383E2, NARA-Design-System 블루,
+   2026-07-27부터)을 그대로 쓴다 — 목업이 오버라이드 없이 기본 accent를
+   사용하고 있어 이 블록 전용 오버라이드를 제거했다(과거엔 나라셀라 그린
+   #7BA23E → 그 전엔 --accent:#5B4B8A로 커스터마이즈했었음). */
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}

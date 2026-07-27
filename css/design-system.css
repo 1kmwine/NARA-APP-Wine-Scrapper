@@ -1,72 +1,78 @@
 /*
  * Naracellar Information Digest — 공통 디자인 시스템 (design-system.css)
  *
- * 이 파일은 새로 만드는 것이 아니라, 이미 허브(나라셀라 정보 대시보드.dc.html)와
- * 첫 블록(nara-data-wine-info의 quicklook PHP 프로토타입)에서 독립적으로 쓰이고
- * 있던 색상·간격·컴포넌트 값들이 우연히도 거의 일치해서, 그 실제 값을 그대로
- * 뽑아 정식 토큰으로 정리한 것이다(2026-07-13). 즉 "앞으로 이렇게 하자"가 아니라
- * "이미 이렇게 쓰고 있다"를 문서화한 것 — 값을 임의로 바꾸지 말고, 바꿔야 한다면
- * 허브와 기존 블록 화면에 미치는 영향부터 확인할 것.
+ * 2026-07-27: NARA-Design-System(github.com/1kmwine/NARA-Design-System, warm-minimalism
+ * / Notion 스타일 workspace 디자인 언어)의 토큰·비주얼 패턴을 이식했다. 색상 스케일을
+ * 중성 그레이(무채색)로, 반경/그림자를 그 시스템의 스케일로, 헤딩 폰트를 Lora serif로
+ * 바꿨다. 컴포넌트 클래스명(.card/.tile/.badge/.btn 등)과 CSS 변수 이름은 그대로 유지해
+ * 기존 33개 블록 문서(design.md)·연동 코드가 깨지지 않게 했다.
  *
- * 사용법은 design.md 참고. 33개 블록이 전부 이 파일을 그대로 가져다 쓰는 게
- * 목표이며, 블록마다 브랜드를 다르게 가져가고 싶은 경우 --accent 딱 하나만
- * 오버라이드하면 카드 아이콘 배경/hover 등 accent 파생 색이 전부 같이 바뀐다
- * (color-mix() 패턴, 아래 참고).
+ * --accent 기본값도 2026-07-27 후속 변경으로 NARA-Design-System 기본 accent(블루
+ * #2383E2)로 교체했다(이전엔 나라셀라 그린 #7BA23E를 브랜드색이라 유지했었으나,
+ * "디자인 시스템 색으로" 요청에 따라 블루를 기본값으로 바꿈). accent에서
+ * 파생시키는 color-mix() 패턴(이 프로젝트 고유, NARA-Design-System에는 없음)은
+ * 그대로 유지 — --accent 하나만 바꾸면 hover 보더/틴트/칩 등이 전부 따라간다.
+ *
+ * 주의: 이 파일은 링크(<link>)해서 쓰는 블록에만 적용된다. 허브 목업
+ * (나라셀라 정보 대시보드.dc.html/index.html)은 Design Canvas 인라인 스타일 방식이라
+ * 이 파일을 참조하지 않는다 — design.md 참고.
  */
 
 :root {
   /* ── Accent — 블록마다 이 한 값만 바꾸면 파생 색(색칠된 배지, hover 등)이
-     전부 따라간다. 기본값은 나라셀라 그린. */
-  --accent: #7BA23E;
+     전부 따라간다. 기본값은 NARA-Design-System accent(블루). */
+  --accent: #2383E2;
 
-  /* ── 중립색 스케일 — 어둡고 진한 순서대로. 배경 위 텍스트/보더 용도별로
-     이름 붙임(숫자 스케일이 아니라 의미로 이름 붙인 이유: 컴포넌트 코드를
-     읽을 때 "이게 왜 이 색인지" 바로 이해되게 하려고). */
-  --color-text: #2A2A26;           /* 본문 기본 텍스트, h1 */
-  --color-text-secondary: #3A3A34; /* 카드 타이틀 등 약간 낮은 위계 */
-  --color-text-strong-muted: #4A4A44; /* 문서 링크 텍스트 등 */
-  --color-text-muted: #6A6862;     /* 브레드크럼 링크, 라벨 */
-  --color-text-faint: #8A887F;     /* 섹션 타이틀, th, 보조 설명 */
-  --color-text-fainter: #9A988E;   /* 영문 병기(.en), 캡션 */
-  --color-text-faintest: #B0AEA4;  /* 더 옅은 캡션, placeholder급 */
-  --color-text-disabled: #C1BFB6;  /* 비활성/카운트 구분자 */
+  /* ── 중립색 스케일 — NARA-Design-System 톤(무채색 그레이)으로 갱신.
+     이름은 기존 그대로 유지(컴포넌트 코드 수정 없이 값만 바뀌게). */
+  --color-text: #111111;            /* 본문 기본 텍스트, h1 */
+  --color-text-secondary: #262626;  /* 카드 타이틀 등 약간 낮은 위계 */
+  --color-text-strong-muted: #404040; /* 문서 링크 텍스트 등 */
+  --color-text-muted: #595959;      /* 브레드크럼 링크, 라벨 */
+  --color-text-faint: #737373;      /* 섹션 타이틀, th, 보조 설명 */
+  --color-text-fainter: #8C8C8C;    /* 영문 병기(.en), 캡션 */
+  --color-text-faintest: #A6A6A6;   /* 더 옅은 캡션, placeholder급 */
+  --color-text-disabled: #BFBFBF;   /* 비활성/카운트 구분자 */
 
-  --color-border: #EBE9E3;         /* 카드/테이블 기본 보더 */
-  --color-border-input: #E0DED6;   /* input/toolbar 보더 */
-  --color-border-subtle: #E7E5DE;  /* 헤더 버튼/팝오버 보더 */
-  --color-border-hover: #C9D9AE;   /* 카드 hover 시 accent 계열 보더 */
-  --color-divider: #F0EFEA;        /* 테이블 행 구분선, crumb 밑줄 */
+  --color-border: #E5E5E5;          /* 카드/테이블 기본 보더 */
+  --color-border-input: #D9D9D9;    /* input/toolbar 보더 */
+  --color-border-subtle: #EAEAEA;   /* 헤더 버튼/팝오버 보더 */
+  --color-border-hover: color-mix(in srgb, var(--accent) 45%, #E5E5E5); /* 카드 hover 시 accent 계열 보더 */
+  --color-divider: #F0F0F0;         /* 테이블 행 구분선, crumb 밑줄 */
 
-  --color-surface: #FFFFFF;        /* 카드/테이블/모달/팝오버 배경 */
-  --color-surface-muted: #F1F0EB;  /* 배지·칩 배경, th 배경대용 */
-  --color-surface-tint: #F7F8F2;   /* 인용/설명 박스 배경(story-box류) */
-  --color-surface-hover: #FAFAF4;  /* 테이블 행 hover */
-  --color-bg: #FAFAF8;             /* 페이지 전체 배경 */
+  --color-surface: #FFFFFF;         /* 카드/테이블/모달/팝오버 배경 */
+  --color-surface-muted: #F5F5F5;   /* 배지·칩 배경, th 배경대용 */
+  --color-surface-tint: color-mix(in srgb, var(--accent) 8%, #FFFFFF); /* 인용/설명 박스 배경 */
+  --color-surface-hover: #FAFAFA;   /* 테이블 행 hover */
+  --color-bg: #FAFAFA;              /* 페이지 전체 배경 */
 
-  --color-danger: #E5484D;         /* "업데이트됨" 점, 경고 점 */
-  --color-danger-text: #B6544A;    /* 로그아웃 등 위험 텍스트 */
+  --color-danger: #E5484D;          /* "업데이트됨" 점, 경고 점 */
+  --color-danger-text: #B6544A;     /* 로그아웃 등 위험 텍스트 */
 
-  /* ── 반경 */
-  --radius-sm: 5px;    /* 배지, 칩, 작은 태그 */
-  --radius-md: 8px;    /* input, 버튼, pager */
-  --radius-lg: 12px;   /* 타일/카드 (그리드형) */
-  --radius-xl: 14px;   /* 섹션 카드, 리스트 컨테이너 */
-  --radius-2xl: 16px;  /* 모달 */
+  /* ── 반경 — NARA-Design-System 스케일(2xl은 모달용으로 추가 연장) */
+  --radius-sm: 4px;    /* 배지, 칩, 작은 태그 */
+  --radius-md: 6px;    /* input, 버튼, pager */
+  --radius-lg: 10px;   /* 타일/카드 (그리드형) */
+  --radius-xl: 16px;   /* 섹션 카드, 리스트 컨테이너 */
+  --radius-2xl: 20px;  /* 모달 */
   --radius-pill: 999px;/* 토스트, 아바타, 원형 버튼 */
 
-  /* ── 그림자 — 위계(팝오버 < 모달)에 맞춰 블러/투명도가 커진다 */
-  --shadow-card-hover: 0 6px 16px rgba(60, 70, 40, .08);
-  --shadow-popover: 0 14px 36px rgba(50, 50, 40, .13);
-  --shadow-modal: 0 24px 60px rgba(30, 30, 20, .24);
-  --shadow-toast: 0 10px 30px rgba(0, 0, 0, .22);
+  /* ── 그림자 — NARA-Design-System shadow-sm/md/lg 스케일 그대로 매핑 */
+  --shadow-card-hover: 0 1px 3px rgba(15,15,15,.10), 0 1px 2px rgba(15,15,15,.06);
+  --shadow-popover: 0 3px 6px rgba(15,15,15,.10), 0 2px 4px rgba(15,15,15,.08);
+  --shadow-modal: 0 9px 24px rgba(15,15,15,.12), 0 2px 6px rgba(15,15,15,.08);
+  --shadow-toast: 0 9px 24px rgba(15,15,15,.12), 0 2px 6px rgba(15,15,15,.08);
 
   /* ── 타이포그래피 */
-  --font-sans: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Inter', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif; /* 본문/UI */
+  --font-serif-display: 'Lora', 'Noto Serif KR', Georgia, serif; /* 페이지 제목 등 큰 헤딩 */
 
-  /* ── 모션 */
-  --transition-fast: .15s ease;
-  --transition-standard: .18s ease;
+  /* ── 모션 — NARA-Design-System ease-standard */
+  --transition-fast: .12s cubic-bezier(.165,.84,.44,1);
+  --transition-standard: .18s cubic-bezier(.165,.84,.44,1);
 }
+
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
 
 /* ============================================================
    기본 리셋 — 모든 블록 페이지의 <body>에 적용
@@ -84,6 +90,16 @@ body{
 }
 button,input{font-family:inherit}
 a{color:inherit;text-decoration:none}
+
+/* 페이지 제목 — NARA-Design-System의 serif display 헤딩을 이식 */
+h1{
+  font-family:var(--font-serif-display);
+  font-weight:600;
+  font-size:22px;
+  line-height:1.3;
+  color:var(--color-text);
+  margin:0 0 4px;
+}
 
 /* ============================================================
    카드 / 타일 — 클릭 가능한 목록 아이템(허브의 블록 카드, 와인 목록 타일 등)
@@ -162,7 +178,9 @@ a{color:inherit;text-decoration:none}
   font-weight:600;
   font-size:13.5px;
   cursor:pointer;
+  transition:background var(--transition-fast);
 }
+.btn:hover{background:color-mix(in srgb, var(--accent) 85%, #000)}
 .btn-outline{
   padding:9px 16px;
   border:1px solid var(--color-border-subtle);
@@ -172,9 +190,9 @@ a{color:inherit;text-decoration:none}
   font-weight:600;
   font-size:13.5px;
   cursor:pointer;
-  transition:border-color var(--transition-standard);
+  transition:border-color var(--transition-standard), background var(--transition-standard);
 }
-.btn-outline:hover{border-color:#CFCDC4}
+.btn-outline:hover{border-color:var(--color-border-input);background:var(--color-surface-muted)}
 .btn-icon-round{
   width:38px;
   height:38px;
@@ -185,9 +203,9 @@ a{color:inherit;text-decoration:none}
   background:var(--color-surface);
   border-radius:var(--radius-pill);
   cursor:pointer;
-  transition:border-color var(--transition-standard);
+  transition:border-color var(--transition-standard), background var(--transition-standard);
 }
-.btn-icon-round:hover{border-color:#CFCDC4}
+.btn-icon-round:hover{border-color:var(--color-border-input);background:var(--color-surface-muted)}
 
 .input{
   padding:10px 12px;
@@ -196,10 +214,13 @@ a{color:inherit;text-decoration:none}
   font-size:13.5px;
   color:var(--color-text);
   outline:none;
-  transition:border-color var(--transition-fast);
+  transition:border-color var(--transition-fast), box-shadow var(--transition-fast);
   width:100%;
 }
-.input:focus{border-color:var(--accent)}
+.input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+}
 .input-label{
   display:block;
   font-size:12px;
@@ -227,7 +248,7 @@ table.ds-table td{
   border-bottom:1px solid var(--color-divider);
 }
 table.ds-table th{
-  background:#FCFCFA;
+  background:var(--color-surface-muted);
   color:var(--color-text-faint);
   font-weight:600;
   font-size:12.5px;
@@ -275,7 +296,7 @@ table.ds-table td.k{
 /* 출처/보조 설명 캡션 — 항상 작고 흐리게(2026-07-09 확정 원칙) */
 .field-src{
   font-size:11px;
-  color:#B4AB92;
+  color:var(--color-text-faintest);
   margin:8px 0 0;
 }
 
@@ -300,7 +321,7 @@ table.ds-table td.k{
 .modal-overlay{
   position:fixed;
   inset:0;
-  background:rgba(20, 18, 14, .35);
+  background:rgba(15,15,15,.45);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -331,5 +352,5 @@ table.ds-table td.k{
    ============================================================ */
 .skeleton{
   border-radius:4px;
-  background:#EFEDE7;
+  background:var(--color-surface-muted);
 }
