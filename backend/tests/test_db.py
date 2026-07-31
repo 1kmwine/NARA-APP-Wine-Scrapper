@@ -92,7 +92,7 @@ def test_insert_article_writes_article_and_brand_rows():
     article = ParsedArticle(
         title="제목", excerpt="요약", thumbnail_url="https://x/y.jpg", published_date="2026-07-01"
     )
-    article_id = insert_article(conn, "와인21", "https://wine21.com/1", article, ["Montes", "Kaiken"])
+    article_id = insert_article(conn, "와인21", "https://wine21.com/1", article, ["Montes", "Kaiken"], "news")
 
     assert article_id == 42
     assert conn.committed is True
@@ -106,7 +106,7 @@ def test_insert_article_with_no_matched_brands():
     article = ParsedArticle(
         title="제목", excerpt="요약", thumbnail_url="https://x/y.jpg", published_date="2026-07-01"
     )
-    article_id = insert_article(conn, "와인21", "https://wine21.com/1", article, [])
+    article_id = insert_article(conn, "와인21", "https://wine21.com/1", article, [], "news")
 
     assert article_id == 42
     assert conn.committed is True
@@ -124,7 +124,29 @@ def test_insert_article_rolls_back_on_failure():
     )
 
     with pytest.raises(RuntimeError, match="simulated execute failure"):
-        insert_article(conn, "와인21", "https://wine21.com/1", article, ["Montes", "Kaiken"])
+        insert_article(conn, "와인21", "https://wine21.com/1", article, ["Montes", "Kaiken"], "news")
 
     assert conn.rolled_back is True
     assert conn.committed is False
+
+
+def test_insert_article_stores_source_category_in_sql():
+    conn = FakeConnection()
+    article = ParsedArticle(
+        title="제목", excerpt="요약", thumbnail_url="https://x/y.jpg", published_date="2026-07-01"
+    )
+    insert_article(conn, "와인21", "https://wine21.com/1", article, [], "youtube")
+
+    article_sql = next(sql for sql, _ in conn.cursor().executed if "INSERT INTO wine_articles" in sql)
+    assert "source_category" in article_sql
+
+
+def test_insert_article_passes_category_value_as_param():
+    conn = FakeConnection()
+    article = ParsedArticle(
+        title="제목", excerpt="요약", thumbnail_url="https://x/y.jpg", published_date="2026-07-01"
+    )
+    insert_article(conn, "와인21", "https://wine21.com/1", article, [], "wassap")
+
+    _, params = next((sql, p) for sql, p in conn.cursor().executed if "INSERT INTO wine_articles" in sql)
+    assert "wassap" in params

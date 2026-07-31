@@ -87,17 +87,19 @@ def get_article(conn, external_url: str) -> dict | None:
 
 
 def insert_article(
-    conn, source_name: str, external_url: str, article: ParsedArticle, matched_brands: list[str]
+    conn, source_name: str, external_url: str, article: ParsedArticle,
+    matched_brands: list[str], source_category: str,
 ) -> int:
     try:
         with conn.cursor() as cur:
             cur.execute(
                 """
                 INSERT INTO wine_articles
-                    (source_type, title, source_name, published_date, external_url, thumbnail_path, excerpt)
-                VALUES ('scraper', %s, %s, %s, %s, %s, %s)
+                    (source_type, source_category, title, source_name, published_date, external_url, thumbnail_path, excerpt)
+                VALUES ('scraper', %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
+                    source_category,
                     article.title,
                     source_name,
                     article.published_date,
