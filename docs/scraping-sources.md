@@ -74,7 +74,6 @@
 | 세계일보 | 뉴스 | 세계일보 와인 | https://www.segye.com/ |
 | 메트로신문 | 뉴스 | 메트로 와인 | https://www.metroseoul.co.kr/ |
 | 파이낸셜뉴스 | 뉴스 | 파이낸셜뉴스 와인 | https://www.fnnews.com/ |
-| 토큰테스트프레스 | 뉴스 | token permission test | https://example.com/token-test |
 
 ---
 
