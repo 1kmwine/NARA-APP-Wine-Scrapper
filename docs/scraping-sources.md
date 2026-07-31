@@ -205,20 +205,28 @@
 | Decanter | ✅ 수집 중 | https://www.decanter.com/wine-news/ | 제목+부제(synopsis) 페어링, 개별 기사 URL 매칭 불안정해 목록 페이지로 링크 |
 | Wine Spectator | ✅ 수집 중 | https://www.winespectator.com/ | 홈페이지에서 제목+부제(dek) 추출, 개별 기사 URL 정확히 매칭됨 |
 | OIV | ✅ 수집 중 | https://www.oiv.int/news/press | 제목+URL 안정적 매칭, 부제 없음 |
+| The Drinks Business | ✅ 수집 중 | https://www.thedrinksbusiness.com/ | 2026-07-31 추가. WordPress 실서버 검색(`?s=`), 무의미 검색어는 0건이라 진짜 필터링됨 확인. python-httpx 기본 UA는 403 차단돼 브라우저 UA 필요 |
 | James Suckling | ❌ 수집 불가 | https://www.jamessuckling.com/ | Next.js 클라이언트 렌더링 — 정적 HTML에 콘텐츠 없음 |
 | VinePair | ❌ 수집 불가 | https://vinepair.com/ | 요청 시 404 (안정적 접근 불가) |
 | Wine Enthusiast | ❌ 수집 불가 | https://www.wineenthusiast.com/ | 403 차단 |
 | Wine-Searcher | ❌ 수집 불가 | https://www.wine-searcher.com/ | 403 차단 |
-| Wine Advocate | ❌ 미확인 | https://winejournal.robertparker.com/ | TODO: @담당자 접근 가능 여부 확인 필요 |
+| Wine Advocate | ❌ 수집 불가 | https://winejournal.robertparker.com/ | 2026-07-31 확인 — 유료 구독 커뮤니티라 검색/기사 목록이 정적 HTML에 없음 |
+| Jancis Robinson | ❌ 수집 불가 | https://www.jancisrobinson.com/ | 2026-07-31 확인 — 403 차단 |
+| Wine Business (winebusiness.com) | ❌ 수집 불가 | https://www.winebusiness.com/ | 2026-07-31 확인 — 검색결과 클라이언트 렌더링, 정적 HTML에 목록 없음 |
+| Harpers | ❌ 수집 불가 | https://harpers.co.uk/ | 2026-07-31 확인 — 검색결과 클라이언트 렌더링, 정적 HTML에 목록 없음 |
+| GuildSomm | ❌ 수집 불가 | https://www.guildsomm.com/ | 2026-07-31 확인 — 회원제 콘텐츠 위주라 검색 페이지에 목록 없음 |
+| World of Fine Wine | ❌ 수집 불가 | https://worldoffinewine.com/ | 2026-07-31 확인 — 검색결과 클라이언트 렌더링, 정적 HTML에 목록 없음 |
+| Vinous | ❌ 수집 불가 | https://vinous.com/ | 2026-07-31 확인 — 검색 요청이 홈으로 리다이렉트됨(유료 구독 사이트) |
+| Punch | ❌ 수집 불가 | https://punchdrink.com/ | 2026-07-31 확인 — `?s=` 검색이 0건 반환(다른 검색 방식 필요, 미확인) |
+| 불룸버그 | ❌ 수집 불가 | https://www.bloomberg.com/ | 2026-07-31 확인 — 403 차단(강한 봇 차단), 검색도 동일 |
+| Investopedia | ❌ 수집 불가 | https://www.investopedia.com/ | 2026-07-31 확인 — 402 응답, 정적 접근 불가. 와인 전문 매체도 아님 |
+| Financial Times | ❌ 수집 불가 | https://www.ft.com/ | 2026-07-31 확인 — 403 차단(페이월+봇 차단) |
 
 | 소스군 | 항목 | 상태 |
 |--------|------|------|
 | 국내 통계 | 가처분소득, 가구 주류소비, 소비심리, 비닛 차트 | 미수집 (월간 갱신, 안정적 파싱 소스 미확보) — TODO |
 | 이벤트 | 와인21 이벤트, WSA, 도운 | 미수집 (페이지 구조상 정규식 매칭 불안정) — TODO |
 | 전방 시장 | 유통산업 통계, 외식 트렌드(diaryr), 식품-서울대 | 미수집 — TODO |
-| 불룸버그 | ✅ 수집 중 | https://www.bloomberg.com/ |  |
-| Investopedia | ✅ 수집 중 | https://www.investopedia.com/ |  |
-| Financial Times | ✅ 수집 중 | https://www.ft.com/ |  |
 
 > [!note] CCR 트리거
 > 트리거명: `나라셀라-해외통계-수집` · 평일 05:30 KST (이메일 발송 트리거보다 먼저 실행) · `docs/scraping-sources.md`를 GitHub에서 직접 읽어 위 표 기준으로 수집.

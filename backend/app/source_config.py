@@ -279,10 +279,24 @@ def add_wassap_source(client: GitHubClient, github_token: str, *, url: str, club
 
 
 def add_international_source(client: GitHubClient, github_token: str, *, name: str, url: str, note: str = "") -> None:
+    """해외소스는 사이트마다 전용 파서가 collectors.py에 있어야 실제로 수집된다
+    (collect_international 참고, 범용 파서 없음). 예전엔 여기서 무조건 "✅ 수집
+    중"으로 기록해서, 파서 없는 사이트를 추가하면 검색할 때마다 100% 실패했다
+    (실측 2026-07-31 — 블룸버그/Investopedia/Financial Times 전부 이 경로로
+    추가돼서 매번 "지원되지 않는 해외소스" 실패). 파서가 있는 이름일 때만
+    ✅로 기록하고, 없으면 ❌로 기록해 애초에 sources.international에 안
+    들어가게 한다(_parse_international이 ❌는 걸러냄)."""
+    from .collectors import _INTERNATIONAL_PARSERS
+
     text, sha = load_sources_document(client, github_token, force_refresh=True)
     existing = parse_sources_document(text)
     if any(s.name == name for s in existing.international):
         raise DuplicateSourceError(f"이미 등록된 소스입니다: {name}")
-    new_row = f"| {name} | ✅ 수집 중 | {url} | {note} |"
+    if name in _INTERNATIONAL_PARSERS:
+        status = "✅ 수집 중"
+    else:
+        status = "❌ 수집 불가"
+        note = (note + " — " if note else "") + "전용 파서 미구현(사이트마다 직접 구현 필요, 개발자 문의)"
+    new_row = f"| {name} | {status} | {url} | {note} |"
     new_text = _insert_table_row_after_section(text, "## 해외·통계·이벤트", new_row)
     _commit(client, github_token, new_text, sha, f"docs: 해외소스 추가 - {name}")

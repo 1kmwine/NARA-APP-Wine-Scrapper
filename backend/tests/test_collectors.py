@@ -448,6 +448,38 @@ def test_collect_international_oiv_uses_rendered_item_filter_when_query_given():
     assert items[0].title == "[번역]World Congress 2026"
 
 
+class FakeDrinksBusinessClient:
+    def __init__(self, search_html):
+        self._search_html = search_html
+
+    def get(self, url, *, params=None, headers=None, timeout=None):
+        assert url == "https://www.thedrinksbusiness.com/"
+        assert params == {"s": "Chardonnay"}
+        assert headers == {"User-Agent": "Mozilla/5.0"}
+        return FakeInternationalResponse(self._search_html)
+
+
+DB_SEARCH_HTML = (
+    '<a href="https://www.thedrinksbusiness.com/2026/07/some-article/" class="d-block">'
+    '<div class="row"><h2 class="u-fs-h-small mb-3">샤르도네 기사 제목</h2></div></a>'
+)
+
+
+def test_collect_international_drinks_business_searches_when_query_given():
+    source = InternationalSource(id="drinks-business", name="The Drinks Business", url="https://www.thedrinksbusiness.com/")
+    client = FakeDrinksBusinessClient(DB_SEARCH_HTML)
+
+    items = collect_international(
+        source, client, translate=_identity_translate, query="샤도네이",
+        translate_query=lambda q: "Chardonnay",
+    )
+
+    assert len(items) == 1
+    assert items[0].title == "[번역]샤르도네 기사 제목"
+    assert items[0].external_url == "https://www.thedrinksbusiness.com/2026/07/some-article/"
+    assert items[0].source_name == "The Drinks Business"
+
+
 def test_collect_international_unsupported_source_raises():
     source = InternationalSource(id="jamessuckling", name="James Suckling", url="https://www.jamessuckling.com/")
     client = FakeInternationalClient({})
@@ -499,6 +531,34 @@ def test_search_web_extracts_title_snippet_and_real_url():
     assert items[0].external_url == "https://example.com/page"
     assert items[0].source_name == "example.com"
     assert client.last_params["q"] == "Roger Goulart wine"
+
+
+DDG_HTML_WITH_DOMESTIC = (
+    '<a class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fexample.com%2Fpage&amp;rut=x">'
+    'Alvaro Palacios | Winery</a>'
+    '<a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fexample.com%2Fpage&amp;rut=x">'
+    'Discover Alvaro Palacios wines</a>'
+    '<a class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fblog.naver.com%2Fsomeone%2F1&amp;rut=x">'
+    'Alvaro Palacios 블로그</a>'
+    '<a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fblog.naver.com%2Fsomeone%2F1&amp;rut=x">'
+    'Alvaro Palacios 후기</a>'
+    '<a class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.naracellar.com%2Fitem%2F1&amp;rut=x">'
+    'Alvaro Palacios - Nara Cellar</a>'
+    '<a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.naracellar.com%2Fitem%2F1&amp;rut=x">'
+    'Nara Cellar 소개</a>'
+)
+
+
+def test_search_web_excludes_domestic_domains():
+    # 실측(2026-07-31): "해외소스" 카테고리인데 blog.naver.com/naracellar.com(자사
+    # 홈페이지)까지 DuckDuckGo 결과에 섞여 나왔다 — 도메인 제한 없는 전체 웹검색이라
+    # 국내 사이트도 그냥 걸린다. 알려진 국내 도메인은 걸러야 한다.
+    client = FakeDdgClient(DDG_HTML_WITH_DOMESTIC)
+
+    items = search_web("Alvaro Palacios", client, translate=_identity_translate)
+
+    assert len(items) == 1
+    assert items[0].source_name == "example.com"
 
 
 def test_default_translate_to_en_skips_already_english_text():

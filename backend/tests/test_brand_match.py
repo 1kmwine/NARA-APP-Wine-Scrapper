@@ -39,6 +39,18 @@ def test_fuzzy_find_returns_none_when_not_present():
     assert fuzzy_find("전혀 다른 내용", "파니엔테") is None
 
 
+def test_fuzzy_find_rejects_match_inside_larger_korean_word():
+    # 실제 오탐 사례 재현(2026-07-31): "레꼴" 검색이 완전히 다른 단어 "레꼴땅"
+    # (Récoltant-Manipulant의 한글 표기) 안에서 매칭되던 버그.
+    assert fuzzy_find("레꼴땅-마니퓰랑으로 전환했다", "레꼴") is None
+
+
+def test_fuzzy_find_accepts_match_followed_by_korean_particle():
+    # "레꼴은/레꼴이"처럼 조사가 띄어쓰기 없이 바로 붙는 진짜 매칭은 계속 인정돼야 한다.
+    assert fuzzy_find("레꼴은 워싱턴 와이너리다", "레꼴") is not None
+    assert fuzzy_find("레꼴 No.41을 아시나요", "레꼴") is not None
+
+
 def test_make_context_excerpt_centers_on_highlight_with_different_spacing():
     text = ("서론 문단이 아주 길게 이어진다 " * 10) + "여기서 파 니엔테 샤도네이를 소개한다 " + ("뒷부분도 길게 이어진다 " * 10)
     result = make_context_excerpt(text, "파니엔테", fallback_excerpt="도입부 요약")
@@ -84,6 +96,10 @@ def test_match_brands_korean_brand_name_matches():
 
 def test_match_brands_dedupes_result():
     assert match_brands("Montes Montes Montes", ["Montes", "Montes"]) == ["Montes"]
+
+
+def test_match_brands_rejects_substring_inside_larger_korean_word():
+    assert match_brands("레꼴땅-마니퓰랑으로 전환했다", ["레꼴"]) == []
 
 
 def test_match_brands_no_match_returns_empty_list():

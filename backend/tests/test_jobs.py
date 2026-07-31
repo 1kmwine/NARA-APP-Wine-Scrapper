@@ -60,6 +60,24 @@ def test_run_job_succeeds_with_only_news_source():
     assert result.results[0].excerpt == "요약"
 
 
+def test_run_job_news_article_matching_catalog_brand_containing_query_is_kept():
+    # matched 브랜드명 안에 검색어가 부분포함되면(공백 무시) 여전히 관련 있다고
+    # 봐야 한다 — 예: "베러하프" 검색이 DB의 긴 제품명 "더 베터 하프 말보로..."에
+    # 부분포함되는 경우. _brand_relates_to_query가 이 케이스까지 걷어내면 안 된다.
+    store = JobStore()
+    job = store.create("베러하프", "베러하프", total=1)
+    sources = _empty_sources(news=[NewsSource(id="wine21.com", name="와인21", domain="wine21.com", query="")])
+
+    run_job(job.id, store, sources, "베러하프", "베러하프", **_news_deps(
+        fetch_naver_items=lambda query: [{"title": "a", "link": "https://wine21.com/1", "originallink": ""}],
+        match_brands=lambda text, brands: ["더 베러하프 말보로 소비뇽 블랑"],
+    ))
+
+    result = store.get(job.id)
+    assert len(result.results) == 1
+    assert result.results[0].status == "저장됨"
+
+
 def test_run_job_news_article_unrelated_to_query_is_skipped():
     # 등록 언론사 도메인이라고 해서 관련 있는 게 아니다 — 애매한 검색어("베러하프"
     # 같은 노래 제목과 겹치는 와인명)는 그 언론사의 완전히 무관한 기사(빵 트렌드
@@ -84,6 +102,81 @@ def test_run_job_news_article_unrelated_to_query_is_skipped():
     result = store.get(job.id)
     assert result.status == "succeeded"
     assert result.results == []
+
+
+def test_run_job_news_article_matching_unrelated_catalog_brand_is_skipped():
+    # 실측(2026-07-31): "레꼴" 검색인데 기사 본문에 전혀 무관한 다른 카탈로그
+    # 브랜드("Fantini")가 우연히 언급됐다는 이유만으로 무관한 기사가 결과에
+    # 섞여 나왔다 — match_brands는 검색어가 아니라 회사 전체 카탈로그를 스캔하므로
+    # "matched가 비어있지 않다"만으로는 관련성 근거가 안 된다. matched된 브랜드가
+    # 검색어와 실제로 무관하면 여전히 걸러야 한다.
+    class UnrelatedArticle:
+        title = "미식의 미학을 아는 샴페인, '로저 바르니에(Roger Barnier)'"
+        excerpt = "아버지로부터 포도밭을 물려받아 자신의 이름을 내건 샴페인을 생산하기 시작한다"
+        thumbnail_url = None
+        published_date = "2026-06-20"
+
+    store = JobStore()
+    job = store.create("레꼴", "레꼴", total=1)
+    sources = _empty_sources(news=[NewsSource(id="sommeliertimes.com", name="소믈리에타임즈", domain="sommeliertimes.com", query="")])
+
+    run_job(job.id, store, sources, "레꼴", "레꼴", **_news_deps(
+        fetch_naver_items=lambda query: [{"title": "a", "link": "https://sommeliertimes.com/1", "originallink": ""}],
+        parse_article_meta=lambda html, fallback: UnrelatedArticle(),
+        match_brands=lambda text, brands: ["Fantini", "Fonseca"],  # 검색어("레꼴")와 무관한 매칭
+    ))
+
+    result = store.get(job.id)
+    assert result.status == "succeeded"
+    assert result.results == []
+
+
+def test_run_job_news_article_only_mentioning_region_name_is_skipped():
+    # 실측(2026-07-31): "리베라"(나라셀라가 실제 취급하는 이탈리아 와이너리 Rivera)
+    # 검색인데 스페인 산지명 "리베라 델 두에로"(Ribera del Duero, 무관)만 언급하는
+    # 기사가 걸렸다.
+    class RegionOnlyArticle:
+        title = "스페인 명산지 기행"
+        excerpt = "요약"
+        thumbnail_url = None
+        published_date = "2026-07-01"
+
+    store = JobStore()
+    job = store.create("리베라", "리베라", total=1)
+    sources = _empty_sources(news=[NewsSource(id="wine21.com", name="와인21", domain="wine21.com", query="")])
+
+    run_job(job.id, store, sources, "리베라", "리베라", **_news_deps(
+        fetch_naver_items=lambda query: [{"title": "a", "link": "https://wine21.com/1", "originallink": ""}],
+        parse_article_meta=lambda html, fallback: RegionOnlyArticle(),
+        extract_visible_text=lambda html: "이번엔 리베라 델 두에로를 다녀왔다. 유서 깊은 산지다.",
+        match_brands=lambda text, brands: [],
+    ))
+
+    result = store.get(job.id)
+    assert result.results == []
+
+
+def test_run_job_news_article_mentioning_both_region_and_real_brand_is_kept():
+    # 같은 글에 산지명 오탐과 진짜 브랜드 언급이 둘 다 있으면 진짜 매칭 쪽으로 통과돼야 한다.
+    class MixedArticle:
+        title = "이탈리아 vs 스페인 와인 비교"
+        excerpt = "요약"
+        thumbnail_url = None
+        published_date = "2026-07-01"
+
+    store = JobStore()
+    job = store.create("리베라", "리베라", total=1)
+    sources = _empty_sources(news=[NewsSource(id="wine21.com", name="와인21", domain="wine21.com", query="")])
+
+    run_job(job.id, store, sources, "리베라", "리베라", **_news_deps(
+        fetch_naver_items=lambda query: [{"title": "a", "link": "https://wine21.com/1", "originallink": ""}],
+        parse_article_meta=lambda html, fallback: MixedArticle(),
+        extract_visible_text=lambda html: "리베라 델 두에로 지역과 달리, 리베라 프리미티보는 풀리아 스타일이다.",
+        match_brands=lambda text, brands: [],
+    ))
+
+    result = store.get(job.id)
+    assert len(result.results) == 1
 
 
 def test_run_job_news_duplicate_unrelated_to_query_is_skipped():

@@ -484,10 +484,57 @@ def _parse_oiv(client, translate, query: str) -> list[CollectedItem]:
     return items
 
 
+def _parse_drinks_business(client, translate, query: str) -> list[CollectedItem]:
+    # thedrinksbusiness.com은 WordPress 실제 서버사이드 검색(?s=)이 된다(2026-07-31
+    # 확인 — 무의미한 검색어는 0건, "wine"은 36건으로 실제 필터링됨). 검색결과
+    # 카드는 `<a href="URL" class="d-block">...<h2 class="u-fs-h-small mb-3">제목</h2>`.
+    # python-httpx 기본 User-Agent는 이 사이트에서 403으로 차단된다(실측 2026-07-31)
+    # — 브라우저 UA를 흉내내야 한다.
+    headers = {"User-Agent": "Mozilla/5.0"}
+    if query:
+        response = client.get(
+            "https://www.thedrinksbusiness.com/", params={"s": query}, headers=headers, timeout=15.0,
+        )
+        response.raise_for_status()
+        matches = re.findall(
+            r'href="(https://www\.thedrinksbusiness\.com/\d{4}/\d{2}/[a-z0-9-]+/)"\s*class="d-block">'
+            r'.*?<h2 class="u-fs-h-small mb-3">([^<]+)</h2>',
+            response.text, re.DOTALL,
+        )
+        items = []
+        for url, title in matches[:3]:
+            title = title.strip()
+            if not title or _is_placeholder(title):
+                continue
+            items.append(_build_item(
+                title=translate(title), excerpt="", thumbnail_url=None,
+                external_url=url, published_date=None, source_name="The Drinks Business",
+            ))
+        if items:
+            return items
+        # 검색 결과 0건이면 최신 기사로 폴백 — 완전히 빈 카테고리보다 낫다.
+
+    response = client.get("https://www.thedrinksbusiness.com/", headers=headers, timeout=15.0)
+    response.raise_for_status()
+    titles = re.findall(r'<h2 class="c-post-info__heading">([^<]+)</h2>', response.text)
+    items = []
+    for title in titles[:3]:
+        title = title.strip()
+        if _is_placeholder(title):
+            continue
+        items.append(_build_item(
+            title=translate(title), excerpt="", thumbnail_url=None,
+            external_url="https://www.thedrinksbusiness.com/", published_date=None,
+            source_name="The Drinks Business",
+        ))
+    return items
+
+
 _INTERNATIONAL_PARSERS = {
     "Decanter": _parse_decanter,
     "Wine Spectator": _parse_wine_spectator,
     "OIV": _parse_oiv,
+    "The Drinks Business": _parse_drinks_business,
 }
 
 
@@ -530,6 +577,20 @@ def _domain_of(url: str) -> str:
     return host[4:] if host.startswith("www.") else host
 
 
+# "해외소스" 카테고리 전용 검색이라 국내 사이트가 섞이면 안 된다. DuckDuckGo 전체
+# 웹검색은 도메인 제한이 없어서 검색어와 겹치는 국내 블로그·자사 홈페이지도 그냥
+# 걸려온다(실측 2026-07-31 — "Alvaro Palacios" 검색에 blog.naver.com, 나라셀라
+# 자사 홈페이지 naracellar.com이 "해외소스"로 노출됨). 완벽한 언어 판별 대신
+# 알려진 국내 도메인만 걷어낸다 — ponytail: 휴리스틱 차단목록, 새 국내 사이트가
+# 계속 걸리면 도메인 추가.
+_DOMESTIC_DOMAIN_MARKERS = (".kr", "naver.com", "naracellar.com", "tistory.com", "daum.net")
+
+
+def _is_domestic_domain(domain: str) -> bool:
+    domain = domain.lower()
+    return any(domain == marker.lstrip(".") or domain.endswith(marker) for marker in _DOMESTIC_DOMAIN_MARKERS)
+
+
 def search_web(query: str, client, translate=default_translate_to_ko, max_items: int = 5) -> list[CollectedItem]:
     """Decanter/Wine Spectator/OIV 3곳으로는 커버리지가 너무 좁다(2026-07-22 실측
     — "로저구라트"류 브랜드는 3곳 다 0건). scraping-sources.md에 등록된 소스에
@@ -551,10 +612,13 @@ def search_web(query: str, client, translate=default_translate_to_ko, max_items:
         title = _strip_tags(raw_title)
         if not target or not title or _is_placeholder(title):
             continue
+        domain = _domain_of(target)
+        if _is_domestic_domain(domain):
+            continue
         items.append(_build_item(
             title=translate(title), excerpt=translate(_strip_tags(raw_snippet)),
             thumbnail_url=None, external_url=target, published_date=None,
-            source_name=_domain_of(target),
+            source_name=domain,
         ))
         if len(items) >= max_items:
             break

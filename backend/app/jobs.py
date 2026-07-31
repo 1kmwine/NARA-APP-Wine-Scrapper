@@ -6,7 +6,7 @@ import uuid
 from dataclasses import dataclass, field, replace
 from typing import Callable, Optional
 
-from .brand_match import fuzzy_find, make_context_excerpt
+from .brand_match import fuzzy_find, fuzzy_find_all, make_context_excerpt
 from .sources import SourcesConfig
 from .collectors import CollectedItem
 from .naver_search import items_for_domain
@@ -73,14 +73,50 @@ class JobStore:
             self._jobs[job_id].done += 1
 
 
+# 검색어가 유명 와인 산지명의 앞부분과 우연히 겹치는 경우가 있다(실측 2026-07-31
+# — 나라셀라가 실제 취급하는 이탈리아 와이너리 "리베라"(Rivera) 검색에 스페인 산지
+# "리베라 델 두에로"(Ribera del Duero, 무관한 지역명)가 걸림). "델/디/데" 같은
+# 로망스어 전치사는 진짜 브랜드명에도 흔히 쓰여서(예: Castello di Ama) 일반적인
+# 패턴 규칙으론 못 거른다 — 실제로 확인된 충돌만 걸러낸다.
+# ponytail: 소규모 차단목록, 새 충돌 발견 시 추가.
+_REGION_NAME_FALSE_POSITIVES = (
+    "리베라 델 두에로",
+)
+
+
+def _is_region_false_positive(text: str, match_start: int) -> bool:
+    window = text[match_start:match_start + 20]
+    return any(window.startswith(region) for region in _REGION_NAME_FALSE_POSITIVES)
+
+
 def _matches_query(text: str, query: str) -> bool:
     """유튜브/와쌉/해외소스 콜렉터는 검색어 없이 채널·게시판·홈페이지의 최신
     항목을 그대로 가져온다 — 브랜드 매칭도 안 되고 검색어도 안 들어간 항목은
     검색과 무관한 일반 와인 소식이므로 걸러낸다. fuzzy_find를 쓰는 이유는
     _pick_highlight와 동일 — 표기 스페이싱 차이로 진짜 관련 있는 항목까지
-    걸러지는 걸 막기 위해서다."""
+    걸러지는 걸 막기 위해서다. 첫 매칭만 보지 않고 전체 후보를 보는 이유는
+    같은 글에 진짜 매칭과 산지명 오탐이 둘 다 있을 수 있어서다."""
     query = (query or "").strip()
-    return not query or bool(fuzzy_find(text, query))
+    if not query:
+        return True
+    return any(
+        not _is_region_false_positive(text, m.start())
+        for m in fuzzy_find_all(text, query)
+    )
+
+
+def _brand_relates_to_query(matched: list[str], query: str) -> bool:
+    """match_brands는 회사 전체 카탈로그(수백 개 브랜드/제품명)를 대상으로 스캔하므로
+    "matched가 비어있지 않다"는 이 기사에 검색어와 무관한 다른 브랜드가 하나라도
+    있다는 뜻일 뿐이다(실측 2026-07-31 — "레꼴" 검색에 전혀 다른 "Fantini"/"Fonseca"가
+    매칭됐다는 이유만으로 무관한 기사가 통과됨). 검색어가 matched 브랜드명 문자열
+    안에(또는 그 반대로) 실제로 들어있을 때만 "이 매칭이 검색어와 관련 있다"고
+    본다 — "베러하프" 검색이 DB의 "더 베터 하프 말보로 소비뇽 블랑" 같은 긴
+    제품명에 부분포함되는 경우는 여전히 통과시키기 위함."""
+    query = (query or "").strip()
+    if not query:
+        return False
+    return any(fuzzy_find(brand, query) or fuzzy_find(query, brand) for brand in matched)
 
 
 def _pick_highlight(text: str, query: str, matched: list[str]) -> str:
@@ -253,8 +289,8 @@ def run_job(
                             # 언론사 URL이라고 무조건 관련 있는 게 아니다).
                             existing_text = f"{existing['title']} {existing['excerpt']}"
                             existing_matched = match_brands(existing_text, known_brands)
-                            if (not existing_matched and not _mentions_wine(existing_text)
-                                    and not _matches_query(existing_text, query)):
+                            if (not _matches_query(existing_text, query)
+                                    and not _brand_relates_to_query(existing_matched, query)):
                                 continue
                             store.append_result(job_id, JobResultItem(
                                 source_id=source.id, source_name=source.name, source_category="news",
@@ -275,9 +311,13 @@ def run_job(
                         # 도메인 큐레이션(등록된 언론사)만으로는 관련성이 보장되지 않는다 —
                         # 애매한 검색어(예: 노래 제목과 같은 와인명)는 등록 언론사의
                         # 완전히 무관한 기사(빵 트렌드, 신곡 발매 등)까지 걸고 온다.
-                        # 브랜드/제품명 매칭도 없고 와인 관련 단어도 없고 검색어 자체도
-                        # 안 보이면 조용히 건너뛴다(실패 아님, 그냥 무관한 것).
-                        if not matched and not _mentions_wine(full_text) and not _matches_query(full_text, query):
+                        # matched는 회사 전체 카탈로그 대상 스캔이라 검색어와 무관한
+                        # 다른 브랜드 하나만 우연히 있어도 채워진다 — "matched가 있다"가
+                        # 아니라 "matched된 브랜드가 검색어와 실제로 관련 있다"를 봐야
+                        # 한다(_brand_relates_to_query). _mentions_wine("와인"이란
+                        # 단어만 있으면 통과)은 거의 모든 와인 매체 기사를 무조건
+                        # 통과시켜버려서 검색어 필터 역할을 못 했다 — 제거.
+                        if not _matches_query(full_text, query) and not _brand_relates_to_query(matched, query):
                             continue
                         highlight = _pick_highlight(full_text, query, matched)
                         article.excerpt = make_context_excerpt(full_text, highlight, article.excerpt)
