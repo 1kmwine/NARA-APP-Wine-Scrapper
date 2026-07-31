@@ -530,11 +530,82 @@ def _parse_drinks_business(client, translate, query: str) -> list[CollectedItem]
     return items
 
 
+def _parse_wine_industry_advisor(client, translate, query: str) -> list[CollectedItem]:
+    # wineindustryadvisor.com도 WordPress 실서버 검색(?s=)이 된다(2026-07-31 확인
+    # — 무의미 검색어는 0건). 검색결과는 `<h3 class="elementor-post__title"><a
+    # href="URL">제목</a></h3>`, 홈페이지 최신글은 `<h2 class="is-title
+    # post-title..."><a href="URL">제목</a>` — 템플릿이 서로 다르다.
+    headers = {"User-Agent": "Mozilla/5.0"}
+    if query:
+        response = client.get(
+            "https://www.wineindustryadvisor.com/", params={"s": query}, headers=headers, timeout=15.0,
+        )
+        response.raise_for_status()
+        matches = re.findall(
+            r'<h3 class="elementor-post__title">\s*<a href="([^"]+)"\s*>\s*([^\t\n<]+)', response.text,
+        )
+        items = []
+        for url, title in matches[:3]:
+            title = title.strip()
+            if not title or _is_placeholder(title):
+                continue
+            items.append(_build_item(
+                title=translate(title), excerpt="", thumbnail_url=None,
+                external_url=url, published_date=None, source_name="Wine Industry Advisor",
+            ))
+        if items:
+            return items
+        # 검색 결과 0건이면 최신 기사로 폴백 — 완전히 빈 카테고리보다 낫다.
+
+    response = client.get("https://www.wineindustryadvisor.com/", headers=headers, timeout=15.0)
+    response.raise_for_status()
+    matches = re.findall(r'class="is-title post-title[^"]*"><a href="([^"]+)">([^<]+)</a>', response.text)
+    items = []
+    for url, title in matches[:3]:
+        title = title.strip()
+        if _is_placeholder(title):
+            continue
+        items.append(_build_item(
+            title=translate(title), excerpt="", thumbnail_url=None,
+            external_url=url, published_date=None, source_name="Wine Industry Advisor",
+        ))
+    return items
+
+
+def _parse_1winedude(client, translate, query: str) -> list[CollectedItem]:
+    # 1winedude.com(개인 와인 블로그, 업계 인지도 있음)도 WordPress 실서버 검색이
+    # 된다(2026-07-31 확인 — 무의미 검색어는 다른 결과, "chardonnay"는 실제 관련
+    # 글만 나옴). 검색결과 `<h2 class="...post-title"><a href="URL">제목</a>`
+    # 안의 클래스 접미사(--13 등)는 Gutenberg 블록 인스턴스 ID라 매번 랜덤이라
+    # post-title만 부분 매칭한다. query 없으면 최신글 목록도 같은 템플릿이라
+    # 별도 홈페이지 파싱이 필요 없다.
+    headers = {"User-Agent": "Mozilla/5.0"}
+    response = client.get(
+        "https://1winedude.com/", params={"s": query} if query else None, headers=headers, timeout=15.0,
+    )
+    response.raise_for_status()
+    matches = re.findall(
+        r'<h2 class="[^"]*post-title[^"]*">\s*<a href="([^"]+)"[^>]*>([^<]+)</a>', response.text,
+    )
+    items = []
+    for url, title in matches[:3]:
+        title = title.strip()
+        if not title or _is_placeholder(title):
+            continue
+        items.append(_build_item(
+            title=translate(title), excerpt="", thumbnail_url=None,
+            external_url=url, published_date=None, source_name="1WineDude",
+        ))
+    return items
+
+
 _INTERNATIONAL_PARSERS = {
     "Decanter": _parse_decanter,
     "Wine Spectator": _parse_wine_spectator,
     "OIV": _parse_oiv,
     "The Drinks Business": _parse_drinks_business,
+    "Wine Industry Advisor": _parse_wine_industry_advisor,
+    "1WineDude": _parse_1winedude,
 }
 
 

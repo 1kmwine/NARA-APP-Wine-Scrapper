@@ -480,6 +480,70 @@ def test_collect_international_drinks_business_searches_when_query_given():
     assert items[0].source_name == "The Drinks Business"
 
 
+class FakeWineIndustryAdvisorClient:
+    def __init__(self, search_html):
+        self._search_html = search_html
+
+    def get(self, url, *, params=None, headers=None, timeout=None):
+        assert url == "https://www.wineindustryadvisor.com/"
+        assert params == {"s": "Chardonnay"}
+        assert headers == {"User-Agent": "Mozilla/5.0"}
+        return FakeInternationalResponse(self._search_html)
+
+
+WIA_SEARCH_HTML = (
+    '<h3 class="elementor-post__title">\n<a href="https://wineindustryadvisor.com/2026/07/16/some-article/" >\n'
+    '\t\t\t\t샤르도네 기사 제목\t\t\t</a>\n</h3>'
+)
+
+
+def test_collect_international_wine_industry_advisor_searches_when_query_given():
+    source = InternationalSource(id="wine-industry-advisor", name="Wine Industry Advisor", url="https://www.wineindustryadvisor.com/")
+    client = FakeWineIndustryAdvisorClient(WIA_SEARCH_HTML)
+
+    items = collect_international(
+        source, client, translate=_identity_translate, query="샤도네이",
+        translate_query=lambda q: "Chardonnay",
+    )
+
+    assert len(items) == 1
+    assert items[0].title == "[번역]샤르도네 기사 제목"
+    assert items[0].external_url == "https://wineindustryadvisor.com/2026/07/16/some-article/"
+    assert items[0].source_name == "Wine Industry Advisor"
+
+
+class Fake1WineDudeClient:
+    def __init__(self, search_html):
+        self._search_html = search_html
+
+    def get(self, url, *, params=None, headers=None, timeout=None):
+        assert url == "https://1winedude.com/"
+        assert params == {"s": "Chardonnay"}
+        assert headers == {"User-Agent": "Mozilla/5.0"}
+        return FakeInternationalResponse(self._search_html)
+
+
+ONEWINEDUDE_SEARCH_HTML = (
+    '<h2 class="is-style-text-lead-3 is-style-text-lead-3--13 wp-block-post-title">'
+    '<a href="https://www.1winedude.com/some-article/" rel="bookmark">샤르도네 시음기</a></h2>'
+)
+
+
+def test_collect_international_1winedude_searches_when_query_given():
+    source = InternationalSource(id="1winedude", name="1WineDude", url="https://1winedude.com/")
+    client = Fake1WineDudeClient(ONEWINEDUDE_SEARCH_HTML)
+
+    items = collect_international(
+        source, client, translate=_identity_translate, query="샤도네이",
+        translate_query=lambda q: "Chardonnay",
+    )
+
+    assert len(items) == 1
+    assert items[0].title == "[번역]샤르도네 시음기"
+    assert items[0].external_url == "https://www.1winedude.com/some-article/"
+    assert items[0].source_name == "1WineDude"
+
+
 def test_collect_international_unsupported_source_raises():
     source = InternationalSource(id="jamessuckling", name="James Suckling", url="https://www.jamessuckling.com/")
     client = FakeInternationalClient({})

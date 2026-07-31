@@ -206,6 +206,8 @@
 | Wine Spectator | ✅ 수집 중 | https://www.winespectator.com/ | 홈페이지에서 제목+부제(dek) 추출, 개별 기사 URL 정확히 매칭됨 |
 | OIV | ✅ 수집 중 | https://www.oiv.int/news/press | 제목+URL 안정적 매칭, 부제 없음 |
 | The Drinks Business | ✅ 수집 중 | https://www.thedrinksbusiness.com/ | 2026-07-31 추가. WordPress 실서버 검색(`?s=`), 무의미 검색어는 0건이라 진짜 필터링됨 확인. python-httpx 기본 UA는 403 차단돼 브라우저 UA 필요 |
+| Wine Industry Advisor | ✅ 수집 중 | https://www.wineindustryadvisor.com/ | 2026-07-31 추가. 미국 와인업계 전문지, WordPress 실서버 검색 확인 |
+| 1WineDude | ✅ 수집 중 | https://1winedude.com/ | 2026-07-31 추가. 개인 와인 블로그(업계 인지도 있음, Joe Roberts), WordPress 실서버 검색 확인 |
 | James Suckling | ❌ 수집 불가 | https://www.jamessuckling.com/ | Next.js 클라이언트 렌더링 — 정적 HTML에 콘텐츠 없음 |
 | VinePair | ❌ 수집 불가 | https://vinepair.com/ | 요청 시 404 (안정적 접근 불가) |
 | Wine Enthusiast | ❌ 수집 불가 | https://www.wineenthusiast.com/ | 403 차단 |
@@ -221,6 +223,11 @@
 | 불룸버그 | ❌ 수집 불가 | https://www.bloomberg.com/ | 2026-07-31 확인 — 403 차단(강한 봇 차단), 검색도 동일 |
 | Investopedia | ❌ 수집 불가 | https://www.investopedia.com/ | 2026-07-31 확인 — 402 응답, 정적 접근 불가. 와인 전문 매체도 아님 |
 | Financial Times | ❌ 수집 불가 | https://www.ft.com/ | 2026-07-31 확인 — 403 차단(페이월+봇 차단) |
+| Robb Report | ❌ 수집 불가 | https://www.robbreport.com/ | 2026-07-31 확인 — 검색결과 클라이언트 렌더링(제목·목록 정적 HTML엔 검색어와 무관하게 동일) |
+| Imbibe Magazine | ❌ 수집 불가 | https://imbibemagazine.com/ | 2026-07-31 확인 — 검색 페이지 title엔 검색어 반영되지만 결과 목록은 클라이언트 렌더링 |
+| Vinography | ❌ 수집 불가 | https://www.vinography.com/ | 2026-07-31 확인 — 검색 페이지 title엔 검색어 반영되지만 결과 목록은 클라이언트 렌더링 |
+| Palate Press | ❌ 수집 불가 | https://palatepress.com/ | 2026-07-31 확인 — 검색과 무관하게 항상 같은 위젯 목록 반환(진짜 검색 아님) |
+| Snooth | ❌ 수집 불가 | https://www.snooth.com/ | 2026-07-31 확인 — 검색 페이지 title엔 검색어 반영되지만 결과 목록은 클라이언트 렌더링 |
 
 | 소스군 | 항목 | 상태 |
 |--------|------|------|
