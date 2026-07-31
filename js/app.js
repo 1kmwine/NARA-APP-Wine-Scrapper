@@ -577,7 +577,7 @@ function showToast(msg){
   if(toastTimer) clearTimeout(toastTimer);
   toastEl.textContent=msg;
   toastEl.classList.remove('hidden');
-  toastTimer=setTimeout(()=>toastEl.classList.add('hidden'), 1900);
+  toastTimer=setTimeout(()=>toastEl.classList.add('hidden'), 3000);
 }
 
 /* ========== 초기화 ========== */
