@@ -218,6 +218,7 @@
 | 전방 시장 | 유통산업 통계, 외식 트렌드(diaryr), 식품-서울대 | 미수집 — TODO |
 | 불룸버그 | ✅ 수집 중 | https://www.bloomberg.com/ |  |
 | Investopedia | ✅ 수집 중 | https://www.investopedia.com/ |  |
+| Financial Times | ✅ 수집 중 | https://www.ft.com/ |  |
 
 > [!note] CCR 트리거
 > 트리거명: `나라셀라-해외통계-수집` · 평일 05:30 KST (이메일 발송 트리거보다 먼저 실행) · `docs/scraping-sources.md`를 GitHub에서 직접 읽어 위 표 기준으로 수집.
