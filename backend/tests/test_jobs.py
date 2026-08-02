@@ -27,7 +27,7 @@ def _news_deps(**overrides):
         fetch_html=lambda url: "<html></html>",
         get_known_brands=lambda: ["몬테스"],
         get_existing_article=lambda url: None,
-        insert_article=lambda source_name, url, article, matched: 1,
+        insert_article=lambda source_name, url, article, matched, category: 1,
         parse_article_meta=lambda html, fallback: _Article(),
         match_brands=lambda text, brands: ["몬테스"],
         extract_visible_text=lambda html: "본문",
@@ -578,3 +578,44 @@ def test_run_job_stops_early_when_deadline_already_passed():
     assert result.status == "failed"
     assert "시간 제한" in result.error
     assert result.done == 0
+
+
+def test_run_job_news_insert_receives_news_category():
+    store = JobStore()
+    job = store.create("몬테스", "몬테스", total=1)
+    sources = _empty_sources(news=[NewsSource(id="wine21.com", name="와인21", domain="wine21.com", query="와인21")])
+    captured = []
+
+    def capturing_insert(source_name, url, article, matched, category):
+        captured.append(category)
+        return 1
+
+    run_job(job.id, store, sources, "몬테스", "몬테스", **_news_deps(
+        fetch_naver_items=lambda query: [{"title": "a", "link": "https://wine21.com/1", "originallink": ""}],
+        insert_article=capturing_insert,
+    ))
+
+    assert captured == ["news"]
+
+
+def test_run_job_youtube_insert_receives_youtube_category():
+    store = JobStore()
+    job = store.create("몬테스", "몬테스", total=1)
+    sources = _empty_sources(youtube=[YoutubeSource(id="bimirya", name="비밀이야", handle="bimirya", channel_id="UCx")])
+    item = CollectedItem(
+        title="몬테스 알파 리뷰", excerpt="", thumbnail_url=None,
+        external_url="https://youtu.be/abc", published_date="2026-07-10", source_name="YouTube: 비밀이야",
+    )
+    captured = []
+
+    def capturing_insert(source_name, url, article, matched, category):
+        captured.append(category)
+        return 1
+
+    run_job(job.id, store, sources, "몬테스", "몬테스", **_news_deps(
+        fetch_youtube_items=lambda source: [item],
+        match_brands=lambda text, brands: ["몬테스"],
+        insert_article=capturing_insert,
+    ))
+
+    assert captured == ["youtube"]

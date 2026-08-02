@@ -203,7 +203,7 @@ def _process_collected_item(
     highlight = _pick_highlight(full_text, query, matched)
     item = replace(item, excerpt=make_context_excerpt(full_text, highlight, item.excerpt))
 
-    insert_article(item.source_name, item.external_url, item, matched)
+    insert_article(item.source_name, item.external_url, item, matched, source_category)
     store.append_result(job_id, JobResultItem(
         source_id=source_id, source_name=item.source_name, source_category=source_category,
         title=item.title, published_date=item.published_date, external_url=item.external_url,
@@ -321,7 +321,7 @@ def run_job(
                             continue
                         highlight = _pick_highlight(full_text, query, matched)
                         article.excerpt = make_context_excerpt(full_text, highlight, article.excerpt)
-                        insert_article(source.name, url, article, matched)
+                        insert_article(source.name, url, article, matched, "news")
 
                         store.append_result(job_id, JobResultItem(
                             source_id=source.id, source_name=source.name, source_category="news",

@@ -78,8 +78,8 @@ def _find_english_name(query: str) -> str | None:
     return _with_connection(lambda conn: db.find_english_name(conn, query))
 
 
-def _insert_article(source_name: str, url: str, article, matched: list[str]) -> int:
-    return _with_connection(lambda conn: db.insert_article(conn, source_name, url, article, matched))
+def _insert_article(source_name: str, url: str, article, matched: list[str], category: str) -> int:
+    return _with_connection(lambda conn: db.insert_article(conn, source_name, url, article, matched, category))
 
 
 def _load_current_sources():
