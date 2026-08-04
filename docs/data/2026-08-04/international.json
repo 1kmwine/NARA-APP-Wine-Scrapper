@@ -1,0 +1,49 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "Oregon and Washington wines reach new peaks at 2026 DWWA",
+      "title_ko": "오리건주와 워싱턴주 와인, 2026년 DWWA에서 새로운 정점에 도달",
+      "summary_ko": "'볼수록 놀랍다'…",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Region on the rise: Texas wines shine at DWWA 2026",
+      "title_ko": "상승 중인 지역: DWWA 2026에서 빛을 발하는 텍사스 와인",
+      "summary_ko": "이탈리아 거주 와인 작가, 교육자, 대회 심사위원",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "Registration opens for the 47th World Congress of Vine and Wine",
+      "title_ko": "제47차 포도나무와 와인 세계대회 등록 시작",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/registration-opens-47th-world-congress-vine-and-wine",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "Viticulture Head of Unit job offer",
+      "title_ko": "포도재배 부서장 채용 제안",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/viticulture-head-unit-job-offer",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "title_ko": "OIV, 디종에서 창립 대사의 날 개최",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-hosts-inaugural-ambassadors-day-dijon",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
