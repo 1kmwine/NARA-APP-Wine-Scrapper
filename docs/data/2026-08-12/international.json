@@ -1,0 +1,73 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "Provence and Loire vineyards in-demand as historic estate finds British buyer",
+      "title_ko": "프로방스 및 루아르 포도원에 대한 수요가 많아 역사적인 사유지가 영국 구매자를 찾았습니다.",
+      "summary_ko": "DWWA 특집호...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Decanter magazine August 2026 issue: See what's inside",
+      "title_ko": "Decanter 매거진 2026년 8월호: 내용 보기",
+      "summary_ko": "'볼수록 놀랍다'…",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Oregon and Washington wines reach new peaks at 2026 DWWA",
+      "title_ko": "오리건주와 워싱턴주 와인, 2026년 DWWA에서 새로운 정점에 도달",
+      "summary_ko": "멋진 여름 구매 및 기타 등등...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Rochioli: California Pinot Pioneers",
+      "title_ko": "로키올리(Rochioli): 캘리포니아 피노 개척자",
+      "summary_ko": "로키올리(Rochioli) 가문의 노력과 특별한 떼루아 덕분에 피노 누아(Pinot Noir)가 미국 지도에 올랐습니다.",
+      "url": "https://www.winespectator.com/articles/rochioli-california-pinot-noir-profile-093026",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "The Wines Leading California’s Chardonnay Renaissance",
+      "title_ko": "캘리포니아 샤르도네 르네상스를 이끄는 와인",
+      "summary_ko": "J. Rochioli, Kistler 및 Aubert의 Russian River Valley 병입은 골든 스테이트의 사랑받는 화이트 와인에 대한 높은 기준을 세웠습니다.",
+      "url": "https://www.winespectator.com/articles/2025-wine-experience-california-chardonnay-renaissance",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "title_ko": "제47차 포도나무와 와인 세계대회 등록이 시작되었습니다.",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/registration-opens-47th-world-congress-vine-and-wine",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "title_ko": "OIV, 디종에서 창립 대사의 날 개최",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-hosts-inaugural-ambassadors-day-dijon",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "The OIV headquarters awarded the “Heritage of Diplomacy” label",
+      "title_ko": "OIV 본부는 \"외교 유산\" 라벨을 수상했습니다.",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-headquarters-awarded-heritage-diplomacy-label",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
