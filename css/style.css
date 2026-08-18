@@ -98,7 +98,10 @@
 }
 
 /* ── 결과 뷰 (스크래퍼 결과 + 데일리 브리핑 상세가 공유) ── */
-.results-view{ max-width:1080px; margin:0 auto; padding:48px 24px 100px; }
+/* 2026-08-18: max-width 캡 제거(design.md 원칙 6) — .result-grid가 auto-fill이라
+   폭 제한 없이 넓은 화면에서 컬럼이 더 붙는 게 자연스럽다. search-view/progress-view는
+   서사형/읽기 위주라 reading-width 그대로 유지. */
+.results-view{ padding:48px 24px 100px; }
 .results-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:12px; }
 .results-query{ font-size:24px; font-weight:700; }
 .results-count{ font-size:13px; color:var(--color-text-muted); margin-bottom:8px; }
