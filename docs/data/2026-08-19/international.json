@@ -1,0 +1,81 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "Obituary: Matthew Jukes (1967-2026)",
+      "title_ko": "사망 기사: 매튜 주크스(1967-2026)",
+      "summary_ko": "와인계는 기억한다...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Decanter World Wine Awards 2026: An uplifting experience",
+      "title_ko": "2026년 디캔터 월드 와인 어워드: 기분 좋은 경험",
+      "summary_ko": "DWWA 특집호...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Provence and Loire vineyards in-demand as historic estate finds British buyer",
+      "title_ko": "프로방스와 루아르 포도원에 대한 수요가 많아 영국인 구매자를 찾는 역사적 사유지",
+      "summary_ko": "이탈리아 거주 와인 작가, 교육자, 대회 심사위원",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Love Blind Tasting? Now There&#039;s a Wine For That",
+      "title_ko": "블라인드 테이스팅을 좋아하시나요? 이제 이를 위한 와인이 있습니다",
+      "summary_ko": "\"Mystery Date\"는 눈으로만 맛볼 수 있도록 설계된 와인입니다. 라벨에는 포도, 빈티지 또는 지역이 표시되어 있지 않습니다.",
+      "url": "https://www.winespectator.com/articles/mystery-date-blind-tasting-martha-stoumen-sonoma",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Reflecting on Our Blind-Tasting Methodology",
+      "title_ko": "블라인드 테이스팅 방법론에 대한 고찰",
+      "summary_ko": "시음 시스템이 작동하는 방식과 이유",
+      "url": "https://www.winespectator.com/articles/how-and-why-our-tasting-system-works-063023",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "What’s the Best Way to Prepare for a Blind Tasting?",
+      "title_ko": "블라인드 테이스팅을 준비하는 가장 좋은 방법은 무엇입니까?",
+      "summary_ko": "Wine Spectator 리뷰어들이 블라인드 테이스팅을 준비하기 위해 특별히 하는 일이 있나요?",
+      "url": "https://www.winespectator.com/articles/whats-the-best-way-to-physically-prepare-for-a-wine-tasting-51467",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "title_ko": "제47차 포도나무와 와인 세계대회 등록이 시작되었습니다.",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/registration-opens-47th-world-congress-vine-and-wine",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "title_ko": "OIV, 디종에서 창립 대사의 날 개최",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-hosts-inaugural-ambassadors-day-dijon",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "The OIV headquarters awarded the “Heritage of Diplomacy” label",
+      "title_ko": "OIV 본부는 \"외교 유산\" 라벨을 수상했습니다.",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-headquarters-awarded-heritage-diplomacy-label",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
