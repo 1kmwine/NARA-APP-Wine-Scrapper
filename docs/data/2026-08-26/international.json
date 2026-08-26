@@ -1,0 +1,81 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "Mountain high: How Alto Adige became Italy's white-wine star at DWWA 2026",
+      "title_ko": "Mountain high: How Alto Adige became Italy's white-wine star at DWWA 2026",
+      "summary_ko": "The wine world remembers...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Five unexpected stars of DWWA 2026: The regions and grapes to watch",
+      "title_ko": "Five unexpected stars of DWWA 2026: The regions and grapes to watch",
+      "summary_ko": "A DWWA special issue...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Obituary: Matthew Jukes (1967-2026)",
+      "title_ko": "Obituary: Matthew Jukes (1967-2026)",
+      "summary_ko": "Wine writer, educator and competition judge resident in Italy",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Love Blind Tasting? Now There’s a Wine For That",
+      "title_ko": "Love Blind Tasting? Now There’s a Wine For That",
+      "summary_ko": "“Mystery Date” is a wine designed to be tasted blind—there’s no grape, vintage or region on the label",
+      "url": "https://www.winespectator.com/articles/mystery-date-blind-tasting-martha-stoumen-sonoma",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Reflecting on Our Blind-Tasting Methodology",
+      "title_ko": "Reflecting on Our Blind-Tasting Methodology",
+      "summary_ko": "How and why our tasting system works",
+      "url": "https://www.winespectator.com/articles/how-and-why-our-tasting-system-works-063023",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "What’s the Best Way to Prepare for a Blind Tasting?",
+      "title_ko": "What’s the Best Way to Prepare for a Blind Tasting?",
+      "summary_ko": "Is there anything special that Wine Spectator reviewers do to prepare themselves blind tasting?",
+      "url": "https://www.winespectator.com/articles/whats-the-best-way-to-physically-prepare-for-a-wine-tasting-51467",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "title_ko": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/registration-opens-47th-world-congress-vine-and-wine",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "title_ko": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-hosts-inaugural-ambassadors-day-dijon",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "The OIV headquarters awarded the “Heritage of Diplomacy” label",
+      "title_ko": "The OIV headquarters awarded the “Heritage of Diplomacy” label",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-headquarters-awarded-heritage-diplomacy-label",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
