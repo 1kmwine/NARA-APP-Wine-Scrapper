@@ -1,6 +1,6 @@
 # 스크래핑 소스 목록
 
-> 마지막 업데이트: 2026-06-19
+> 마지막 업데이트: 2026-08-28
 > 용도별 구분: **[브리핑]** = 데일리 브리핑 수집, **[와인]** = 와인 상세 스크래퍼, **[공통]** = 둘 다
 
 > [!note] 향후 integrated_item_info 통합 대상
@@ -208,26 +208,59 @@
 | The Drinks Business | ✅ 수집 중 | https://www.thedrinksbusiness.com/ | 2026-07-31 추가. WordPress 실서버 검색(`?s=`), 무의미 검색어는 0건이라 진짜 필터링됨 확인. python-httpx 기본 UA는 403 차단돼 브라우저 UA 필요 |
 | Wine Industry Advisor | ✅ 수집 중 | https://www.wineindustryadvisor.com/ | 2026-07-31 추가. 미국 와인업계 전문지, WordPress 실서버 검색 확인 |
 | 1WineDude | ✅ 수집 중 | https://1winedude.com/ | 2026-07-31 추가. 개인 와인 블로그(업계 인지도 있음, Joe Roberts), WordPress 실서버 검색 확인 |
-| James Suckling | ❌ 수집 불가 | https://www.jamessuckling.com/ | Next.js 클라이언트 렌더링 — 정적 HTML에 콘텐츠 없음 |
-| VinePair | ❌ 수집 불가 | https://vinepair.com/ | 요청 시 404 (안정적 접근 불가) |
-| Wine Enthusiast | ❌ 수집 불가 | https://www.wineenthusiast.com/ | 403 차단 |
-| Wine-Searcher | ❌ 수집 불가 | https://www.wine-searcher.com/ | 403 차단 |
-| Wine Advocate | ❌ 수집 불가 | https://winejournal.robertparker.com/ | 2026-07-31 확인 — 유료 구독 커뮤니티라 검색/기사 목록이 정적 HTML에 없음 |
-| Jancis Robinson | ❌ 수집 불가 | https://www.jancisrobinson.com/ | 2026-07-31 확인 — 403 차단 |
-| Wine Business (winebusiness.com) | ❌ 수집 불가 | https://www.winebusiness.com/ | 2026-07-31 확인 — 검색결과 클라이언트 렌더링, 정적 HTML에 목록 없음 |
-| Harpers | ❌ 수집 불가 | https://harpers.co.uk/ | 2026-07-31 확인 — 검색결과 클라이언트 렌더링, 정적 HTML에 목록 없음 |
-| GuildSomm | ❌ 수집 불가 | https://www.guildsomm.com/ | 2026-07-31 확인 — 회원제 콘텐츠 위주라 검색 페이지에 목록 없음 |
-| World of Fine Wine | ❌ 수집 불가 | https://worldoffinewine.com/ | 2026-07-31 확인 — 검색결과 클라이언트 렌더링, 정적 HTML에 목록 없음 |
-| Vinous | ❌ 수집 불가 | https://vinous.com/ | 2026-07-31 확인 — 검색 요청이 홈으로 리다이렉트됨(유료 구독 사이트) |
-| Punch | ❌ 수집 불가 | https://punchdrink.com/ | 2026-07-31 확인 — `?s=` 검색이 0건 반환(다른 검색 방식 필요, 미확인) |
-| 불룸버그 | ❌ 수집 불가 | https://www.bloomberg.com/ | 2026-07-31 확인 — 403 차단(강한 봇 차단), 검색도 동일 |
-| Investopedia | ❌ 수집 불가 | https://www.investopedia.com/ | 2026-07-31 확인 — 402 응답, 정적 접근 불가. 와인 전문 매체도 아님 |
-| Financial Times | ❌ 수집 불가 | https://www.ft.com/ | 2026-07-31 확인 — 403 차단(페이월+봇 차단) |
-| Robb Report | ❌ 수집 불가 | https://www.robbreport.com/ | 2026-07-31 확인 — 검색결과 클라이언트 렌더링(제목·목록 정적 HTML엔 검색어와 무관하게 동일) |
-| Imbibe Magazine | ❌ 수집 불가 | https://imbibemagazine.com/ | 2026-07-31 확인 — 검색 페이지 title엔 검색어 반영되지만 결과 목록은 클라이언트 렌더링 |
-| Vinography | ❌ 수집 불가 | https://www.vinography.com/ | 2026-07-31 확인 — 검색 페이지 title엔 검색어 반영되지만 결과 목록은 클라이언트 렌더링 |
-| Palate Press | ❌ 수집 불가 | https://palatepress.com/ | 2026-07-31 확인 — 검색과 무관하게 항상 같은 위젯 목록 반환(진짜 검색 아님) |
-| Snooth | ❌ 수집 불가 | https://www.snooth.com/ | 2026-07-31 확인 — 검색 페이지 title엔 검색어 반영되지만 결과 목록은 클라이언트 렌더링 |
+| James Suckling | ❌ 수집 불가 | https://www.jamessuckling.com/ | Next.js 클라이언트 렌더링 — 정적 HTML에 콘텐츠 없음 (2026-08-28 브라우저 자동화로 재확인: 실패) |
+| VinePair | ✅ 수집 중 | https://vinepair.com/ | 요청 시 404 (안정적 접근 불가) → 2026-08-28 브라우저 자동화로 재확인: 성공 |
+| Wine Enthusiast | ❌ 수집 불가 | https://www.wineenthusiast.com/ | 403 차단 (2026-08-28 브라우저 자동화로 재확인: 실패) |
+| Wine-Searcher | ❌ 수집 불가 | https://www.wine-searcher.com/ | 403 차단 (2026-08-28 브라우저 자동화로 재확인: 실패) |
+| Wine Advocate | ✅ 수집 중 | https://winejournal.robertparker.com/ | 2026-07-31 확인 — 유료 구독 커뮤니티라 검색/기사 목록이 정적 HTML에 없음 → 2026-08-28 브라우저 자동화로 재확인: 성공 |
+| Jancis Robinson | ✅ 수집 중 | https://www.jancisrobinson.com/ | 2026-07-31 확인 — 403 차단 → 2026-08-28 브라우저 자동화로 재확인: 성공 |
+| Wine Business (winebusiness.com) | ✅ 수집 중 | https://www.winebusiness.com/ | 2026-07-31 확인 — 검색결과 클라이언트 렌더링, 정적 HTML에 목록 없음 → 2026-08-28 브라우저 자동화로 재확인: 성공 |
+| Harpers | ✅ 수집 중 | https://harpers.co.uk/ | 2026-07-31 확인 — 검색결과 클라이언트 렌더링, 정적 HTML에 목록 없음 → 2026-08-28 브라우저 자동화로 재확인: 성공 |
+| GuildSomm | ❌ 수집 불가 | https://www.guildsomm.com/ | 2026-07-31 확인 — 회원제 콘텐츠 위주라 검색 페이지에 목록 없음 (2026-08-28 브라우저 자동화로 재확인: 페이지 로드 타임아웃) |
+| World of Fine Wine | ❌ 수집 불가 | https://worldoffinewine.com/ | 2026-07-31 확인 — 검색결과 클라이언트 렌더링, 정적 HTML에 목록 없음 (2026-08-28 브라우저 자동화로 재확인: 실패) |
+| Vinous | ✅ 수집 중 | https://vinous.com/ | 2026-07-31 확인 — 검색 요청이 홈으로 리다이렉트됨(유료 구독 사이트) → 2026-08-28 브라우저 자동화로 재확인: 성공 |
+| Punch | ✅ 수집 중 | https://punchdrink.com/ | 2026-07-31 확인 — `?s=` 검색이 0건 반환(다른 검색 방식 필요, 미확인) → 2026-08-28 브라우저 자동화로 재확인: 성공 |
+| 불룸버그 | ❌ 수집 불가 | https://www.bloomberg.com/ | 2026-07-31 확인 — 403 차단(강한 봇 차단), 검색도 동일 (2026-08-28 브라우저 자동화로 재확인: 실패) |
+| Investopedia | ✅ 수집 중 | https://www.investopedia.com/ | 2026-07-31 확인 — 402 응답, 정적 접근 불가. 와인 전문 매체도 아님 → 2026-08-28 브라우저 자동화로 재확인: 성공 |
+| Financial Times | ✅ 수집 중 | https://www.ft.com/ | 2026-07-31 확인 — 403 차단(페이월+봇 차단) → 2026-08-28 브라우저 자동화로 재확인: 성공 |
+| Robb Report | ✅ 수집 중 | https://www.robbreport.com/ | 2026-07-31 확인 — 검색결과 클라이언트 렌더링(제목·목록 정적 HTML엔 검색어와 무관하게 동일) → 2026-08-28 브라우저 자동화로 재확인: 성공 |
+| Imbibe Magazine | ✅ 수집 중 | https://imbibemagazine.com/ | 2026-07-31 확인 — 검색 페이지 title엔 검색어 반영되지만 결과 목록은 클라이언트 렌더링 → 2026-08-28 브라우저 자동화로 재확인: 성공 |
+| Vinography | ✅ 수집 중 | https://www.vinography.com/ | 2026-07-31 확인 — 검색 페이지 title엔 검색어 반영되지만 결과 목록은 클라이언트 렌더링 → 2026-08-28 브라우저 자동화로 재확인: 성공 |
+| Palate Press | ✅ 수집 중 | https://palatepress.com/ | 2026-07-31 확인 — 검색과 무관하게 항상 같은 위젯 목록 반환(진짜 검색 아님) → 2026-08-28 브라우저 자동화로 재확인: 성공 |
+| Snooth | ✅ 수집 중 | https://www.snooth.com/ | 2026-07-31 확인 — 검색 페이지 title엔 검색어 반영되지만 결과 목록은 클라이언트 렌더링 → 2026-08-28 브라우저 자동화로 재확인: 성공 |
+
+---
+
+## 트렌드 **[브리핑]** — 2026-08-28부터 브라우저 자동화로 수집
+
+> **실행 위치: 로컬 PC** · **수집 방식: Playwright 렌더링 + Gemini(`gemini-flash-latest`) 파싱**
+> `scrape.py`의 `scrape_international()` → `browser_scrape.scrape_international_browser()`.
+> 결과는 `foreign_stats`(산업 통계·리서치)와 `foreign_magazines`(무역지 뉴스)로 분류.
+
+| 소스 | URL | 분류 | 비고 |
+|------|-----|------|------|
+| IWSR Insight | https://www.theiwsr.com/insight/ | 통계 | Wine Intelligence 인수해 흡수 (2026-08-28 확인: 성공) |
+| Wine-Intelligence | https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports | 통계 | IWSR과 별개로 자체 블로그 유지 (2026-08-28 확인: 성공) |
+| SVB State of the US Wine Industry | https://www.svb.com/trends-insights/reports/wine-report | 통계 | 연 1회(주로 1월), 평소엔 결과 없음이 정상 (2026-08-28 확인: 결과 없음) |
+| Liv-ex | https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/ | 통계 | 파인와인 시장 데이터 (2026-08-28 확인: 성공) |
+| Rabobank Beverages | https://www.rabobank.com/knowledge/beverages | 통계 | 분기 리포트, 평소엔 결과 없음이 정상 (2026-08-28 확인: 성공) |
+| Wine Market Council | https://winemarketcouncil.com/press/ | 통계 | 미국 와인 소비자 리서치 단체 (2026-08-28 확인: 성공) |
+| Wine Institute | https://wineinstitute.org/news/press-room/ | 통계 | 캘리포니아 와인 업계 단체 (2026-08-28 확인: 결과 없음) |
+| IWSC News | https://www.iwsc.net/news/wine | 통계 | International Wine & Spirit Competition (2026-08-28 확인: 성공) |
+| SevenFifty Daily | https://daily.sevenfifty.com/category/articles/news/ | 무역지 | 미국 주류 무역지 (2026-08-28 확인: 성공) |
+| The Buyer | https://www.the-buyer.net/ | 무역지 | 영국 온트레이드 와인 무역지 (2026-08-28 확인: 성공) |
+| Grape Collective | https://grapecollective.com/articles/ | 무역지 | 구독무료 와인 매거진 (2026-08-28 확인: 결과 없음) |
+| Club Oenologique | https://cluboenologique.com/wine/ | 무역지 | 프리미엄 와인·스피릿 라이프스타일 (2026-08-28 확인: 성공) |
+| Global Drinks Intel | https://drinks-intel.com/ | 무역지 | 와인·스피릿 업계 뉴스 (2026-08-28 확인: 성공) |
+| Beverage Daily | https://www.beveragedaily.com/Sectors/Wine/ | 무역지 | 음료 업계 전문지 와인 섹션 (2026-08-28 확인: 성공) |
+| Wine & Spirits Magazine | https://www.wineandspiritsmagazine.com/ | 무역지 | 미국 와인 매거진(1981년~) (2026-08-28 확인: 성공) |
+| Just Drinks | https://www.just-drinks.com/sector/alcoholic-beverages/wines/ | 무역지 | 음료 업계 리서치 포털 (2026-08-28 확인: 결과 없음) |
+| FoodBev Media | https://www.foodbev.com/tags/wine | 무역지 | 식음료 업계지 와인 태그 (2026-08-28 확인: 성공) |
+| Drinks Retailing News | https://drinksretailingnews.co.uk/category/news/ | 무역지 | 영국 오프트레이드 업계지(1863년~) (2026-08-28 확인: 성공) |
+| The Drinks Report | https://www.thedrinksreport.com/ | 무역지 | 와인·맥주·스피릿 무역지 (2026-08-28 확인: 성공) |
+| Vinetur | https://www.vinetur.com/mercados/ | 무역지 | 스페인어권 와인 시장 뉴스 (2026-08-28 확인: 성공) |
+
+---
 
 | 소스군 | 항목 | 상태 |
 |--------|------|------|
@@ -264,4 +297,5 @@
 | 유튜브 | scrape.py `scrape_youtube()` | 로컬 | InnerTube ytInitialData (5채널) |
 | 인스타그램 | scrape.py `scrape_instagram()` | 로컬 | Instagram API + sessionid |
 | 와인 수입 통계 (뉴스) | scrape.py `scrape_news()` (토픽: 주류 수입동향, 관세청 주류) | 로컬 | 뉴스 키워드 검색 |
+| 해외 소스(브라우저) | scrape.py → browser_scrape.scrape_international_browser() | 로컬 | Playwright 렌더링 + Gemini 파싱 (40개 소스) |
 | 이메일 발송 | CCR 트리거 `naracellar-wine-briefing-send` | 클라우드, 평일 06:00 (전날 데이터 발송) | GitHub 최신 HTML → Gmail API |
