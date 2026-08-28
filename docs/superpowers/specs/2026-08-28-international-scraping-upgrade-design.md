@@ -14,13 +14,15 @@
   Vinous, GuildSomm, Bloomberg, Financial Times — 403 또는 회원제.
 
 이 중 상당수(Wine Enthusiast, Jancis Robinson, Wine Business, GuildSomm, Vinous 등)는
-와인 업계에서 공신력이 높은 매체라 그대로 두기 아깝다. 또한 산업 통계·트렌드 리포트
-(IWSR, SVB, Liv-ex 등)는 애초에 목록에 없었다.
+와인 업계에서 공신력이 높은 매체라 그대로 두기 아깝다. 또한 산업 통계·트렌드 리포트나
+와인 전문 무역지(IWSR, SVB, Liv-ex, SevenFifty Daily 등)는 애초에 목록에 없었다.
 
 ## 목표
 
 1. 막혀서 미수집인 20개 소스를 브라우저 자동화(JS 렌더링)로 재시도해 되살린다.
-2. 지금 목록에 없는 산업 통계/트렌드 소스(IWSR, SVB, Liv-ex)를 추가한다.
+2. 지금 목록에 없는 산업 통계/트렌드/무역지 소스 20개를 신규 추가한다 — 페이월·폐간
+   확인된 곳(Meininger's International, 2025년 폐간 / Sommelier Business, 구독제)은
+   후보에서 미리 제외했다.
 3. 정규식 기반 파싱을 LLM 기반 파싱으로 바꿔, 사이트 레이아웃이 바뀌어도 깨지지 않게 한다.
 4. 이미 검증된 6개 기존 소스(Decanter, Wine Spectator, OIV, Drinks Business, Wine
    Industry Advisor, 1WineDude)는 손대지 않는다 — 이미 안정적으로 도는 경로.
@@ -65,15 +67,33 @@
 자동화로도 안 뚫릴 가능성이 높다 — 그래도 시도하고, 안 되면 기존 원칙대로 조용히
 생략한다(범위에서 빼지 않음, 결과로 판단).
 
-### 신규 산업 통계/트렌드 소스 (3개)
+### 신규 산업 통계/트렌드/무역지 소스 (20개)
 
-`docs/scraping-sources.md`의 빈 "## 트렌드" 섹션에 채운다.
+`docs/scraping-sources.md`의 빈 "## 트렌드" 섹션에 채운다. 페이월·구독제·폐간 확인된
+소스(Meininger's International, Sommelier Business 등)는 후보에서 제외했다.
 
 | 소스 | URL | 비고 |
 |---|---|---|
-| IWSR Insight | https://www.theiwsr.com/insight/ | Wine Intelligence를 인수해 흡수됨 |
+| IWSR Insight | https://www.theiwsr.com/insight/ | 산업 데이터/트렌드, Wine Intelligence 인수해 흡수 |
+| Wine-Intelligence | https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports | IWSR과 별개로 자체 블로그 유지 중 |
 | SVB State of the US Wine Industry | https://www.svb.com/trends-insights/reports/wine-report | 연 1회 발행(주로 1월) — 대부분 날짜엔 결과 없음, 정상 |
 | Liv-ex 블로그 | https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/ | 파인와인 시장 데이터/트렌드 |
+| Rabobank Beverages | https://www.rabobank.com/knowledge/beverages | 분기 리포트 — SVB처럼 대부분 날짜엔 결과 없음, 정상 |
+| SevenFifty Daily | https://daily.sevenfifty.com/category/articles/news/ | 미국 주류 무역지, James Beard Award 수상 |
+| The Buyer | https://www.the-buyer.net/ | 영국 온트레이드 와인 무역지 |
+| Grape Collective | https://grapecollective.com/articles/ | 구독무료 와인 매거진 |
+| Club Oenologique (Wine) | https://cluboenologique.com/wine/ | 프리미엄 와인·스피릿 라이프스타일 매거진 |
+| Global Drinks Intel | https://drinks-intel.com/ | 와인·스피릿 업계 뉴스·분석 |
+| Beverage Daily (Wine) | https://www.beveragedaily.com/Sectors/Wine/ | 음료 업계 전문지 와인 섹션 |
+| Wine Market Council | https://winemarketcouncil.com/press/ | 미국 와인 소비자 리서치 단체 |
+| Wine Institute | https://wineinstitute.org/news/press-room/ | 캘리포니아 와인 업계 단체 |
+| Wine & Spirits Magazine | https://www.wineandspiritsmagazine.com/ | 미국 와인 매거진(1981년 창간) |
+| Just Drinks (Wine) | https://www.just-drinks.com/sector/alcoholic-beverages/wines/ | 음료 업계 리서치 포털 와인 섹션 |
+| FoodBev Media (Wine) | https://www.foodbev.com/tags/wine | 식음료 업계지 와인 태그 |
+| IWSC News (Wine) | https://www.iwsc.net/news/wine | International Wine & Spirit Competition 뉴스 |
+| Drinks Retailing News | https://drinksretailingnews.co.uk/category/news/ | 영국 오프트레이드 업계지(1863년~) |
+| The Drinks Report | https://www.thedrinksreport.com/ | 와인·맥주·스피릿 무역지 |
+| Vinetur (마켓 섹션) | https://www.vinetur.com/mercados/ | 스페인어권 와인 시장 뉴스 |
 
 ## 아키텍처
 
@@ -83,7 +103,7 @@ scrape_international()
   │    Decanter, Wine Spectator, OIV, Drinks Business, Wine Industry Advisor, 1WineDude
   │
   └─ scrape_international_browser()  (신규)
-       23개 소스(되살릴 20 + 신규 3) 대상, 사이트마다:
+       40개 소스(되살릴 20 + 신규 20) 대상, 사이트마다:
        1. Playwright headless Chromium으로 페이지 방문, JS 렌더링 완료까지 대기(타임아웃 15초)
        2. 렌더링된 본문에서 뉴스 목록 영역 텍스트 추출 (~3000자로 자름)
        3. Gemini(`gemini-flash-latest`, 무료 티어) 1회 호출로 파싱
@@ -114,7 +134,7 @@ scrape_international()
 
 `docs/scraping-sources.md`:
 - "해외·통계·이벤트 소스" 표의 ❌ 20개 항목 상태를 실행 결과에 따라 ✅/❌로 갱신
-- 빈 "## 트렌드" 섹션에 IWSR/SVB/Liv-ex 표 추가
+- 빈 "## 트렌드" 섹션에 신규 20개 소스 표 추가
 - "실행 방식" 설명에 브라우저 자동화(Playwright+Gemini) 경로 추가
 
 ## 에러 처리
