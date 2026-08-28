@@ -233,7 +233,7 @@
 
 ## 트렌드 **[브리핑]** — 2026-08-28부터 브라우저 자동화로 수집
 
-> **실행 위치: 로컬 PC** · **수집 방식: Playwright 렌더링 + Gemini(`gemini-flash-latest`) 파싱**
+> **실행 위치: 로컬 PC** · **수집 방식: Playwright 렌더링 + Gemini(`gemini-flash-lite-latest`) 파싱**
 > `scrape.py`의 `scrape_international()` → `browser_scrape.scrape_international_browser()`.
 > 결과는 `foreign_stats`(산업 통계·리서치)와 `foreign_magazines`(무역지 뉴스)로 분류.
 
