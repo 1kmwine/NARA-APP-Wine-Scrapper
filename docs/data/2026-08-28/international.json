@@ -1,0 +1,81 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "California&rsquo;s not dreaming: the state&rsquo;s wines stand with the best at DWWA 2026",
+      "title_ko": "캘리포니아는 꿈도 꾸지 않습니다. DWWA 2026에서 최고의 와인을 선보입니다.",
+      "summary_ko": "캘리포니아는 놀라운 일관성을 바탕으로 모든 것을 해낼 수 있습니다.",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Mountain high: How Alto Adige became Italy's white-wine star at DWWA 2026",
+      "title_ko": "산의 높이: Alto Adige가 DWWA 2026에서 이탈리아의 화이트 와인 스타가 된 방법",
+      "summary_ko": "와인계는 기억한다...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Five unexpected stars of DWWA 2026: The regions and grapes to watch",
+      "title_ko": "DWWA 2026의 예상치 못한 5개의 별: 주목해야 할 지역과 포도",
+      "summary_ko": "'볼수록 놀랍다'…",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Six Contemporary German Winemakers to Know",
+      "title_ko": "알아야 할 6명의 현대 독일 와인메이커",
+      "summary_ko": "이들 와인메이커들은 리슬링, 피노 블랑, 피노 누아 등의 현대적 표현을 탁월하게 표현하기 위해 최선을 다하고 있습니다.",
+      "url": "https://www.winespectator.com/articles/six-german-winemakers-to-know-riesling-profiles",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Stewarding Timeless Mosel Riesling at Maximin Grünhaus",
+      "title_ko": "Maximin Grünhaus의 시대를 초월한 모젤 리슬링 관리",
+      "summary_ko": "6대 소유주인 Maximin von Schubert는 Weingut Maximin Grünhaus를 정확한 테루아 중심 리슬링의 새로운 시대로 이끌고 있습니다.",
+      "url": "https://www.winespectator.com/articles/maximin-von-schubert-grunhaus-germany-riesling-profile",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Know Your Grapes: Riesling",
+      "title_ko": "당신의 포도를 알라: 리슬링",
+      "summary_ko": "독일 화이트 와인에 대해 알아야 할 모든 것",
+      "url": "https://www.winespectator.com/articles/riesling-57813",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "title_ko": "제47차 포도나무와 와인 세계대회 등록이 시작되었습니다.",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/registration-opens-47th-world-congress-vine-and-wine",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "title_ko": "OIV, 디종에서 창립 대사의 날 개최",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-hosts-inaugural-ambassadors-day-dijon",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "The OIV headquarters awarded the “Heritage of Diplomacy” label",
+      "title_ko": "OIV 본부는 \"외교 유산\" 라벨을 수상했습니다.",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-headquarters-awarded-heritage-diplomacy-label",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
