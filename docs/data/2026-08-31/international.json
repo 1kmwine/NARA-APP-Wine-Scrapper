@@ -1,0 +1,777 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Wine Spectator",
+      "title": "Six Contemporary German Winemakers to Know",
+      "title_ko": "Six Contemporary German Winemakers to Know",
+      "summary_ko": "These winemakers are committed to excellence in modern expressions of Riesling, Pinot Blanc, Pinot Noir and more",
+      "url": "https://www.winespectator.com/articles/six-german-winemakers-to-know-riesling-profiles",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Stewarding Timeless Mosel Riesling at Maximin Grünhaus",
+      "title_ko": "Stewarding Timeless Mosel Riesling at Maximin Grünhaus",
+      "summary_ko": "Sixth-generation owner Maximin von Schubert is guiding Weingut Maximin Grünhaus into a new era of precise, terroir-driven Rieslings",
+      "url": "https://www.winespectator.com/articles/maximin-von-schubert-grunhaus-germany-riesling-profile",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Know Your Grapes: Riesling",
+      "title_ko": "Know Your Grapes: Riesling",
+      "summary_ko": "Everything you need to know about Germany’s white wine",
+      "url": "https://www.winespectator.com/articles/riesling-57813",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Marchese Vittorio Frescobaldi Dies at 97",
+      "title_ko": "Marchese Vittorio Frescobaldi Dies at 97",
+      "summary_ko": "Marchese Vittorio Frescobaldi, a prominent figure in the wine industry, has passed away at the age of 97.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "FIRA USA 2026 Brings Physical AI and Agricultural Robots to Washington State for the First Time",
+      "title_ko": "FIRA USA 2026 Brings Physical AI and Agricultural Robots to Washington State for the First Time",
+      "summary_ko": "FIRA USA 2026 is introducing physical AI and agricultural robots to Washington State for the very first time.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "ELLMAN Estate Winery Names Michael Ploetz General Manager as Winery Marks Its First Year Welcoming Guests",
+      "title_ko": "ELLMAN Estate Winery Names Michael Ploetz General Manager as Winery Marks Its First Year Welcoming Guests",
+      "summary_ko": "ELLMAN Estate Winery has appointed Michael Ploetz as General Manager as they celebrate their first year of welcoming guests.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Earliest-ever harvest for Champagne Drappier following ‘remarkably warm’ summer",
+      "title_ko": "Earliest-ever harvest for Champagne Drappier following ‘remarkably warm’ summer",
+      "summary_ko": "Champagne Drappier has commenced its earliest-ever harvest following a remarkably warm summer.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Another year of falling sales for Pernod Ricard as full-year results released",
+      "title_ko": "Another year of falling sales for Pernod Ricard as full-year results released",
+      "summary_ko": "Pernod Ricard has reported another year of falling sales in its latest full-year financial results.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Majestic staff caught out purchasing Bollinger from Sainsbury’s",
+      "title_ko": "Majestic staff caught out purchasing Bollinger from Sainsbury’s",
+      "summary_ko": "Majestic staff were caught purchasing Bollinger champagne from rival supermarket Sainsbury's.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Robb Report",
+      "title": "Porsche Just Unveiled Its New ‘Entry-Level’ Race Car",
+      "title_ko": "Porsche Just Unveiled Its New ‘Entry-Level’ Race Car",
+      "summary_ko": "Porsche has introduced the new 911 Challenge to fill the racing void left by the 718 Cayman GT4 RS.",
+      "url": "https://www.robbreport.com/",
+      "date": ""
+    },
+    {
+      "source": "Robb Report",
+      "title": "Why Winemakers Are Embracing Single-Clone Cabernet Sauvignons",
+      "title_ko": "Why Winemakers Are Embracing Single-Clone Cabernet Sauvignons",
+      "summary_ko": "Winemakers are increasingly turning to single-clone Cabernet Sauvignons to showcase unique flavor profiles.",
+      "url": "https://www.robbreport.com/",
+      "date": ""
+    },
+    {
+      "source": "Robb Report",
+      "title": "Taste Test: Angel’s Envy’s New Bourbon Is a Cask-Finishing Experiment Gone Awry",
+      "title_ko": "Taste Test: Angel’s Envy’s New Bourbon Is a Cask-Finishing Experiment Gone Awry",
+      "summary_ko": "A recent taste test reveals that Angel’s Envy's latest cask-finished bourbon falls short of expectations.",
+      "url": "https://www.robbreport.com/",
+      "date": ""
+    },
+    {
+      "source": "Imbibe Magazine",
+      "title": "Earthy and Sweet Carrot Cocktails",
+      "title_ko": "Earthy and Sweet Carrot Cocktails",
+      "summary_ko": "Discover how the vibrant and versatile carrot adds earthy sweetness to creative cocktails.",
+      "url": "https://imbibemagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Imbibe Magazine",
+      "title": "The Evolution of the American Milkshake",
+      "title_ko": "The Evolution of the American Milkshake",
+      "summary_ko": "Take a historical journey through the American milkshake, from Gilded Age hand-cranked classics to modern extravagant shakes.",
+      "url": "https://imbibemagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Imbibe Magazine",
+      "title": "Easily Batched Cocktails for Summer",
+      "title_ko": "Easily Batched Cocktails for Summer",
+      "summary_ko": "Host smarter and easier this summer with a selection of perfectly batched cocktails.",
+      "url": "https://imbibemagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Why South Africa Is the Most Exciting Wine Region on the Planet, Part II",
+      "title_ko": "Why South Africa Is the Most Exciting Wine Region on the Planet, Part II",
+      "summary_ko": "This article is the second part of an in-depth exploration of South African wine and its rising global prominence.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Vinography Images: Vine Corral",
+      "title_ko": "Vinography Images: Vine Corral",
+      "summary_ko": "This photo feature highlights the remarkable and distinctive approach to viticulture in the Azores Islands of Portugal.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Napa’s Royal Reds: The Taste of Oakville 2026",
+      "title_ko": "Napa’s Royal Reds: The Taste of Oakville 2026",
+      "summary_ko": "A review of a highly anticipated California wine tasting event featuring the exceptional red wines of Oakville.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "XANDER SOREN WINES BRIDGE JAPANESE AND AMERICAN PALATES",
+      "title_ko": "XANDER SOREN WINES BRIDGE JAPANESE AND AMERICAN PALATES",
+      "summary_ko": "Xander Soren wines successfully bridge the gap between Japanese and American culinary preferences.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "RED SPARKLING WINE—AND YES, IT’S A THING. FROM ITALY. STARTING WITH LAMBRUSCO",
+      "title_ko": "RED SPARKLING WINE—AND YES, IT’S A THING. FROM ITALY. STARTING WITH LAMBRUSCO",
+      "summary_ko": "An exploration of Italian red sparkling wines, beginning with the traditional Lambrusco.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "WINES OF…DID YOU SAY CALABRIA? FOOD-FRIENDLY AND PLANET-FRIENDLY LIBRANDI WINES FROM SOUTHERN ITALY",
+      "title_ko": "WINES OF…DID YOU SAY CALABRIA? FOOD-FRIENDLY AND PLANET-FRIENDLY LIBRANDI WINES FROM SOUTHERN ITALY",
+      "summary_ko": "Librandi offers food-friendly and environmentally conscious wines from the Calabria region in southern Italy.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "VinePair",
+      "title": "Monster Beverage Is Making More Money Than Its Brewing Division Can Lose",
+      "title_ko": "Monster Beverage Is Making More Money Than Its Brewing Division Can Lose",
+      "summary_ko": "Monster Beverage is generating massive financial returns that easily outweigh the losses of its brewing division.",
+      "url": "https://vinepair.com/",
+      "date": ""
+    },
+    {
+      "source": "VinePair",
+      "title": "The Honey Deuce Has a New Challenger at This Year’s US Open: Meet the Moët Serve",
+      "title_ko": "The Honey Deuce Has a New Challenger at This Year’s US Open: Meet the Moët Serve",
+      "summary_ko": "A new contender named the Moët Serve is challenging the iconic Honey Deuce at the US Open this year.",
+      "url": "https://vinepair.com/",
+      "date": ""
+    },
+    {
+      "source": "VinePair",
+      "title": "From Santorini to the Canary Islands: 7 Volcanic Wine Regions Beyond Mt. Etna Worth Exploring",
+      "title_ko": "From Santorini to the Canary Islands: 7 Volcanic Wine Regions Beyond Mt. Etna Worth Exploring",
+      "summary_ko": "Discover seven fascinating volcanic wine regions outside of Mt. Etna, ranging from Santorini to the Canary Islands.",
+      "url": "https://vinepair.com/",
+      "date": ""
+    },
+    {
+      "source": "Punch",
+      "title": "Colombia’s Refajo Is Simplicity at Its Finest",
+      "title_ko": "Colombia’s Refajo Is Simplicity at Its Finest",
+      "summary_ko": "콜롬비아의 대표적인 샹디 칵테일인 레파호(Refajo)는 바비큐 파티와 바에서 모두 사랑받는 간단하면서도 훌륭한 음료입니다.",
+      "url": "https://punchdrink.com/",
+      "date": ""
+    },
+    {
+      "source": "Punch",
+      "title": "Rolo’s Wine Program Is On Fire",
+      "title_ko": "Rolo’s Wine Program Is On Fire",
+      "summary_ko": "화재로 셀러가 소실되는 아픔을 겪은 레스토랑 롤로(Rolo)가 와인 애호가들을 환호하게 만들 기발한 전환을 이뤄냈습니다.",
+      "url": "https://punchdrink.com/",
+      "date": ""
+    },
+    {
+      "source": "Punch",
+      "title": "The ’Tinis, All Grown Up",
+      "title_ko": "The ’Tinis, All Grown Up",
+      "summary_ko": "그린 샤르트뢰즈와 수즈를 더한 애플티니 등 현대적인 애주가들을 위해 새롭게 재탄생한 6가지 레트로 칵테일을 소개합니다.",
+      "url": "https://punchdrink.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "WWC26 – Liminal space paired with effervescence, by Katerina Mylona",
+      "title_ko": "WWC26 – Liminal space paired with effervescence, by Katerina Mylona",
+      "summary_ko": "Katerina Mylona shares a heartfelt entry to the 2026 wine writing competition, finding a wine to pair with a period of change.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "An English rival to Prosecco?",
+      "title_ko": "An English rival to Prosecco?",
+      "summary_ko": "An exploration of whether English sparkling wine can emerge as a true rival to Prosecco.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "A Spanish Grenache – and a lesson in resilience",
+      "title_ko": "A Spanish Grenache – and a lesson in resilience",
+      "summary_ko": "Pure deliciousness is found in this Spanish Grenache originating from a heroically farmed, endangered environment that recently survived a massive wildfire.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Old Vines, New Lessons: Rosa Kruger on Climate and the Future of Wine",
+      "title_ko": "Old Vines, New Lessons: Rosa Kruger on Climate and the Future of Wine",
+      "summary_ko": "As the guiding force behind the Old Vine Project, Kruger has reshaped how South Africa recognizes and safeguards its viticultural inheritance.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "A Mighty Fortress Is Our God: A Tribute to Pierre Trimbach",
+      "title_ko": "A Mighty Fortress Is Our God: A Tribute to Pierre Trimbach",
+      "summary_ko": "Stephan Reinhardt pays tribute to Pierre Trimbach in a piece reflecting on his legacy and impact.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Northern Rhône Today: Preserving Identity in a Warming Climate",
+      "title_ko": "Northern Rhône Today: Preserving Identity in a Warming Climate",
+      "summary_ko": "Yohan Castaing explores how the Northern Rhône is working to preserve its unique identity amidst a warming climate.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Chianti Classico: Looking Up",
+      "title_ko": "Chianti Classico: Looking Up",
+      "summary_ko": "After three very tough vintages, the young 2025s hold significant promise and 2024 is revealing itself to be surprisingly good in Chianti Classico.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "2025 Rheinhessen-Nahe and Mittelrhein: Opulence, Clarity and Sweet Marvels",
+      "title_ko": "2025 Rheinhessen-Nahe and Mittelrhein: Opulence, Clarity and Sweet Marvels",
+      "summary_ko": "The 2025 growing season yielded fruit-laden, opulent wines with stable acidity, alongside alluring sweet Rieslings and excellent German Pinot Noirs from 2024.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Vatan Sancerre Clos La Néore: 2005-2022",
+      "title_ko": "Vatan Sancerre Clos La Néore: 2005-2022",
+      "summary_ko": "A thirteen-vintage vertical tasting of Vatan Sancerre Clos La Néore showcased the rare and distinctive white wine in facets ranging from steely minerality to textural richness.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Producer Profiles: Canada",
+      "title_ko": "Producer Profiles: Canada",
+      "summary_ko": "Get to know 25 of the key wineries in Canada with our latest set of producer profiles.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Oregon and Method Sparkling with MW Bree Stock",
+      "title_ko": "Oregon and Method Sparkling with MW Bree Stock",
+      "summary_ko": "Guest MW Bree Stock speaks with host Chris Tanghe about the Oregon wine scene and the exciting Method Oregon sparkling.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "The Rise of Japanese Wine",
+      "title_ko": "The Rise of Japanese Wine",
+      "summary_ko": "Yasha Lysenko explores the dynamic Japanese wine industry and the winemakers driving its growth.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "Financial Times",
+      "title": "US and Iran exchange fire for the first time in more than a month",
+      "title_ko": "US and Iran exchange fire for the first time in more than a month",
+      "summary_ko": "Oil prices rose after the American military and Iran exchanged fire in the Middle East following a strike in the Strait of Hormuz and retaliation in Jordan.",
+      "url": "https://www.ft.com/",
+      "date": ""
+    },
+    {
+      "source": "Financial Times",
+      "title": "Big Tech profits get $160bn boost from gains on stakes in other AI companies",
+      "title_ko": "Big Tech profits get $160bn boost from gains on stakes in other AI companies",
+      "summary_ko": "Big Tech companies received a massive $160bn profit boost driven by gains on their investments in other artificial intelligence firms.",
+      "url": "https://www.ft.com/",
+      "date": ""
+    },
+    {
+      "source": "Financial Times",
+      "title": "Rising bond yields add tens of billions to G7 countries’ debt costs",
+      "title_ko": "Rising bond yields add tens of billions to G7 countries’ debt costs",
+      "summary_ko": "Increasing bond yields have significantly raised debt servicing costs for G7 nations by tens of billions.",
+      "url": "https://www.ft.com/",
+      "date": ""
+    },
+    {
+      "source": "Investopedia",
+      "title": "What to Expect in Markets This Week: August Jobs Data Due",
+      "title_ko": "What to Expect in Markets This Week: August Jobs Data Due",
+      "summary_ko": "Investors are preparing for the upcoming August jobs report and monitoring key market trends for the week.",
+      "url": "https://www.investopedia.com/",
+      "date": ""
+    },
+    {
+      "source": "Investopedia",
+      "title": "Fed Chair Talks Tough on Inflation at Jackson Hole",
+      "title_ko": "Fed Chair Talks Tough on Inflation at Jackson Hole",
+      "summary_ko": "Kevin Warsh emphasized the Federal Reserve's commitment to controlling inflation, leading markets to anticipate potential interest rate hikes.",
+      "url": "https://www.investopedia.com/",
+      "date": ""
+    },
+    {
+      "source": "Investopedia",
+      "title": "State Farm’s Record $5 Billion in Dividend Checks Are Arriving—Here’s Who Qualifies",
+      "title_ko": "State Farm’s Record $5 Billion in Dividend Checks Are Arriving—Here’s Who Qualifies",
+      "summary_ko": "State Farm is issuing a record $5 billion in dividend checks, and policyholders are eager to know if they qualify.",
+      "url": "https://www.investopedia.com/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "What We Know About New Tariffs on American Alcohol",
+      "title_ko": "What We Know About New Tariffs on American Alcohol",
+      "summary_ko": "Alcohol industry members are navigating trade war whiplash driven by the Trump administration's new tariffs on Canada, Mexico, and global markets.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "‘The Worst Is Behind Us’: Silicon Valley Bank’s 2026 Wine Industry Report",
+      "title_ko": "‘The Worst Is Behind Us’: Silicon Valley Bank’s 2026 Wine Industry Report",
+      "summary_ko": "The 25th annual Silicon Valley Bank report highlights early signs of recovery for a previously declining wine industry.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "SevenFifty Daily’s Most Popular Articles of 2025",
+      "title_ko": "SevenFifty Daily’s Most Popular Articles of 2025",
+      "summary_ko": "SevenFifty Daily's most-read stories of 2025 focused on major industry issues like tariffs and educational deep dives into viticulture and wine aging.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Edouard Delaunay: an historic maison looking firmly to the future",
+      "title_ko": "Edouard Delaunay: an historic maison looking firmly to the future",
+      "summary_ko": "This article explores how the historic maison Edouard Delaunay is balancing its rich heritage with a forward-looking vision.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "David Cartwright on how he helps buyers & suppliers do business",
+      "title_ko": "David Cartwright on how he helps buyers & suppliers do business",
+      "summary_ko": "David Cartwright discusses his role and methods in facilitating successful business relationships between buyers and suppliers.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "How Champagne Devaux has been honing its craft for 180 years",
+      "title_ko": "How Champagne Devaux has been honing its craft for 180 years",
+      "summary_ko": "A look back at how Champagne Devaux has perfected its winemaking craft over the course of 180 years.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Tanked up: London’s vibrant urban winery scene",
+      "title_ko": "Tanked up: London’s vibrant urban winery scene",
+      "summary_ko": "English Wine Week is uniting London’s urban wineries for a celebratory event highlighting the community spirit and inclusivity found at these pioneering sites.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Ten red wines made for summer days",
+      "title_ko": "Ten red wines made for summer days",
+      "summary_ko": "David Kermode shares a selection of ten red wines perfectly suited for enjoying during warm summer days.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Looking back at Gruaud-Larose",
+      "title_ko": "Looking back at Gruaud-Larose",
+      "summary_ko": "Marc Bouffard takes a retrospective look at Gruaud-Larose in this feature article.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Global Drinks Intel",
+      "title": "Sales fall for third consecutive year as Pernod Ricard wrestles with China, US tumbles – results data",
+      "title_ko": "Sales fall for third consecutive year as Pernod Ricard wrestles with China, US tumbles – results data",
+      "summary_ko": "Pernod Ricard experienced a third consecutive year of declining sales driven by continued softness in the US and weak demand in China.",
+      "url": "https://drinks-intel.com/",
+      "date": ""
+    },
+    {
+      "source": "Global Drinks Intel",
+      "title": "Lighter and lighter – Where is the limit for glass packaging?",
+      "title_ko": "Lighter and lighter – Where is the limit for glass packaging?",
+      "summary_ko": "Reducing glass weight serves as a key method for brand owners to cut CO2 emissions, though it involves complex challenges beyond simply making thinner bottles.",
+      "url": "https://drinks-intel.com/",
+      "date": ""
+    },
+    {
+      "source": "Global Drinks Intel",
+      "title": "What is deterring consumers from buying alcohol in global travel retail?",
+      "title_ko": "What is deterring consumers from buying alcohol in global travel retail?",
+      "summary_ko": "Price, promotions, and product assortment emerge as the primary barriers preventing consumers from purchasing alcohol in global travel retail.",
+      "url": "https://drinks-intel.com/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "How wine can adapt to a changing climate",
+      "title_ko": "How wine can adapt to a changing climate",
+      "summary_ko": "Wine is facing increased pressure as temperatures rise and the industry looks for ways to adapt to climate change.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "New beverage launches: Rice lager, sailing champagne and more…",
+      "title_ko": "New beverage launches: Rice lager, sailing champagne and more…",
+      "summary_ko": "Brands are tapping into flavour experimentation, wellness, and premiumisation through functional drinks, RTDs, and premium spirits.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "Treasury Wine Estates set to overhaul US business",
+      "title_ko": "Treasury Wine Estates set to overhaul US business",
+      "summary_ko": "Treasury Wine Estates is preparing to restructure its US operations by fallowing vineyards and writing down inventory.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Republic of Georgia",
+      "title_ko": "The Republic of Georgia",
+      "summary_ko": "Jamal Rayyis explores the wines and culture of the Republic of Georgia in this November 2024 article.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "A vin miraculeux from Fronton, in France’s Southwest",
+      "title_ko": "A vin miraculeux from Fronton, in France’s Southwest",
+      "summary_ko": "Joshua Greene highlights a miraculous wine from Fronton in France's Southwest as the wine of the week.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "WHITE WINES & SPARKLERS FROM LE MARCHE & VENETO",
+      "title_ko": "WHITE WINES & SPARKLERS FROM LE MARCHE & VENETO",
+      "summary_ko": "Stephanie Johnson explores the white wines and sparklers from Le Marche and Veneto.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Morandé Wine Group unveils new mid-strength cherry rosé-style wine",
+      "title_ko": "Morandé Wine Group unveils new mid-strength cherry rosé-style wine",
+      "summary_ko": "Chilean wine producer Morandé Wine Group has launched a mid-strength cherry rosé-style wine for global markets that blends cherry wine with Sauvignon Blanc.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Maison Pommery and Henkell International end partnership discussions",
+      "title_ko": "Maison Pommery and Henkell International end partnership discussions",
+      "summary_ko": "Champagne producer Maison Pommery & Associés has called off its exclusive partnership discussions with sparkling wine group Henkell International.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Joel Gott Wines brings RTD wine with electrolytes to US market",
+      "title_ko": "Joel Gott Wines brings RTD wine with electrolytes to US market",
+      "summary_ko": "California-based Joel Gott Wines has introduced Sauvy B, a new line of ready-to-drink canned Sauvignon Blanc spritz beverages featuring added electrolytes.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "Drinks Retailing News",
+      "title": "Pernod Ricard records third consecutive year of sales decline",
+      "title_ko": "Pernod Ricard records third consecutive year of sales decline",
+      "summary_ko": "Pernod Ricard reported its third consecutive year of sales decline due to ongoing challenges in the US and China.",
+      "url": "https://drinksretailingnews.co.uk/category/news/",
+      "date": ""
+    },
+    {
+      "source": "Drinks Retailing News",
+      "title": "Retailer Profile: Stirchley Wines & Spirits",
+      "title_ko": "Retailer Profile: Stirchley Wines & Spirits",
+      "summary_ko": "Stirchley Wines & Spirits has evolved over nearly five decades into one of the UK’s best-known neighbourhood off-licences.",
+      "url": "https://drinksretailingnews.co.uk/category/news/",
+      "date": ""
+    },
+    {
+      "source": "Drinks Retailing News",
+      "title": "100 union members threaten strike action at Diageo distillery",
+      "title_ko": "100 union members threaten strike action at Diageo distillery",
+      "summary_ko": "Around 100 Unite members at Diageo’s Cameronbridge distillery are threatening strike action over planned job cuts.",
+      "url": "https://drinksretailingnews.co.uk/category/news/",
+      "date": ""
+    },
+    {
+      "source": "The Drinks Report",
+      "title": "WELCOME TO THE PARAGRAPH FAMILY, CHRIS!",
+      "title_ko": "WELCOME TO THE PARAGRAPH FAMILY, CHRIS!",
+      "summary_ko": "Paragraph Publishing announced that Chris Rose has joined the team as the new Vice President of Sales for the USA & Canada.",
+      "url": "https://www.thedrinksreport.com/",
+      "date": ""
+    },
+    {
+      "source": "The Drinks Report",
+      "title": "PARAGRAPH PUBLISHING ANNOUNCES 2024 CHARITABLE DONATIONS",
+      "title_ko": "PARAGRAPH PUBLISHING ANNOUNCES 2024 CHARITABLE DONATIONS",
+      "summary_ko": "Paragraph Publishing revealed its comprehensive list of charitable donations made throughout the course of 2024.",
+      "url": "https://www.thedrinksreport.com/",
+      "date": ""
+    },
+    {
+      "source": "The Drinks Report",
+      "title": "WHISKY MAGAZINE SPECIAL SELECTION UNVEILS SINGLE CASK GLENGOYNE 16 YEARS OLD",
+      "title_ko": "WHISKY MAGAZINE SPECIAL SELECTION UNVEILS SINGLE CASK GLENGOYNE 16 YEARS OLD",
+      "summary_ko": "As part of its 25th-anniversary celebration, Whisky Magazine introduced a new single cask Glengoyne 16 Years Old bottling in its Special Selection.",
+      "url": "https://www.thedrinksreport.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Alemania, Reino Unido y Estados Unidos lideran las compras de vino español",
+      "title_ko": "Alemania, Reino Unido y Estados Unidos lideran las compras de vino español",
+      "summary_ko": "독일, 영국, 미국이 스페인 와인 구매를 주도하고 있는 것으로 나타났습니다.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "El prosecco se dispara un 22,6% en la hostelería francesa frente al retroceso del vino",
+      "title_ko": "El prosecco se dispara un 22,6% en la hostelería francesa frente al retroceso del vino",
+      "summary_ko": "프랑스 요식업계에서 프로세코는 와인의 후퇴 속에서도 22.6% 급등했습니다.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "El vino ruso gana espacio en las tiendas sin elevar su cuota de ventas",
+      "title_ko": "El vino ruso gana espacio en las tiendas sin elevar su cuota de ventas",
+      "summary_ko": "러시아 와인은 판매 점유율을 높이지 못한 채 상점 내 진열 공간만 넓혀가고 있습니다.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "title_ko": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/registration-opens-47th-world-congress-vine-and-wine",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "title_ko": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-hosts-inaugural-ambassadors-day-dijon",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "The OIV headquarters awarded the “Heritage of Diplomacy” label",
+      "title_ko": "The OIV headquarters awarded the “Heritage of Diplomacy” label",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-headquarters-awarded-heritage-diplomacy-label",
+      "date": ""
+    },
+    {
+      "source": "IWSR Insight",
+      "title": "Premiumisation redefined: from pricing to meaningful moments",
+      "title_ko": "Premiumisation redefined: from pricing to meaningful moments",
+      "summary_ko": "주류 산업의 오랜 트렌드였던 프리미엄화가 단순한 가격 책정을 넘어 의미 있는 순간을 중심으로 재정의되고 있다.",
+      "url": "https://www.theiwsr.com/insight/",
+      "date": ""
+    },
+    {
+      "source": "IWSR Insight",
+      "title": "Time for tea: how a global flavour trend can boost beverage alcohol",
+      "title_ko": "Time for tea: how a global flavour trend can boost beverage alcohol",
+      "summary_ko": "차가 단순한 카테고리를 넘어 알코올 및 비알코올 음료 전반의 맛 구조를 확장하는 글로벌 풍미 트렌드로 주목받고 있다.",
+      "url": "https://www.theiwsr.com/insight/",
+      "date": ""
+    },
+    {
+      "source": "IWSR Insight",
+      "title": "Boomers drive TBA declines as Gen Z steps up",
+      "title_ko": "Boomers drive TBA declines as Gen Z steps up",
+      "summary_ko": "베이비붐 세대의 음주 감소가 전체 주류 시장의 하락세를 주도하는 반면, Z세대가 새로운 소비층으로 부상하고 있다.",
+      "url": "https://www.theiwsr.com/insight/",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Australia and New Zealand Wine Exports Hit by F...",
+      "title_ko": "Australia and New Zealand Wine Exports Hit by F...",
+      "summary_ko": "Tariffs, weaker global demand, and shifting consumer habits have caused Australia's wine exports to hit a 22-year low and stalled New Zealand's export value in 2025.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Hawesko Cuts Full-Year Guidance as Weak Consume...",
+      "title_ko": "Hawesko Cuts Full-Year Guidance as Weak Consume...",
+      "summary_ko": "Hawesko cut its FY2026 guidance as H1 revenue fell to €274.8m due to weak demand, though cost and efficiency gains helped the gross margin rise to 45.2%.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Viva Wine Group Delivers Acquisition-Driven Gro...",
+      "title_ko": "Viva Wine Group Delivers Acquisition-Driven Gro...",
+      "summary_ko": "Viva Wine Group's Q2 2026 report showed 21.2% sales growth driven by acquisitions alongside negative organic growth and a SEK 38.5/share takeover bid.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "SVB State of the US Wine Industry",
+      "title": "The passive growth era is over—performance hinges on behavior, not conditions",
+      "title_ko": "The passive growth era is over—performance hinges on behavior, not conditions",
+      "summary_ko": "상위 와이너리는 적극적인 시장 대응으로 성장세를 이어간반면, 하위 와이너리는 수요 감소로 큰 폭의 매출 하락을 겪으며 성과 격차가 벌어지고 있습니다.",
+      "url": "https://www.svb.com/trends-insights/reports/wine-report",
+      "date": ""
+    },
+    {
+      "source": "SVB State of the US Wine Industry",
+      "title": "Stabilization is coming—but not for everyone",
+      "title_ko": "Stabilization is coming—but not for everyone",
+      "summary_ko": "고령층 소비자의 이탈과 달리 밀레니얼 및 Z세대 등 젊은 층은 음주량이 적고 다양한 주류 카테고리로 분산되어 있어 시장 안정화의 혜택이 모든 곳에 미치지 않고 있습니다.",
+      "url": "https://www.svb.com/trends-insights/reports/wine-report",
+      "date": ""
+    },
+    {
+      "source": "SVB State of the US Wine Industry",
+      "title": "Top performers prioritize the customer and use digital tools to extend that edge",
+      "title_ko": "Top performers prioritize the customer and use digital tools to extend that edge",
+      "summary_ko": "최우수 와이너리들은 직거래(DTC) 채널과 디지털 도구를 단순 판매가 아닌 고객 충성도와 유대감을 강화하는 관계로 활용하고 있습니다.",
+      "url": "https://www.svb.com/trends-insights/reports/wine-report",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "Fine Wine Market Insights and Analysis That You Can Trust",
+      "title_ko": "Fine Wine Market Insights and Analysis That You Can Trust",
+      "summary_ko": "Liv-ex Market Intelligence provides data-driven analysis of the fine wine market to help businesses make informed commercial decisions.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "Automation",
+      "title_ko": "Automation",
+      "summary_ko": "The fine wine industry has faced seismic shifts, requiring businesses to rely on timely and unbiased intelligence rather than intuition alone.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "What is Liv‑ex Market Intelligence?",
+      "title_ko": "What is Liv‑ex Market Intelligence?",
+      "summary_ko": "Built on comprehensive transactional data, Liv-ex Market Intelligence offers timely, detailed, and independent analysis for buying, selling, and pricing strategies.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Rabobank Beverages",
+      "title": "Southern Glazer‘s on the latest moves into beer and competition in wine and spirits",
+      "title_ko": "Southern Glazer‘s on the latest moves into beer and competition in wine and spirits",
+      "summary_ko": "We catch up with Southern Glazer's Wine & Spirits to discuss its recent beer-business-buying binge.",
+      "url": "https://www.rabobank.com/knowledge/beverages",
+      "date": ""
+    },
+    {
+      "source": "Rabobank Beverages",
+      "title": "Navigating a downturn: What alcoholic beverage companies can learn from other industries",
+      "title_ko": "Navigating a downturn: What alcoholic beverage companies can learn from other industries",
+      "summary_ko": "Demand for alcohol won’t disappear, but the industry will likely reset to a new baseline as brewers, distillers, and wineries search for adjustment strategies.",
+      "url": "https://www.rabobank.com/knowledge/beverages",
+      "date": ""
+    },
+    {
+      "source": "Rabobank Beverages",
+      "title": "Consumer Foods-to-Go Wrap! Wrapping up July 2026 – An intense month despite the summer heat",
+      "title_ko": "Consumer Foods-to-Go Wrap! Wrapping up July 2026 – An intense month despite the summer heat",
+      "summary_ko": "Despite scorching heat in the Northern Hemisphere, July has been far from a dull month for the consumer foods-to-go sector.",
+      "url": "https://www.rabobank.com/knowledge/beverages",
+      "date": ""
+    },
+    {
+      "source": "IWSC News",
+      "title": "“One of the most exciting Chardonnay regions on the planet”",
+      "title_ko": "“One of the most exciting Chardonnay regions on the planet”",
+      "summary_ko": "The IWSC returned to Margaret River for its fourth Global Judging event, where an international panel of experts tasted hundreds of Western Australian wines and explored the region.",
+      "url": "https://www.iwsc.net/news/wine",
+      "date": ""
+    },
+    {
+      "source": "IWSC News",
+      "title": "IWSC 2026: France lets the fruit speak",
+      "title_ko": "IWSC 2026: France lets the fruit speak",
+      "summary_ko": "France once again topped the medal table at the IWSC 2026, and we examine the standout regions, styles, trends, and trade opportunities identified by the judges.",
+      "url": "https://www.iwsc.net/news/wine",
+      "date": ""
+    },
+    {
+      "source": "IWSC News",
+      "title": "Winzerhof Sax wins IWSC 2026 Austrian Wine Producer Trophy",
+      "title_ko": "Winzerhof Sax wins IWSC 2026 Austrian Wine Producer Trophy",
+      "summary_ko": "Kamptal producer Winzerhof Sax secured medals at the IWSC 2026 Wine Judging in Austria and won the coveted Austrian Wine Producer Trophy.",
+      "url": "https://www.iwsc.net/news/wine",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
