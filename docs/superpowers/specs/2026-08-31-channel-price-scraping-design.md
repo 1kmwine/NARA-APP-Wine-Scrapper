@@ -27,17 +27,13 @@
 - 이 스펙은 UI 시각 디자인(표 색상/레이아웃 디테일)을 다루지 않는다 — 기존
   `.result-group`/`.ds-table` 스타일을 그대로 따른다.
 
-## 전제 조건 — DB 접근 문제 (해결 필요)
+## 전제 조건 — DB 접근 (해결됨)
 
-로컬에서 `backend/.env`의 자격증명으로 실제 DB(`192.168.47.105`, 계정
-`wine_info_app`)에 접속을 시도했으나 **인증 실패**했다:
-`Access denied for user 'wine_info_app'@'192.168.49.151'`. 네트워크 연결 자체는
-되므로(에러가 접속 거부가 아니라 인증 단계에서 남), `.env`의 비밀번호가 이
-IP에서 쓰던 값이 아니거나 계정의 허용 호스트가 다른 것으로 보인다.
-
-**이 스펙의 구현(신규 테이블 생성, 실제 INSERT/SELECT 동작 확인)은 이 문제가
-풀려야 실제로 검증 가능하다** — DB 관리자 자격으로 계정 비밀번호 확인/재발급
-또는 허용 호스트 조정이 먼저 필요하다.
+`backend/.env`의 `wine_info_app` 계정이 2026-08-13 전체 계정 재구성으로 폐기되어
+인증 실패가 났었다(`NARA-Information-Digest/docs/CREDENTIALS.local.md` 참고,
+`wine_info_app`→`DB_ID_MARKETING`로 컷오버됨). `.env`를 `DB_ID_MARKETING` 계정으로
+갱신해 접속 확인 완료 — `wine_info` 스키마에 ALL PRIVILEGES 보유, 신규 테이블
+생성·INSERT·SELECT 전부 가능.
 
 ## 데이터 모델
 
