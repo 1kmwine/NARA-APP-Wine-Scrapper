@@ -20,8 +20,12 @@
 
 - 이 스펙은 **a5 온디맨드 검색(`index.html`/`js/app.js`/`backend/app/`)**만
   다룬다. `wine-briefing/`(데일리 브리핑 크론)은 무관하다.
-- 가격 추출은 **정규식 패턴 매칭**으로 한다(LLM 미사용 — 사용자 확정, 비용
-  없지만 표현이 다양한 글은 놓칠 수 있음을 감수).
+- 가격 추출은 **정규식 패턴 매칭**으로, 본문 텍스트(se-text)에 직접 타이핑된
+  가격만 대상으로 한다(LLM 미사용 — 사용자 확정, 비용 없지만 표현이 다양한
+  글은 놓칠 수 있음을 감수). 와쌉 게시글 중 일부는 가격이 CU픽업주문 위젯처럼
+  구조화된 임베드 컴포넌트나 스크린샷 이미지로만 표시되는 경우가 있는데,
+  이런 위젯/이미지 안의 가격은 이번 범위 밖 — 실사용해보고 놓치는 비중이
+  크면 위젯 JSON 파싱이나 OCR/LLM 추가를 후속으로 검토한다.
 - 과거 축적된 가격을 보여주는 "가격 이력 조회" 화면은 이번 범위 밖 — DB에는
   전부 쌓이니 나중에 별도 스펙으로 만들 수 있다.
 - 이 스펙은 UI 시각 디자인(표 색상/레이아웃 디테일)을 다루지 않는다 — 기존
@@ -92,8 +96,12 @@ run_job() 안에서 blog/wassap 수집이 끝난 뒤(각 수집기가 이미 찾
   1. fetch_full_body(post)  — 신규
      - 블로그: m.blog.naver.com/{blogId}/{logNo} 모바일 페이지 직접 fetch,
        본문 영역 텍스트 추출 (iframe 문제 없음)
-     - 와쌉: 카페 게시글 상세 API(article-detail endpoint, search_wassap과
-       같은 apis.cafe.naver.com 계열— 정확한 경로는 구현 시 확인) 호출해 본문 확보
+     - 와쌉: `GET https://article.cafe.naver.com/gw/v4/cafes/{cafe_numeric_id}/articles/{article_id}?query=&fromPopular=true&useCafeId=true&requestFrom=A`
+       (2026-08-31 브라우저 devtools로 실측 확인) 호출 → 응답
+       `result.article.contentHtml`이 본문 HTML(Smart Editor 마크업, `se-text`
+       컴포넌트 안에 실제 문단 텍스트). 이 HTML을 태그 벗겨(`_strip_tags` 재사용)
+       평문으로 만든다. CU픽업주문류 위젯이나 이미지 안에 박힌 가격은 이 방식으로
+       못 잡음(범위 참고) — se-text 문단에 직접 타이핑된 가격만 대상.
   2. extract_channel_prices(body_text) -> list[{channel, price_low, price_high, year_month}]  — 신규
      - 채널 별칭이 등장하는 문장/줄 안에서 가격 패턴(`\d{1,3}(,\d{3})*\s*원`) 탐색
      - 숫자 2개(범위 표시자 `~`/`-`/`부터`~`까지`로 연결) → price_low/high,
