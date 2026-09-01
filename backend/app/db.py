@@ -132,11 +132,11 @@ def ensure_channel_prices_table(conn) -> None:
                 channel VARCHAR(50) NOT NULL,
                 price_low INT NOT NULL,
                 price_high INT NOT NULL,
-                `year_month` CHAR(7) NOT NULL,
+                year_month CHAR(7) NOT NULL,
                 source_type VARCHAR(20) NOT NULL,
                 source_url VARCHAR(500) NOT NULL,
                 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                INDEX idx_wine_channel_month (wine_query, channel, `year_month`)
+                INDEX idx_wine_channel_month (wine_query, channel, year_month)
             )
             """
         )
@@ -152,7 +152,7 @@ def insert_channel_price(
         cur.execute(
             """
             INSERT INTO wine_channel_prices
-                (wine_query, channel, price_low, price_high, `year_month`, source_type, source_url)
+                (wine_query, channel, price_low, price_high, year_month, source_type, source_url)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
             """,
             (wine_query, channel, price_low, price_high, year_month, source_type, source_url),
