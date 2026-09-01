@@ -121,8 +121,14 @@ def insert_article(
     return article_id
 
 
+# `year_month` 컬럼명은 백틱 필수 — MariaDB 예약어(INTERVAL ... YEAR_MONTH 단위).
+# 2026-09-01 실제 프로덕션 DB에 PREPARE로 검증 완료. 지우지 말 것 — 지우면
+# 모든 INSERT가 파싱 단계에서 조용히 실패한다(스택 상위에서 예외를 삼킴).
 def ensure_channel_prices_table(conn) -> None:
-    """마이그레이션 도구 없이(기존 관례) 매 insert 전에 idempotent하게 보장한다."""
+    """마이그레이션 도구 없이(기존 관례) 매 insert 전에 idempotent하게 보장한다.
+    UNIQUE KEY는 CREATE TABLE(신규 테이블)과 ALTER TABLE ... IF NOT EXISTS(이미
+    유니크 키 없이 만들어져 있던 기존 프로덕션 테이블) 양쪽 다 커버한다 —
+    ALTER는 MariaDB 11.8에서 IF NOT EXISTS 지원 확인됨(실측), 이미 있으면 no-op."""
     with conn.cursor() as cur:
         cur.execute(
             """
@@ -132,12 +138,19 @@ def ensure_channel_prices_table(conn) -> None:
                 channel VARCHAR(50) NOT NULL,
                 price_low INT NOT NULL,
                 price_high INT NOT NULL,
-                year_month CHAR(7) NOT NULL,
+                `year_month` CHAR(7) NOT NULL,
                 source_type VARCHAR(20) NOT NULL,
                 source_url VARCHAR(500) NOT NULL,
                 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                INDEX idx_wine_channel_month (wine_query, channel, year_month)
+                INDEX idx_wine_channel_month (wine_query, channel, `year_month`),
+                UNIQUE KEY uniq_source_channel_month (source_url, channel, `year_month`)
             )
+            """
+        )
+        cur.execute(
+            """
+            ALTER TABLE wine_channel_prices
+            ADD UNIQUE KEY IF NOT EXISTS uniq_source_channel_month (source_url, channel, `year_month`)
             """
         )
     conn.commit()
@@ -151,8 +164,8 @@ def insert_channel_price(
     with conn.cursor() as cur:
         cur.execute(
             """
-            INSERT INTO wine_channel_prices
-                (wine_query, channel, price_low, price_high, year_month, source_type, source_url)
+            INSERT IGNORE INTO wine_channel_prices
+                (wine_query, channel, price_low, price_high, `year_month`, source_type, source_url)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
             """,
             (wine_query, channel, price_low, price_high, year_month, source_type, source_url),

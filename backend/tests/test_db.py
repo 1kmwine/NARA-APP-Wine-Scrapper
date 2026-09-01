@@ -159,6 +159,24 @@ def test_ensure_channel_prices_table_issues_create_table_if_not_exists():
     assert conn.committed
 
 
+def test_ensure_channel_prices_table_quotes_reserved_year_month_column():
+    # year_month는 MariaDB 예약어(INTERVAL ... YEAR_MONTH) — 백틱 없이 쓰면
+    # 실제 서버에서 매 INSERT가 파싱 단계에서 조용히 실패한다(2026-09-01 실측).
+    conn = FakeConnection()
+    ensure_channel_prices_table(conn)
+    create_sql = conn._cursor.executed[0][0]
+    assert "`year_month`" in create_sql
+
+
+def test_ensure_channel_prices_table_adds_unique_key_for_dedupe():
+    conn = FakeConnection()
+    ensure_channel_prices_table(conn)
+    alter_sql = conn._cursor.executed[1][0]
+    assert "ALTER TABLE wine_channel_prices" in alter_sql
+    assert "ADD UNIQUE KEY IF NOT EXISTS uniq_source_channel_month" in alter_sql
+    assert "`year_month`" in alter_sql
+
+
 def test_insert_channel_price_inserts_one_row():
     conn = FakeConnection()
     row_id = insert_channel_price(
@@ -167,6 +185,7 @@ def test_insert_channel_price_inserts_one_row():
     )
     assert row_id == 42  # FakeCursor 기본 lastrowid
     insert_sql, params = conn._cursor.executed[-1]
-    assert "INSERT INTO wine_channel_prices" in insert_sql
+    assert "INSERT IGNORE INTO wine_channel_prices" in insert_sql
+    assert "`year_month`" in insert_sql
     assert params == ("몬테스 알파", "이마트", 29800, 33000, "2026-07", "blog", "https://blog.naver.com/x/1")
     assert conn.committed

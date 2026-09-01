@@ -260,14 +260,23 @@ def run_job(
             return
         fallback_ym = (published_date or "")[:7] or _today_year_month()
         try:
-            for p in extract_channel_prices(body_text, fallback_ym):
+            prices = extract_channel_prices(body_text, fallback_ym)
+        except Exception:  # noqa: BLE001 — 추출 자체가 깨져도 이 소스만 생략, 검색 전체는 계속
+            logger.exception("가격 추출 실패: %s", source_url)
+            return
+        for p in prices:
+            # 화면 표시(price_rows)는 DB insert 성공 여부와 무관하게 항상 채운다
+            # (스펙: "DB insert 실패는 로그만 남기고 응답 자체는 정상 반환"). insert는
+            # 값 하나마다 독립된 try/except로 감싸서, 한 값의 저장 실패가 같은
+            # 포스트의 다른 값까지 통째로 누락시키지 않게 한다.
+            price_rows.append({**p, "source_url": source_url})
+            try:
                 insert_channel_price(
                     query, p["channel"], p["price_low"], p["price_high"], p["year_month"],
                     source_type, source_url,
                 )
-                price_rows.append({**p, "source_url": source_url})
-        except Exception:  # noqa: BLE001 — 가격 저장 실패는 이 소스만 생략, 검색 전체는 계속
-            logger.exception("가격 저장 실패: %s", source_url)
+            except Exception:  # noqa: BLE001 — DB 저장 실패는 로그만, 화면 표시는 이미 위에서 확정됨
+                logger.exception("가격 저장 실패: %s", source_url)
 
     def deadline_passed() -> bool:
         return deadline is not None and time.monotonic() > deadline
@@ -399,10 +408,11 @@ def run_job(
                         title="", published_date=None, external_url=item.external_url, status="실패",
                         reason=f"저장 실패: {exc}",
                     ))
-                try:
-                    _collect_prices(fetch_blog_body(item.external_url), item.published_date, "blog", item.external_url)
-                except Exception:  # noqa: BLE001 — fetch_blog_body 자체가 예외를 던지는 극단적 경우 대비
-                    logger.exception("블로그 본문 가져오기 실패: %s", item.external_url)
+                if not deadline_passed():
+                    try:
+                        _collect_prices(fetch_blog_body(item.external_url), item.published_date, "blog", item.external_url)
+                    except Exception:  # noqa: BLE001 — fetch_blog_body 자체가 예외를 던지는 극단적 경우 대비
+                        logger.exception("블로그 본문 가져오기 실패: %s", item.external_url)
             store.increment_done(job_id)
 
     # ── 유튜브 검색: 등록 채널의 최신 영상만으로는 커버리지가 너무 좁아(대부분
@@ -493,7 +503,7 @@ def run_job(
                         title="", published_date=None, external_url=item.external_url, status="실패",
                         reason=f"저장 실패: {exc}",
                     ))
-                if category == "wassap":
+                if category == "wassap" and not deadline_passed():
                     try:
                         _collect_prices(fetch_wassap_body(source, item.external_url), item.published_date, "wassap", item.external_url)
                     except Exception:  # noqa: BLE001

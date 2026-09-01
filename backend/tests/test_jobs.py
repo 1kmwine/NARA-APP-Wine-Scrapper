@@ -583,6 +583,33 @@ def test_run_job_stops_early_when_deadline_already_passed():
     assert result.done == 0
 
 
+def test_run_job_skips_price_body_fetch_when_deadline_already_passed():
+    # Finding 6: full-body fetch(fetch_blog_body/fetch_wassap_body)는 시간이
+    # 오래 걸릴 수 있는 추가 호출이라, 마감이 이미 지났으면 아이템 처리 자체는
+    # 계속하되(검색 자체를 막지 않음) 가격 수집 단계만 건너뛰어야 한다.
+    store = JobStore()
+    job = store.create("몬테스", "몬테스", total=1)
+    sources = _empty_sources()
+
+    def must_not_be_called(*a, **k):
+        raise AssertionError("마감 이후에는 호출되면 안 됨")
+
+    run_job(job.id, store, sources, "몬테스", "몬테스", **_news_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="후기", excerpt="요약", thumbnail_url=None,
+            external_url="https://blog.naver.com/naracellar/1", published_date="2026-06-15",
+            source_name="블로그: 나라셀라",
+        )],
+        fetch_blog_body=must_not_be_called,
+        insert_channel_price=must_not_be_called,
+        deadline=time.monotonic() - 1,
+    ))
+
+    result = store.get(job.id)
+    assert result.status == "failed"  # 마감 초과로 전체 실패 처리 — 크래시 없이 정상 종료
+    assert result.price_results == []
+
+
 def test_run_job_news_insert_receives_news_category():
     store = JobStore()
     job = store.create("몬테스", "몬테스", total=1)
@@ -647,6 +674,64 @@ def test_run_job_extracts_and_stores_blog_prices():
     }]
     assert len(inserted) == 1
     assert inserted[0][:2] == ("몬테스", "이마트")
+
+
+def test_run_job_price_display_independent_of_db_insert_failure():
+    # 스펙: DB insert 실패는 로그만, price_results 응답은 그 회차에 실제로 찾은
+    # 값 기준으로 정상 반환돼야 한다(DB 저장 실패가 화면 표시를 막으면 안 됨).
+    store = JobStore()
+    job = store.create("몬테스", "몬테스", total=1)
+    sources = _empty_sources()
+
+    def broken_insert(*a, **k):
+        raise RuntimeError("db down")
+
+    run_job(job.id, store, sources, "몬테스", "몬테스", **_news_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="후기", excerpt="요약", thumbnail_url=None,
+            external_url="https://blog.naver.com/naracellar/1", published_date="2026-06-15",
+            source_name="블로그: 나라셀라",
+        )],
+        fetch_blog_body=lambda url: "이마트 29,800원~33,000원 완전 혜자",
+        insert_channel_price=broken_insert,
+    ))
+
+    result = store.get(job.id)
+    assert result.status == "succeeded"
+    assert result.price_results == [{
+        "channel": "이마트", "price_low": 29800, "price_high": 33000,
+        "year_month": "2026-06", "source_urls": ["https://blog.naver.com/naracellar/1"],
+    }]
+
+
+def test_run_job_one_failing_insert_does_not_drop_sibling_price_rows():
+    # 같은 포스트에서 여러 채널/가격이 나올 때, 하나의 insert 실패가 같은
+    # 포스트의 나머지 값까지 통째로 누락시키면 안 된다(각 값은 독립된 try/except).
+    store = JobStore()
+    job = store.create("몬테스", "몬테스", total=1)
+    sources = _empty_sources()
+    insert_calls = []
+
+    def flaky_insert(wine_query, channel, price_low, price_high, year_month, source_type, source_url):
+        insert_calls.append(channel)
+        if channel == "이마트":
+            raise RuntimeError("db down for 이마트")
+        return 1
+
+    run_job(job.id, store, sources, "몬테스", "몬테스", **_news_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="후기", excerpt="요약", thumbnail_url=None,
+            external_url="https://blog.naver.com/naracellar/1", published_date="2026-06-15",
+            source_name="블로그: 나라셀라",
+        )],
+        fetch_blog_body=lambda url: "이마트 29,800원\n코스트코 25,000원",
+        insert_channel_price=flaky_insert,
+    ))
+
+    result = store.get(job.id)
+    assert insert_calls == ["이마트", "코스트코"]  # 둘 다 시도됨 — 이마트 실패가 코스트코를 막지 않음
+    channels = {r["channel"] for r in result.price_results}
+    assert channels == {"이마트", "코스트코"}  # 실패한 이마트도 화면 표시엔 여전히 남음
 
 
 def test_run_job_price_extraction_failure_does_not_fail_whole_job():
