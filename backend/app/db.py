@@ -119,3 +119,44 @@ def insert_article(
         raise
     conn.commit()
     return article_id
+
+
+def ensure_channel_prices_table(conn) -> None:
+    """마이그레이션 도구 없이(기존 관례) 매 insert 전에 idempotent하게 보장한다."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS wine_channel_prices (
+                id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                wine_query VARCHAR(255) NOT NULL,
+                channel VARCHAR(50) NOT NULL,
+                price_low INT NOT NULL,
+                price_high INT NOT NULL,
+                `year_month` CHAR(7) NOT NULL,
+                source_type VARCHAR(20) NOT NULL,
+                source_url VARCHAR(500) NOT NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_wine_channel_month (wine_query, channel, `year_month`)
+            )
+            """
+        )
+    conn.commit()
+
+
+def insert_channel_price(
+    conn, wine_query: str, channel: str, price_low: int, price_high: int,
+    year_month: str, source_type: str, source_url: str,
+) -> int:
+    ensure_channel_prices_table(conn)
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO wine_channel_prices
+                (wine_query, channel, price_low, price_high, `year_month`, source_type, source_url)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """,
+            (wine_query, channel, price_low, price_high, year_month, source_type, source_url),
+        )
+        row_id = cur.lastrowid
+    conn.commit()
+    return row_id

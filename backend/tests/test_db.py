@@ -1,6 +1,6 @@
 import pytest
 
-from app.db import get_known_brands, find_english_name, article_exists, get_article, insert_article
+from app.db import get_known_brands, find_english_name, article_exists, get_article, insert_article, ensure_channel_prices_table, insert_channel_price
 from app.parse import ParsedArticle
 
 
@@ -150,3 +150,23 @@ def test_insert_article_passes_category_value_as_param():
 
     _, params = next((sql, p) for sql, p in conn.cursor().executed if "INSERT INTO wine_articles" in sql)
     assert "wassap" in params
+
+
+def test_ensure_channel_prices_table_issues_create_table_if_not_exists():
+    conn = FakeConnection()
+    ensure_channel_prices_table(conn)
+    assert "CREATE TABLE IF NOT EXISTS wine_channel_prices" in conn._cursor.executed[0][0]
+    assert conn.committed
+
+
+def test_insert_channel_price_inserts_one_row():
+    conn = FakeConnection()
+    row_id = insert_channel_price(
+        conn, wine_query="몬테스 알파", channel="이마트", price_low=29800, price_high=33000,
+        year_month="2026-07", source_type="blog", source_url="https://blog.naver.com/x/1",
+    )
+    assert row_id == 42  # FakeCursor 기본 lastrowid
+    insert_sql, params = conn._cursor.executed[-1]
+    assert "INSERT INTO wine_channel_prices" in insert_sql
+    assert params == ("몬테스 알파", "이마트", 29800, 33000, "2026-07", "blog", "https://blog.naver.com/x/1")
+    assert conn.committed
