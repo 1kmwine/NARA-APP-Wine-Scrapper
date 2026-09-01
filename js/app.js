@@ -37,6 +37,17 @@ const RESULT_CATEGORY_META=[
   {key:'international', label:'해외소스'},
 ];
 
+/* 화면에 보여줄 순서 — RESULT_CATEGORY_META(5개, 진행률바 기준)와 별개로
+   "가격"을 뉴스·매거진과 블로그 사이에 끼워 넣기 위한 전용 목록 */
+const DISPLAY_GROUPS=[
+  {key:'news', label:'뉴스·매거진', kind:'cards'},
+  {key:'price', label:'가격', kind:'table'},
+  {key:'blog', label:'네이버 블로그', kind:'cards'},
+  {key:'youtube', label:'유튜브', kind:'cards'},
+  {key:'wassap', label:'와쌉카페', kind:'cards'},
+  {key:'international', label:'해외소스', kind:'cards'},
+];
+
 /* ========== 스크래퍼: DOM 참조 ========== */
 const searchView=document.getElementById('scraperSearchView');
 const resultsView=document.getElementById('scraperResultsView');
@@ -184,6 +195,7 @@ async function pollJob(jobId, query){
     progressBarFill.style.width=`${job.total?(job.done/job.total)*100:0}%`;
     renderProgressRows(job.done);
     appendIncrementalResults(job.results, query);
+    renderPriceResults(job.price_results||[]);
     resultsCountEl.textContent=`${job.results.length}건 수집됨`;
 
     if(job.status==='succeeded'||job.status==='partial'||job.status==='failed'){
@@ -348,7 +360,7 @@ let renderedResultUrls=new Set();
 function initIncrementalResults(){
   renderedResultUrls=new Set();
   resultsGroupsEl.innerHTML='';
-  RESULT_CATEGORY_META.forEach(c=>{
+  DISPLAY_GROUPS.forEach(c=>{
     const groupEl=document.createElement('div');
     groupEl.className='result-group hidden';
     groupEl.dataset.category=c.key;
@@ -359,10 +371,21 @@ function initIncrementalResults(){
     countSpan.textContent='0';
     groupTitle.textContent=c.label+' ';
     groupTitle.appendChild(countSpan);
-    const grid=document.createElement('div');
-    grid.className='result-grid';
     groupEl.appendChild(groupTitle);
-    groupEl.appendChild(grid);
+
+    if(c.kind==='table'){
+      const table=document.createElement('table');
+      table.className='ds-table';
+      const thead=document.createElement('thead');
+      thead.innerHTML='<tr><th>채널</th><th>가격</th><th>년월</th><th>출처</th></tr>';
+      table.appendChild(thead);
+      table.appendChild(document.createElement('tbody'));
+      groupEl.appendChild(table);
+    }else{
+      const grid=document.createElement('div');
+      grid.className='result-grid';
+      groupEl.appendChild(grid);
+    }
     resultsGroupsEl.appendChild(groupEl);
   });
 }
@@ -381,6 +404,44 @@ function appendIncrementalResults(items, highlightQuery){
     });
     groupEl.querySelector('.result-group-count').textContent=grid.children.length;
   });
+}
+
+function renderPriceResults(priceResults){
+  const groupEl=resultsGroupsEl.querySelector('[data-category="price"]');
+  const tbody=groupEl.querySelector('tbody');
+  tbody.innerHTML='';
+  if(!priceResults || !priceResults.length){
+    groupEl.classList.add('hidden');
+    return;
+  }
+  groupEl.classList.remove('hidden');
+  priceResults.forEach(p=>{
+    const tr=document.createElement('tr');
+
+    const tdChannel=document.createElement('td');
+    tdChannel.textContent=p.channel;
+
+    const tdPrice=document.createElement('td');
+    tdPrice.textContent = p.price_low===p.price_high
+      ? `${p.price_low.toLocaleString()}원`
+      : `${p.price_low.toLocaleString()}원 ~ ${p.price_high.toLocaleString()}원`;
+
+    const tdMonth=document.createElement('td');
+    tdMonth.textContent=p.year_month;
+
+    const tdSource=document.createElement('td');
+    p.source_urls.forEach((u, i)=>{
+      const a=document.createElement('a');
+      a.href=u; a.target='_blank'; a.rel='noopener';
+      a.textContent=`[출처${i+1}]`;
+      tdSource.appendChild(a);
+      if(i<p.source_urls.length-1) tdSource.appendChild(document.createTextNode(' '));
+    });
+
+    tr.appendChild(tdChannel); tr.appendChild(tdPrice); tr.appendChild(tdMonth); tr.appendChild(tdSource);
+    tbody.appendChild(tr);
+  });
+  groupEl.querySelector('.result-group-count').textContent=priceResults.length;
 }
 
 function finalizeResultsView(failures){
