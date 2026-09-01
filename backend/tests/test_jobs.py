@@ -37,6 +37,9 @@ def _news_deps(**overrides):
         fetch_youtube_items=lambda source: [],
         fetch_wassap_items=lambda source: [],
         fetch_international_items=lambda source: [],
+        fetch_blog_body=lambda url: None,
+        fetch_wassap_body=lambda source, url: None,
+        insert_channel_price=lambda *a, **k: 1,
     )
     deps.update(overrides)
     return deps
@@ -619,3 +622,81 @@ def test_run_job_youtube_insert_receives_youtube_category():
     ))
 
     assert captured == ["youtube"]
+
+
+def test_run_job_extracts_and_stores_blog_prices():
+    store = JobStore()
+    job = store.create("몬테스", "몬테스", total=1)
+    sources = _empty_sources()
+    inserted = []
+
+    run_job(job.id, store, sources, "몬테스", "몬테스", **_news_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="후기", excerpt="요약", thumbnail_url=None,
+            external_url="https://blog.naver.com/naracellar/1", published_date="2026-06-15",
+            source_name="블로그: 나라셀라",
+        )],
+        fetch_blog_body=lambda url: "이마트 29,800원~33,000원 완전 혜자",
+        insert_channel_price=lambda *a, **k: inserted.append(a) or 1,
+    ))
+
+    result = store.get(job.id)
+    assert result.price_results == [{
+        "channel": "이마트", "price_low": 29800, "price_high": 33000,
+        "year_month": "2026-06", "source_urls": ["https://blog.naver.com/naracellar/1"],
+    }]
+    assert len(inserted) == 1
+    assert inserted[0][:2] == ("몬테스", "이마트")
+
+
+def test_run_job_price_extraction_failure_does_not_fail_whole_job():
+    store = JobStore()
+    job = store.create("몬테스", "몬테스", total=1)
+    sources = _empty_sources()
+
+    def broken_fetch_blog_body(url):
+        raise RuntimeError("network down")
+
+    run_job(job.id, store, sources, "몬테스", "몬테스", **_news_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="후기", excerpt="요약", thumbnail_url=None,
+            external_url="https://blog.naver.com/naracellar/1", published_date="2026-06-15",
+            source_name="블로그: 나라셀라",
+        )],
+        fetch_blog_body=broken_fetch_blog_body,
+    ))
+
+    result = store.get(job.id)
+    assert result.status == "succeeded"
+    assert result.price_results == []
+
+
+def test_run_job_extracts_wassap_prices():
+    store = JobStore()
+    job = store.create("몬테스", "몬테스", total=1)
+    wassap_source = WassapSource(
+        id="winerack24-10050146", name="와쌉", cafe_id="winerack24", clubid="10050146",
+        cafe_numeric_id="20564405",
+    )
+    sources = _empty_sources(wassap=[wassap_source])
+    seen_args = []
+
+    def fake_fetch_wassap_body(source, url):
+        seen_args.append((source.cafe_numeric_id, url))
+        return "CU 21,000원에 픽업했어요"
+
+    run_job(job.id, store, sources, "몬테스", "몬테스", **_news_deps(
+        fetch_wassap_items=lambda source: [CollectedItem(
+            title="후기", excerpt="요약", thumbnail_url=None,
+            external_url="https://cafe.naver.com/winerack24/369628", published_date="2026-08-31",
+            source_name="와쌉",
+        )],
+        fetch_wassap_body=fake_fetch_wassap_body,
+    ))
+
+    result = store.get(job.id)
+    assert result.price_results == [{
+        "channel": "CU", "price_low": 21000, "price_high": 21000,
+        "year_month": "2026-08", "source_urls": ["https://cafe.naver.com/winerack24/369628"],
+    }]
+    assert seen_args == [("20564405", "https://cafe.naver.com/winerack24/369628")]

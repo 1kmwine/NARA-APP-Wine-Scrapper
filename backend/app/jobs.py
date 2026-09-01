@@ -4,12 +4,14 @@ import threading
 import time
 import uuid
 from dataclasses import dataclass, field, replace
+from datetime import datetime
 from typing import Callable, Optional
 
 from .brand_match import fuzzy_find, fuzzy_find_all, make_context_excerpt
 from .sources import SourcesConfig
 from .collectors import CollectedItem
 from .naver_search import items_for_domain
+from .price_extraction import extract_channel_prices, merge_channel_prices_for_display
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +40,7 @@ class Job:
     total: int = 0
     done: int = 0
     results: list[JobResultItem] = field(default_factory=list)
+    price_results: list[dict] = field(default_factory=list)
     error: Optional[str] = None
 
 
@@ -231,6 +234,9 @@ def run_job(
     fetch_youtube_items: Callable[[object], list[CollectedItem]],
     fetch_wassap_items: Callable[[object], list[CollectedItem]],
     fetch_international_items: Callable[[object], list[CollectedItem]],
+    fetch_blog_body: Callable[[str], Optional[str]],
+    fetch_wassap_body: Callable[[object, str], Optional[str]],
+    insert_channel_price: Callable[[str, str, int, int, str, str, str], int],
     deadline: float | None = None,
 ) -> None:
     store.update(job_id, status="running")
@@ -244,6 +250,24 @@ def run_job(
 
     had_failure = False
     timed_out = False
+    price_rows: list[dict] = []
+
+    def _today_year_month() -> str:
+        return datetime.now().strftime("%Y-%m")
+
+    def _collect_prices(body_text: str | None, published_date: str | None, source_type: str, source_url: str) -> None:
+        if not body_text:
+            return
+        fallback_ym = (published_date or "")[:7] or _today_year_month()
+        try:
+            for p in extract_channel_prices(body_text, fallback_ym):
+                insert_channel_price(
+                    query, p["channel"], p["price_low"], p["price_high"], p["year_month"],
+                    source_type, source_url,
+                )
+                price_rows.append({**p, "source_url": source_url})
+        except Exception:  # noqa: BLE001 — 가격 저장 실패는 이 소스만 생략, 검색 전체는 계속
+            logger.exception("가격 저장 실패: %s", source_url)
 
     def deadline_passed() -> bool:
         return deadline is not None and time.monotonic() > deadline
@@ -375,6 +399,10 @@ def run_job(
                         title="", published_date=None, external_url=item.external_url, status="실패",
                         reason=f"저장 실패: {exc}",
                     ))
+                try:
+                    _collect_prices(fetch_blog_body(item.external_url), item.published_date, "blog", item.external_url)
+                except Exception:  # noqa: BLE001 — fetch_blog_body 자체가 예외를 던지는 극단적 경우 대비
+                    logger.exception("블로그 본문 가져오기 실패: %s", item.external_url)
             store.increment_done(job_id)
 
     # ── 유튜브 검색: 등록 채널의 최신 영상만으로는 커버리지가 너무 좁아(대부분
@@ -465,6 +493,11 @@ def run_job(
                         title="", published_date=None, external_url=item.external_url, status="실패",
                         reason=f"저장 실패: {exc}",
                     ))
+                if category == "wassap":
+                    try:
+                        _collect_prices(fetch_wassap_body(source, item.external_url), item.published_date, "wassap", item.external_url)
+                    except Exception:  # noqa: BLE001
+                        logger.exception("와쌉 본문 가져오기 실패: %s", item.external_url)
             store.increment_done(job_id)
 
     # ── 웹 검색: Decanter/Wine Spectator/OIV 3곳으로는 커버리지가 너무 좁아
@@ -504,6 +537,9 @@ def run_job(
                         reason=f"저장 실패: {exc}",
                     ))
             store.increment_done(job_id)
+
+    merged_prices = merge_channel_prices_for_display(price_rows)
+    store.update(job_id, price_results=merged_prices)
 
     if timed_out:
         store.update(job_id, status="failed", error="60초 시간 제한을 초과했습니다")
