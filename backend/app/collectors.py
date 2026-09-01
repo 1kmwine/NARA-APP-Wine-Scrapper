@@ -754,14 +754,19 @@ def collect_naver_blog(
 
 
 # ─────────────────────────── 블로그/와쌉 본문 전체 가져오기 ───────────────────────────
+_SCRIPT_STYLE_RE = re.compile(r'<(script|style)\b[^>]*>.*?</\1>', re.DOTALL | re.IGNORECASE)
 _BLOCK_BREAK_RE = re.compile(r'</p>|<br\s*/?>|</div>', re.IGNORECASE)
 _TAG_RE = re.compile(r'<[^>]+>')
 
 
 def _html_to_lines(html_str: str) -> str:
     """블록 태그(</p>, <br>, </div>)를 줄바꿈으로 바꾼 뒤 나머지 태그를 벗기고
-    HTML 엔티티(&#x3D; 등, Smart Editor 콘텐츠에 흔함)를 복원한다. 빈 줄은 버린다."""
-    text = _BLOCK_BREAK_RE.sub('\n', html_str)
+    HTML 엔티티(&#x3D; 등, Smart Editor 콘텐츠에 흔함)를 복원한다. 빈 줄은 버린다.
+    <script>/<style> 블록은 태그+내용째 통째로 먼저 제거한다 — 안 그러면 JS/CSS
+    텍스트가 그대로 새서 가격 추출 단계에서 오탐(채널명+가격 패턴이 우연히 코드
+    안에 같이 있는 경우)이 생길 수 있다."""
+    text = _SCRIPT_STYLE_RE.sub('', html_str)
+    text = _BLOCK_BREAK_RE.sub('\n', text)
     text = _TAG_RE.sub('', text)
     text = html_module.unescape(text)
     lines = [ln.strip() for ln in text.split('\n')]

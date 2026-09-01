@@ -806,3 +806,10 @@ def test_fetch_wassap_full_body_returns_none_on_fetch_failure():
 
     body = fetch_wassap_full_body("20564405", "https://cafe.naver.com/winerack24/369628", BrokenClient(), naver_cookie="x")
     assert body is None
+
+
+def test_html_to_lines_strips_script_and_style_content_entirely():
+    from app.collectors import _html_to_lines
+    html = "<style>div.spi_unity { width:291px; }</style><p>이마트 29,800원</p><script>var gbTrackingCode = '';</script>"
+    result = _html_to_lines(html)
+    assert result == "이마트 29,800원"
