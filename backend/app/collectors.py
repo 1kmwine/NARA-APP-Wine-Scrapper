@@ -1,4 +1,5 @@
 from __future__ import annotations
+import html as html_module
 import json
 import re
 from dataclasses import dataclass
@@ -750,3 +751,69 @@ def collect_naver_blog(
         )
         for item in items
     ]
+
+
+# ─────────────────────────── 블로그/와쌉 본문 전체 가져오기 ───────────────────────────
+_BLOCK_BREAK_RE = re.compile(r'</p>|<br\s*/?>|</div>', re.IGNORECASE)
+_TAG_RE = re.compile(r'<[^>]+>')
+
+
+def _html_to_lines(html_str: str) -> str:
+    """블록 태그(</p>, <br>, </div>)를 줄바꿈으로 바꾼 뒤 나머지 태그를 벗기고
+    HTML 엔티티(&#x3D; 등, Smart Editor 콘텐츠에 흔함)를 복원한다. 빈 줄은 버린다."""
+    text = _BLOCK_BREAK_RE.sub('\n', html_str)
+    text = _TAG_RE.sub('', text)
+    text = html_module.unescape(text)
+    lines = [ln.strip() for ln in text.split('\n')]
+    return '\n'.join(ln for ln in lines if ln)
+
+
+def fetch_blog_full_body(external_url: str, client) -> str | None:
+    """검색 스니펫(description)만으론 본문 속 가격 언급을 못 잡는다. m.blog.naver.com은
+    PC용 PostView.naver(iframe 껍데기, og:image만 있음)와 달리 본문을 서버에서
+    직접 렌더링해준다."""
+    match = _BLOG_LINK_RE.search(external_url)
+    if not match:
+        return None
+    blog_id, log_no = match.groups()
+    try:
+        response = client.get(f"https://m.blog.naver.com/{blog_id}/{log_no}", timeout=10.0)
+        response.raise_for_status()
+        return _html_to_lines(response.text)
+    except Exception:  # noqa: BLE001 — 이 게시글만 스킵, 전체 검색은 계속
+        return None
+
+
+_ARTICLE_ID_RE = re.compile(r'cafe\.naver\.com/[\w-]+/(\d+)')
+
+
+def fetch_wassap_full_body(cafe_numeric_id: str, external_url: str, client, naver_cookie: str) -> str | None:
+    """search_wassap()의 summary(150자 스니펫)만으론 본문 속 가격 언급을 못 잡는다.
+    게시글 상세 API(2026-08-31 devtools로 실측 확인)로 본문 전체(contentHtml)를
+    가져온다. CU픽업주문 위젯/이미지 안의 가격은 이 방식으로도 못 잡음(정규식
+    범위 밖, se-text 문단 텍스트만 대상)."""
+    match = _ARTICLE_ID_RE.search(external_url)
+    if not match:
+        return None
+    article_id = match.group(1)
+    headers = {
+        "Cookie": naver_cookie,
+        "Referer": external_url,
+        "Origin": "https://cafe.naver.com",
+        "Accept": "application/json, text/plain, */*",
+        "User-Agent": "Mozilla/5.0",
+        "X-Cafe-Product": "pc",
+        "X-Cafe-Version": "1.0",
+        "X-Cafe-Phase": "real",
+    }
+    try:
+        response = client.get(
+            f"https://article.cafe.naver.com/gw/v4/cafes/{cafe_numeric_id}/articles/{article_id}",
+            params={"query": "", "fromPopular": "true", "useCafeId": "true", "requestFrom": "A"},
+            headers=headers, timeout=15.0,
+        )
+        response.raise_for_status()
+        content_html = response.json().get("result", {}).get("article", {}).get("contentHtml") or ""
+        return _html_to_lines(content_html) or None
+    except Exception:  # noqa: BLE001 — 이 게시글만 스킵, 전체 검색은 계속
+        return None
