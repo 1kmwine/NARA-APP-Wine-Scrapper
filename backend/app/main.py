@@ -82,6 +82,13 @@ def _insert_article(source_name: str, url: str, article, matched: list[str], cat
     return _with_connection(lambda conn: db.insert_article(conn, source_name, url, article, matched, category))
 
 
+def _insert_channel_price(wine_query: str, channel: str, price_low: int, price_high: int,
+                          year_month: str, source_type: str, source_url: str) -> int:
+    return _with_connection(lambda conn: db.insert_channel_price(
+        conn, wine_query, channel, price_low, price_high, year_month, source_type, source_url,
+    ))
+
+
 def _load_current_sources():
     with httpx.Client() as client:
         return source_config.load_sources(client, settings.github_token)
@@ -149,6 +156,12 @@ def _run_job_in_background(job_id: str, sources, wine_name: str, brand: str) -> 
             def fetch_web_items(query: str) -> list:
                 return collectors.search_web(_resolve_english_query(), client)
 
+            def fetch_blog_body(url: str):
+                return collectors.fetch_blog_full_body(url, client)
+
+            def fetch_wassap_body(source, url: str):
+                return collectors.fetch_wassap_full_body(source.cafe_numeric_id, url, client, settings.naver_cookie)
+
             run_job(
                 job_id,
                 store,
@@ -169,6 +182,9 @@ def _run_job_in_background(job_id: str, sources, wine_name: str, brand: str) -> 
                 fetch_youtube_items=fetch_youtube_items,
                 fetch_wassap_items=fetch_wassap_items,
                 fetch_international_items=fetch_international_items,
+                fetch_blog_body=fetch_blog_body,
+                fetch_wassap_body=fetch_wassap_body,
+                insert_channel_price=_insert_channel_price,
                 deadline=time.monotonic() + 60,
             )
     except Exception as exc:  # noqa: BLE001 — run_job 내부에서 못 잡은 예외까지 대비하는 방어 레이어
@@ -227,6 +243,7 @@ def get_job(job_id: str):
             }
             for r in job.results if r.status != "실패"
         ],
+        "price_results": job.price_results,
         "failures": [
             {"source_name": r.source_name, "source_category": r.source_category, "reason": r.reason}
             for r in job.results if r.status == "실패"

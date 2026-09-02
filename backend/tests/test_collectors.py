@@ -713,3 +713,103 @@ def test_collect_naver_blog_caps_at_max_items():
     items = collect_naver_blog("로저구라트", "id", "secret", client, max_items=15)
 
     assert len(items) == 15
+
+
+from app.collectors import fetch_blog_full_body, fetch_wassap_full_body
+
+
+class FakeMobileBlogResponse:
+    def __init__(self, text):
+        self.text = text
+
+    def raise_for_status(self):
+        pass
+
+
+class FakeMobileBlogClient:
+    def __init__(self, html_by_key):
+        self._html = html_by_key
+
+    def get(self, url, timeout=None):
+        assert "m.blog.naver.com/" in url
+        key = url.split("m.blog.naver.com/")[1]
+        return FakeMobileBlogResponse(self._html.get(key, "<html></html>"))
+
+
+def test_fetch_blog_full_body_uses_mobile_url_and_strips_tags():
+    client = FakeMobileBlogClient({
+        "naracellar/224352889386": "<p>이마트 7월 29,800원~33,000원 정도</p><br><p>완전 혜자</p>",
+    })
+
+    body = fetch_blog_full_body("https://blog.naver.com/naracellar/224352889386", client)
+
+    assert body == "이마트 7월 29,800원~33,000원 정도\n완전 혜자"
+
+
+def test_fetch_blog_full_body_returns_none_on_unparseable_url():
+    assert fetch_blog_full_body("https://example.com/not-a-blog-link", FakeMobileBlogClient({})) is None
+
+
+def test_fetch_blog_full_body_returns_none_on_fetch_failure():
+    class BrokenClient:
+        def get(self, url, timeout=None):
+            raise RuntimeError("network down")
+
+    assert fetch_blog_full_body("https://blog.naver.com/x/1", BrokenClient()) is None
+
+
+class FakeArticleDetailResponse:
+    def __init__(self, payload):
+        self._payload = payload
+
+    def raise_for_status(self):
+        pass
+
+    def json(self):
+        return self._payload
+
+
+class FakeArticleDetailClient:
+    def __init__(self, payload):
+        self._payload = payload
+        self.last_call = None
+
+    def get(self, url, *, params=None, headers=None, timeout=None):
+        assert "article.cafe.naver.com/gw/v4/cafes/20564405/articles/369628" in url
+        self.last_call = {"url": url, "params": params, "headers": headers}
+        return FakeArticleDetailResponse(self._payload)
+
+
+ARTICLE_DETAIL_PAYLOAD = {
+    "result": {"article": {"contentHtml": "<p>CU 21,000원에 픽업했어요</p>"}}
+}
+
+
+def test_fetch_wassap_full_body_calls_article_detail_endpoint():
+    client = FakeArticleDetailClient(ARTICLE_DETAIL_PAYLOAD)
+
+    body = fetch_wassap_full_body("20564405", "https://cafe.naver.com/winerack24/369628", client, naver_cookie="fake-cookie")
+
+    assert body == "CU 21,000원에 픽업했어요"
+    assert client.last_call["headers"]["Cookie"] == "fake-cookie"
+
+
+def test_fetch_wassap_full_body_returns_none_on_unparseable_url():
+    client = FakeArticleDetailClient(ARTICLE_DETAIL_PAYLOAD)
+    assert fetch_wassap_full_body("20564405", "https://example.com/not-cafe", client, naver_cookie="x") is None
+
+
+def test_fetch_wassap_full_body_returns_none_on_fetch_failure():
+    class BrokenClient:
+        def get(self, url, *, params=None, headers=None, timeout=None):
+            raise RuntimeError("network down")
+
+    body = fetch_wassap_full_body("20564405", "https://cafe.naver.com/winerack24/369628", BrokenClient(), naver_cookie="x")
+    assert body is None
+
+
+def test_html_to_lines_strips_script_and_style_content_entirely():
+    from app.collectors import _html_to_lines
+    html = "<style>div.spi_unity { width:291px; }</style><p>이마트 29,800원</p><script>var gbTrackingCode = '';</script>"
+    result = _html_to_lines(html)
+    assert result == "이마트 29,800원"

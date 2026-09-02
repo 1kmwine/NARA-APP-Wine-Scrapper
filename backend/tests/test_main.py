@@ -43,6 +43,32 @@ def test_create_job_and_poll_status(monkeypatch):
     assert body["failures"] == []
 
 
+def test_get_job_includes_price_results(monkeypatch):
+    monkeypatch.setattr(main_module.threading, "Thread", ImmediateThread)
+    monkeypatch.setattr(main_module, "_load_current_sources", lambda: _one_news_source_config())
+
+    def fake_run_job(job_id, store, sources, wine_name, brand, **deps):
+        store.update(
+            job_id, status="succeeded", done=sources.total_count(),
+            price_results=[{
+                "channel": "이마트", "price_low": 29800, "price_high": 33000,
+                "year_month": "2026-07", "source_urls": ["https://blog.naver.com/x/1"],
+            }],
+        )
+
+    monkeypatch.setattr(main_module, "run_job", fake_run_job)
+
+    client = TestClient(main_module.app)
+    response = client.post("/jobs", json={"wine_name": "몬테스 알파", "brand": "몬테스"})
+    job_id = response.json()["job_id"]
+
+    body = client.get(f"/jobs/{job_id}").json()
+    assert body["price_results"] == [{
+        "channel": "이마트", "price_low": 29800, "price_high": 33000,
+        "year_month": "2026-07", "source_urls": ["https://blog.naver.com/x/1"],
+    }]
+
+
 def test_create_job_rejects_blank_wine_name(monkeypatch):
     monkeypatch.setattr(main_module.threading, "Thread", ImmediateThread)
     monkeypatch.setattr(main_module, "_load_current_sources", lambda: _one_news_source_config())
