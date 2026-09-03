@@ -37,17 +37,6 @@ const RESULT_CATEGORY_META=[
   {key:'international', label:'해외소스'},
 ];
 
-/* 화면에 보여줄 순서 — RESULT_CATEGORY_META(5개, 진행률바 기준)와 별개로
-   "가격"을 뉴스·매거진과 블로그 사이에 끼워 넣기 위한 전용 목록 */
-const DISPLAY_GROUPS=[
-  {key:'news', label:'뉴스·매거진', kind:'cards'},
-  {key:'price', label:'가격', kind:'table'},
-  {key:'blog', label:'네이버 블로그', kind:'cards'},
-  {key:'youtube', label:'유튜브', kind:'cards'},
-  {key:'wassap', label:'와쌉카페', kind:'cards'},
-  {key:'international', label:'해외소스', kind:'cards'},
-];
-
 /* ========== 스크래퍼: DOM 참조 ========== */
 const searchView=document.getElementById('scraperSearchView');
 const resultsView=document.getElementById('scraperResultsView');
@@ -195,7 +184,6 @@ async function pollJob(jobId, query){
     progressBarFill.style.width=`${job.total?(job.done/job.total)*100:0}%`;
     renderProgressRows(job.done);
     appendIncrementalResults(job.results, query);
-    renderPriceResults(job.price_results||[]);
     resultsCountEl.textContent=`${job.results.length}건 수집됨`;
 
     if(job.status==='succeeded'||job.status==='partial'||job.status==='failed'){
@@ -360,7 +348,7 @@ let renderedResultUrls=new Set();
 function initIncrementalResults(){
   renderedResultUrls=new Set();
   resultsGroupsEl.innerHTML='';
-  DISPLAY_GROUPS.forEach(c=>{
+  RESULT_CATEGORY_META.forEach(c=>{
     const groupEl=document.createElement('div');
     groupEl.className='result-group hidden';
     groupEl.dataset.category=c.key;
@@ -373,19 +361,9 @@ function initIncrementalResults(){
     groupTitle.appendChild(countSpan);
     groupEl.appendChild(groupTitle);
 
-    if(c.kind==='table'){
-      const table=document.createElement('table');
-      table.className='ds-table';
-      const thead=document.createElement('thead');
-      thead.innerHTML='<tr><th>채널</th><th>가격</th><th>년월</th><th>출처</th></tr>';
-      table.appendChild(thead);
-      table.appendChild(document.createElement('tbody'));
-      groupEl.appendChild(table);
-    }else{
-      const grid=document.createElement('div');
-      grid.className='result-grid';
-      groupEl.appendChild(grid);
-    }
+    const grid=document.createElement('div');
+    grid.className='result-grid';
+    groupEl.appendChild(grid);
     resultsGroupsEl.appendChild(groupEl);
   });
 }
@@ -406,43 +384,6 @@ function appendIncrementalResults(items, highlightQuery){
   });
 }
 
-function renderPriceResults(priceResults){
-  const groupEl=resultsGroupsEl.querySelector('[data-category="price"]');
-  const tbody=groupEl.querySelector('tbody');
-  tbody.innerHTML='';
-  if(!priceResults || !priceResults.length){
-    groupEl.classList.add('hidden');
-    return;
-  }
-  groupEl.classList.remove('hidden');
-  priceResults.forEach(p=>{
-    const tr=document.createElement('tr');
-
-    const tdChannel=document.createElement('td');
-    tdChannel.textContent=p.channel;
-
-    const tdPrice=document.createElement('td');
-    tdPrice.textContent = p.price_low===p.price_high
-      ? `${p.price_low.toLocaleString()}원`
-      : `${p.price_low.toLocaleString()}원 ~ ${p.price_high.toLocaleString()}원`;
-
-    const tdMonth=document.createElement('td');
-    tdMonth.textContent=p.year_month;
-
-    const tdSource=document.createElement('td');
-    p.source_urls.forEach((u, i)=>{
-      const a=document.createElement('a');
-      a.href=u; a.target='_blank'; a.rel='noopener';
-      a.textContent=`[출처${i+1}]`;
-      tdSource.appendChild(a);
-      if(i<p.source_urls.length-1) tdSource.appendChild(document.createTextNode(' '));
-    });
-
-    tr.appendChild(tdChannel); tr.appendChild(tdPrice); tr.appendChild(tdMonth); tr.appendChild(tdSource);
-    tbody.appendChild(tr);
-  });
-  groupEl.querySelector('.result-group-count').textContent=priceResults.length;
-}
 
 function finalizeResultsView(failures){
   resultsProgressEl.classList.add('hidden');
@@ -476,6 +417,217 @@ btnResetSearch.addEventListener('click', ()=>{
   showScraperView('search');
   loadSourceCounts();
 });
+
+/* ========== 가격검색 탭 (스크래퍼 탭과 완전히 분리 — 별도 검색/별도 job 엔드포인트) ========== */
+const priceQueryInput=document.getElementById('priceQueryInput');
+const btnStartPriceSearch=document.getElementById('btnStartPriceSearch');
+const priceDebugTbody=document.getElementById('priceDebugTbody');
+const priceDebugCountEl=document.getElementById('priceDebugCount');
+const priceResultsProgressEl=document.getElementById('priceResultsProgress');
+const priceProgressBarFillEl=document.getElementById('priceProgressBarFill');
+const priceProgressRowsEl=document.getElementById('priceProgressRows');
+const priceResultsBlockEl=document.getElementById('priceResultsBlock');
+const priceResultsQueryEl=document.getElementById('priceResultsQuery');
+const priceResultsEmptyNoteEl=document.getElementById('priceResultsEmptyNote');
+const priceResultsTableEl=document.getElementById('priceResultsTable');
+const priceResultsTbody=document.getElementById('priceResultsTbody');
+const priceCheckedBlockEl=document.getElementById('priceCheckedBlock');
+const priceCheckedCountEl=document.getElementById('priceCheckedCount');
+const priceCheckedTbody=document.getElementById('priceCheckedTbody');
+
+/* 가격검색 job은 블로그(항상-켜짐 1) → 와쌉(등록 소스 개수) 순으로 done을
+   누적한다(jobs.py의 run_price_job과 동일 순서) — 스크래퍼 탭의
+   computeProgressRows와 같은 구간 분할 방식을 여기서도 써서 지금 뭘 하고
+   있는지 보여준다. sourceCounts는 위 스크래퍼 탭 로직이 loadSourceCounts()로
+   이미 채워두는 전역 값을 그대로 재사용한다. */
+function computePriceProgressRows(done){
+  const cats=[{label:'블로그 검색', total:1}, {label:'와쌉카페', total:sourceCounts.wassap||0}];
+  let remaining=done;
+  return cats.map(c=>{
+    const rowDone=Math.max(0, Math.min(c.total, remaining));
+    remaining=Math.max(0, remaining-c.total);
+    return {label:c.label, done:rowDone, total:c.total, complete: c.total>0 && rowDone>=c.total, spinning: rowDone<c.total};
+  });
+}
+
+function renderPriceProgressRows(done){
+  const rows=computePriceProgressRows(done);
+  priceProgressRowsEl.innerHTML='';
+  rows.forEach(row=>{
+    const div=document.createElement('div');
+    div.className='progress-row';
+    const indicator = row.total===0 ? ''
+      : row.complete ? '<div class="check-badge">✓</div>'
+      : row.spinning ? '<div class="spinner"></div>' : '';
+    div.innerHTML=`
+      <div class="progress-row-label">${row.label}</div>
+      <div class="progress-row-right">
+        <div class="progress-row-count">${row.done}/${row.total}</div>
+        ${indicator}
+      </div>`;
+    priceProgressRowsEl.appendChild(div);
+  });
+}
+
+let pricePollTimer=null, pricePollDeadline=null;
+const PRICE_POLL_TIMEOUT_MS=60000;
+
+function formatPriceRange(low, high){
+  return low===high ? `${low.toLocaleString()}원` : `${low.toLocaleString()}원 ~ ${high.toLocaleString()}원`;
+}
+
+// source_url(들)은 스크래핑된 외부 링크라 href만 쓰고 텍스트는 우리가 만든
+// "[출처N]" 라벨뿐이다 — innerHTML 조립 없이 anchor를 직접 만든다.
+function buildSourceLinksCell(urls){
+  const td=document.createElement('td');
+  (urls||[]).forEach((u,i)=>{
+    const a=document.createElement('a');
+    a.href=u; a.target='_blank'; a.rel='noopener';
+    a.textContent=`[출처${i+1}]`;
+    td.appendChild(a);
+    if(i<urls.length-1) td.appendChild(document.createTextNode(' '));
+  });
+  return td;
+}
+
+async function loadPriceDebugTable(){
+  try{
+    const res=await fetch(`${API_BASE}/price-history`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const {rows}=await res.json();
+    renderPriceDebugTable(rows||[]);
+  }catch(e){
+    priceDebugTbody.innerHTML='';
+    const tr=document.createElement('tr');
+    const td=document.createElement('td');
+    td.colSpan=6; td.textContent=`불러오기 실패: ${e.message}`;
+    tr.appendChild(td); priceDebugTbody.appendChild(tr);
+  }
+}
+
+function renderPriceDebugTable(rows){
+  priceDebugTbody.innerHTML='';
+  priceDebugCountEl.textContent=rows.length;
+  rows.forEach(r=>{
+    const tr=document.createElement('tr');
+    const tdQuery=document.createElement('td'); tdQuery.textContent=r.wine_query;
+    const tdChannel=document.createElement('td'); tdChannel.textContent=r.channel;
+    const tdMonth=document.createElement('td'); tdMonth.textContent=r.year_month;
+    const tdPrice=document.createElement('td'); tdPrice.textContent=formatPriceRange(r.price_low, r.price_high);
+    const tdCreated=document.createElement('td'); tdCreated.textContent=(r.created_at||'').replace('T',' ').slice(0,16);
+    tr.appendChild(tdQuery); tr.appendChild(tdChannel); tr.appendChild(tdMonth); tr.appendChild(tdPrice);
+    tr.appendChild(buildSourceLinksCell([r.source_url]));
+    tr.appendChild(tdCreated);
+    priceDebugTbody.appendChild(tr);
+  });
+}
+
+function renderPriceSearchResults(query, priceResults){
+  priceResultsQueryEl.textContent=`"${query}" 가격 이력 ${priceResults.length}건`;
+  priceResultsTbody.innerHTML='';
+  priceResultsBlockEl.classList.remove('hidden');  // 0건이어도 "찾지 못했다"는 결과 자체는 항상 보여준다
+
+  const isEmpty=priceResults.length===0;
+  priceResultsTableEl.classList.toggle('hidden', isEmpty);
+  priceResultsEmptyNoteEl.textContent = isEmpty
+    ? '이 검색어로 찾은 블로그·와쌉 게시글 중 채널명과 가격이 함께 언급된 글이 없었습니다. (본문에 직접 타이핑된 가격만 인식 — 표/이미지 안의 가격은 못 찾습니다)'
+    : '';
+
+  priceResults.forEach(p=>{
+    const tr=document.createElement('tr');
+    const tdChannel=document.createElement('td'); tdChannel.textContent=p.channel;
+    const tdMonth=document.createElement('td'); tdMonth.textContent=p.year_month;
+    const tdPrice=document.createElement('td'); tdPrice.textContent=formatPriceRange(p.price_low, p.price_high);
+    tr.appendChild(tdChannel); tr.appendChild(tdMonth); tr.appendChild(tdPrice);
+    tr.appendChild(buildSourceLinksCell(p.source_urls));
+    priceResultsTbody.appendChild(tr);
+  });
+}
+
+const SOURCE_TYPE_LABEL={blog:'블로그', wassap:'와쌉'};
+
+function renderPriceCheckedItems(items){
+  priceCheckedTbody.innerHTML='';
+  priceCheckedBlockEl.classList.toggle('hidden', !items || !items.length);
+  if(!items) return;
+  priceCheckedCountEl.textContent=items.length;
+  items.forEach(it=>{
+    const tr=document.createElement('tr');
+    const tdSource=document.createElement('td'); tdSource.textContent=SOURCE_TYPE_LABEL[it.source_type]||it.source_type;
+    const tdTitle=document.createElement('td'); tdTitle.textContent=it.title||'';
+    const tdDate=document.createElement('td'); tdDate.textContent=it.published_date||'';
+    const tdLink=document.createElement('td');
+    const a=document.createElement('a');
+    a.href=it.external_url||'#'; a.target='_blank'; a.rel='noopener'; a.textContent='바로가기';
+    tdLink.appendChild(a);
+    tr.appendChild(tdSource); tr.appendChild(tdTitle); tr.appendChild(tdDate); tr.appendChild(tdLink);
+    priceCheckedTbody.appendChild(tr);
+  });
+}
+
+async function startPriceSearch(){
+  const query=priceQueryInput.value.trim();
+  if(!query){ alert('와인명 또는 브랜드를 입력해주세요.'); return; }
+
+  priceResultsBlockEl.classList.add('hidden');
+  priceCheckedBlockEl.classList.add('hidden');
+  priceResultsProgressEl.classList.remove('hidden');
+  priceProgressBarFillEl.style.width='0%';
+  renderPriceProgressRows(0);
+  btnStartPriceSearch.disabled=true;
+
+  try{
+    const res=await fetch(`${API_BASE}/price-jobs`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({wine_name:query}),
+    });
+    if(!res.ok){ const body=await res.json().catch(()=>({})); throw new Error(body.detail||`HTTP ${res.status}`); }
+    const {job_id}=await res.json();
+    pricePollDeadline=Date.now()+PRICE_POLL_TIMEOUT_MS;
+    pollPriceJob(job_id, query);
+  }catch(e){
+    alert(`가격 검색 시작 실패: ${e.message}`);
+    priceResultsProgressEl.classList.add('hidden');
+    btnStartPriceSearch.disabled=false;
+  }
+}
+btnStartPriceSearch.addEventListener('click', startPriceSearch);
+priceQueryInput.addEventListener('keydown', e=>{ if(e.key==='Enter') startPriceSearch(); });
+
+async function pollPriceJob(jobId, query){
+  if(Date.now()>pricePollDeadline){
+    if(pricePollTimer) clearTimeout(pricePollTimer);
+    alert('60초 안에 끝나지 않아 중단했습니다. 다시 시도해주세요.');
+    priceResultsProgressEl.classList.add('hidden');
+    btnStartPriceSearch.disabled=false;
+    return;
+  }
+  try{
+    const res=await fetch(`${API_BASE}/price-jobs/${jobId}`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const job=await res.json();
+    priceProgressBarFillEl.style.width=`${job.total?(job.done/job.total)*100:0}%`;
+    renderPriceProgressRows(job.done);
+    renderPriceCheckedItems(job.price_checked_items||[]);
+
+    if(job.status==='succeeded'||job.status==='partial'||job.status==='failed'){
+      priceResultsProgressEl.classList.add('hidden');
+      btnStartPriceSearch.disabled=false;
+      if(job.status==='failed'){
+        alert(`가격 검색 실패: ${job.error||'알 수 없는 오류'}`);
+        return;
+      }
+      renderPriceSearchResults(query, job.price_results||[]);
+      loadPriceDebugTable();  // 방금 찾은 값이 반영된 최신 전체 이력으로 갱신
+      return;
+    }
+    pricePollTimer=setTimeout(()=>pollPriceJob(jobId, query), 1000);
+  }catch(e){
+    alert(`상태 조회 실패: ${e.message}`);
+    priceResultsProgressEl.classList.add('hidden');
+    btnStartPriceSearch.disabled=false;
+  }
+}
 
 /* ========== 소스 추가 패널 ========== */
 const sourceOverlay=document.getElementById('sourceOverlay');
@@ -644,6 +796,7 @@ function showToast(msg){
 /* ========== 초기화 ========== */
 renderRecentQueries();
 loadSourceCounts();
+loadPriceDebugTable();
 
 
 /* ============================================================

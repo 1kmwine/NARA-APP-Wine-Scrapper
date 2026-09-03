@@ -1,4 +1,4 @@
-from app.price_extraction import extract_channel_prices, merge_channel_prices_for_display
+from app.price_extraction import extract_channel_prices, merge_channel_prices_by_month
 
 
 def test_extracts_single_price_with_explicit_month():
@@ -98,31 +98,34 @@ def test_future_month_relative_to_post_date_implies_prior_year():
     assert result[0]["year_month"] == "2023-12"
 
 
-def test_merge_combines_multiple_sources_into_range():
+def test_merge_by_month_combines_multiple_sources_in_same_month_into_range():
     rows = [
         {"channel": "이마트", "price_low": 29800, "price_high": 29800, "year_month": "2026-07", "source_url": "https://a"},
         {"channel": "이마트", "price_low": 31000, "price_high": 31000, "year_month": "2026-07", "source_url": "https://b"},
     ]
-    merged = merge_channel_prices_for_display(rows)
+    merged = merge_channel_prices_by_month(rows)
     assert merged == [{
-        "channel": "이마트", "price_low": 29800, "price_high": 31000, "year_month": "2026-07",
+        "channel": "이마트", "year_month": "2026-07", "price_low": 29800, "price_high": 31000,
         "source_urls": ["https://a", "https://b"],
     }]
 
 
-def test_merge_uses_most_recent_year_month_when_sources_disagree():
+def test_merge_by_month_keeps_different_months_as_separate_rows():
     rows = [
         {"channel": "이마트", "price_low": 29800, "price_high": 29800, "year_month": "2026-05", "source_url": "https://a"},
         {"channel": "이마트", "price_low": 31000, "price_high": 31000, "year_month": "2026-07", "source_url": "https://b"},
     ]
-    merged = merge_channel_prices_for_display(rows)
-    assert merged[0]["year_month"] == "2026-07"
+    merged = merge_channel_prices_by_month(rows)
+    assert [ (r["year_month"], r["price_low"]) for r in merged ] == [("2026-05", 29800), ("2026-07", 31000)]
 
 
-def test_merge_sorts_by_canonical_channel_order():
+def test_merge_by_month_sorts_by_canonical_channel_order_then_month():
     rows = [
         {"channel": "코스트코", "price_low": 1, "price_high": 1, "year_month": "2026-07", "source_url": "https://a"},
+        {"channel": "이마트", "price_low": 2, "price_high": 2, "year_month": "2026-08", "source_url": "https://c"},
         {"channel": "이마트", "price_low": 2, "price_high": 2, "year_month": "2026-07", "source_url": "https://b"},
     ]
-    merged = merge_channel_prices_for_display(rows)
-    assert [r["channel"] for r in merged] == ["이마트", "코스트코"]  # CHANNEL_ALIASES 순서: 이마트24, 이마트, 코스트코...
+    merged = merge_channel_prices_by_month(rows)
+    assert [(r["channel"], r["year_month"]) for r in merged] == [
+        ("이마트", "2026-07"), ("이마트", "2026-08"), ("코스트코", "2026-07"),
+    ]

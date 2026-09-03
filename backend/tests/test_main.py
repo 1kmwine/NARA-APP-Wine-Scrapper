@@ -43,18 +43,14 @@ def test_create_job_and_poll_status(monkeypatch):
     assert body["failures"] == []
 
 
-def test_get_job_includes_price_results(monkeypatch):
+def test_get_job_does_not_include_price_results(monkeypatch):
+    # 스크래퍼 탭(/jobs)은 가격검색 탭(/price-jobs)과 완전히 분리됐다 — 가격
+    # 로직은 이 응답에 아예 나오지 않아야 한다.
     monkeypatch.setattr(main_module.threading, "Thread", ImmediateThread)
     monkeypatch.setattr(main_module, "_load_current_sources", lambda: _one_news_source_config())
 
     def fake_run_job(job_id, store, sources, wine_name, brand, **deps):
-        store.update(
-            job_id, status="succeeded", done=sources.total_count(),
-            price_results=[{
-                "channel": "이마트", "price_low": 29800, "price_high": 33000,
-                "year_month": "2026-07", "source_urls": ["https://blog.naver.com/x/1"],
-            }],
-        )
+        store.update(job_id, status="succeeded", done=sources.total_count())
 
     monkeypatch.setattr(main_module, "run_job", fake_run_job)
 
@@ -63,10 +59,58 @@ def test_get_job_includes_price_results(monkeypatch):
     job_id = response.json()["job_id"]
 
     body = client.get(f"/jobs/{job_id}").json()
+    assert "price_results" not in body
+
+
+def test_create_price_job_and_poll_status(monkeypatch):
+    monkeypatch.setattr(main_module.threading, "Thread", ImmediateThread)
+    monkeypatch.setattr(main_module, "_load_current_sources", lambda: SourcesConfig())
+
+    def fake_run_price_job(job_id, store, sources, wine_name, brand, **deps):
+        store.update(job_id, status="succeeded", price_results=[{
+            "channel": "이마트", "year_month": "2026-07", "price_low": 29800, "price_high": 33000,
+            "source_urls": ["https://blog.naver.com/x/1"],
+        }])
+
+    monkeypatch.setattr(main_module, "run_price_job", fake_run_price_job)
+
+    client = TestClient(main_module.app)
+    response = client.post("/price-jobs", json={"wine_name": "몬테스 알파"})
+    assert response.status_code == 200
+    job_id = response.json()["job_id"]
+
+    body = client.get(f"/price-jobs/{job_id}").json()
+    assert body["status"] == "succeeded"
     assert body["price_results"] == [{
-        "channel": "이마트", "price_low": 29800, "price_high": 33000,
-        "year_month": "2026-07", "source_urls": ["https://blog.naver.com/x/1"],
+        "channel": "이마트", "year_month": "2026-07", "price_low": 29800, "price_high": 33000,
+        "source_urls": ["https://blog.naver.com/x/1"],
     }]
+
+
+def test_create_price_job_rejects_blank_wine_name(monkeypatch):
+    monkeypatch.setattr(main_module.threading, "Thread", ImmediateThread)
+    monkeypatch.setattr(main_module, "_load_current_sources", lambda: SourcesConfig())
+    client = TestClient(main_module.app)
+    response = client.post("/price-jobs", json={"wine_name": "  "})
+    assert response.status_code == 400
+
+
+def test_get_price_job_missing_returns_404():
+    client = TestClient(main_module.app)
+    response = client.get("/price-jobs/does-not-exist")
+    assert response.status_code == 404
+
+
+def test_get_price_history_debug_returns_all_rows(monkeypatch):
+    monkeypatch.setattr(main_module, "_get_all_channel_prices", lambda: [
+        {"id": 1, "wine_query": "몬테스 알파", "channel": "코스트코", "price_low": 29990,
+         "price_high": 41990, "year_month": "2026-08", "source_type": "blog",
+         "source_url": "https://blog.naver.com/x/1", "created_at": "2026-09-02T09:48:57"},
+    ])
+    client = TestClient(main_module.app)
+    response = client.get("/price-history")
+    assert response.status_code == 200
+    assert response.json()["rows"][0]["channel"] == "코스트코"
 
 
 def test_create_job_rejects_blank_wine_name(monkeypatch):
