@@ -201,6 +201,15 @@ def extract_final_price(image_bytes: bytes, mime_type: str) -> int | None
 
 실제 인식 정확도는 단위 테스트가 아니라 벤치마크 스크립트가 책임진다.
 
+## Task 3 실측 결과 (2026-09-03)
+
+`backend/.env`의 `NAVER_COOKIE`가 만료돼 있다 — 오늘 스크랩된 실제 article ID
+(`361790`, `367941` 등)로도 `article.cafe.naver.com` 호출이 전부 401
+(`errorCode 0004, 로그인하지 않았습니다`)을 낸다. 와쌉 이미지가 실제로
+쿠키 없이 받아지는지는 그래서 이번엔 확인 못 함 — 코드는 어차피
+`download_image(url, client, cookie=...)`로 쿠키를 선택적으로 흘려보내게
+짜여 있어 이 결정을 막지 않는다. 쿠키 갱신 후 재확인 필요.
+
 ## 범위 밖
 
 - 위젯(CU픽업주문 등) JSON 파싱
