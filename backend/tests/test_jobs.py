@@ -4,7 +4,7 @@ import pytest
 
 from app.jobs import JobStore, run_job, run_price_job
 from app.sources import NewsSource, YoutubeSource, WassapSource, InternationalSource, SourcesConfig
-from app.collectors import CollectedItem
+from app.collectors import CollectedItem, FetchedBody
 
 
 class _Article:
@@ -878,3 +878,37 @@ def test_run_price_job_history_lookup_failure_marks_partial():
     result = store.get(job.id)
     assert result.status == "partial"
     assert result.price_results == []
+
+
+def test_run_price_job_accepts_fetched_body_object():
+    store = JobStore()
+    job = store.create("몬테스", "", total=1)
+    sources = _empty_sources()
+
+    run_price_job(job.id, store, sources, "몬테스", "", **_price_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="후기", excerpt="", thumbnail_url=None,
+            external_url="https://blog.naver.com/x/9", published_date="2026-06-15",
+            source_name="블로그: x",
+        )],
+        fetch_blog_body=lambda url: FetchedBody(text="몬테스 이마트 29,800원", image_urls=["https://img/a.png"]),
+    ))
+
+    assert store.get(job.id).price_checked_items[0]["status"] == "priced"
+
+
+def test_run_price_job_still_accepts_plain_string_body():
+    store = JobStore()
+    job = store.create("몬테스", "", total=1)
+    sources = _empty_sources()
+
+    run_price_job(job.id, store, sources, "몬테스", "", **_price_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="후기", excerpt="", thumbnail_url=None,
+            external_url="https://blog.naver.com/x/10", published_date="2026-06-15",
+            source_name="블로그: x",
+        )],
+        fetch_blog_body=lambda url: "몬테스 이마트 29,800원",
+    ))
+
+    assert store.get(job.id).price_checked_items[0]["status"] == "priced"

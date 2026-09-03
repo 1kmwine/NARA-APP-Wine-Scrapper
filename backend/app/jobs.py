@@ -523,8 +523,8 @@ def run_price_job(
     brand: str,
     fetch_blog_items: Callable[[str], list[CollectedItem]],
     fetch_wassap_items: Callable[[object], list[CollectedItem]],
-    fetch_blog_body: Callable[[str], Optional[str]],
-    fetch_wassap_body: Callable[[object, str], Optional[str]],
+    fetch_blog_body: Callable[[str], Optional[object]],
+    fetch_wassap_body: Callable[[object, str], Optional[object]],
     insert_channel_price: Callable[[str, str, int, int, str, str, str], int],
     get_price_history: Callable[[str], list[dict]],
     deadline: float | None = None,
@@ -558,12 +558,23 @@ def run_price_job(
     def deadline_passed() -> bool:
         return deadline is not None and time.monotonic() > deadline
 
-    def _collect_prices(body_text: str | None, published_date: str | None, source_type: str,
+    def _normalize_body(body) -> tuple[str | None, list[str]]:
+        """fetch_*_body는 FetchedBody(text, image_urls)를 돌려주지만, 문자열을
+        돌려주는 호출부도 계속 지원한다(기존 테스트/호출 호환). 문자열이면
+        이미지 없는 글로 본다."""
+        if body is None:
+            return None, []
+        if isinstance(body, str):
+            return body, []
+        return body.text, list(body.image_urls)
+
+    def _collect_prices(body, published_date: str | None, source_type: str,
                         source_url: str, title: str = "") -> str:
         """가격을 추출·저장하고, 이 글을 어떻게 처리했는지 상태 문자열을 돌려준다.
         화면의 '검색한 글' 목록에 사유를 그대로 보여주기 위한 값 —
         'no_body'(본문 못 가져옴) | 'unrelated'(검색어가 글에 없음, 다른 제품)
         | 'priced'(가격 저장) | 'no_price'(관련 글이지만 가격 언급 없음)."""
+        body_text, _image_urls = _normalize_body(body)
         if not body_text:
             return "no_body"
         if not fuzzy_find(f"{title}\n{body_text}", query):
