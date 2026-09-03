@@ -11,7 +11,9 @@ from .brand_match import fuzzy_find, fuzzy_find_all, make_context_excerpt
 from .sources import SourcesConfig
 from .collectors import CollectedItem
 from .naver_search import items_for_domain
-from .price_extraction import extract_channel_prices, merge_channel_prices_by_month
+from .price_extraction import (
+    extract_channel_prices, merge_channel_prices_by_month, resolve_single_channel,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -527,6 +529,7 @@ def run_price_job(
     fetch_wassap_body: Callable[[object, str], Optional[object]],
     insert_channel_price: Callable[[str, str, int, int, str, str, str], int],
     get_price_history: Callable[[str], list[dict]],
+    extract_image_price: Callable[[list[str]], Optional[int]] | None = None,
     deadline: float | None = None,
 ) -> None:
     """가격검색 탭 전용 — 스크래퍼 탭(run_job)과 완전히 분리된 가벼운 흐름.
@@ -573,8 +576,9 @@ def run_price_job(
         """가격을 추출·저장하고, 이 글을 어떻게 처리했는지 상태 문자열을 돌려준다.
         화면의 '검색한 글' 목록에 사유를 그대로 보여주기 위한 값 —
         'no_body'(본문 못 가져옴) | 'unrelated'(검색어가 글에 없음, 다른 제품)
-        | 'priced'(가격 저장) | 'no_price'(관련 글이지만 가격 언급 없음)."""
-        body_text, _image_urls = _normalize_body(body)
+        | 'priced'(본문 텍스트에서 가격 저장) | 'priced_from_image'(이미지에서
+        가격 저장) | 'no_price'(관련 글이지만 가격 못 찾음)."""
+        body_text, image_urls = _normalize_body(body)
         if not body_text:
             return "no_body"
         if not fuzzy_find(f"{title}\n{body_text}", query):
@@ -593,7 +597,31 @@ def run_price_job(
                 )
             except Exception:  # noqa: BLE001 — DB 저장 실패는 로그만, 나머지 값 처리는 계속
                 logger.exception("가격 저장 실패: %s", source_url)
-        return "priced" if prices else "no_price"
+        if prices:
+            return "priced"
+        # 본문 텍스트에 가격이 없을 때만 이미지를 본다 — 호출 최소화 + 같은
+        # (source_url, channel, year_month) 키에 텍스트/이미지 값이 겹치지 않게.
+        if not (extract_image_price and image_urls):
+            return "no_price"
+        channel = resolve_single_channel(f"{title}\n{body_text}")
+        if channel is None:
+            return "no_price"  # 어느 채널 가격인지 확정 불가 — 지어내지 않는다
+        try:
+            image_price = extract_image_price(image_urls)
+        except Exception:  # noqa: BLE001 — 이 글만 생략
+            logger.exception("이미지 가격 추출 실패: %s", source_url)
+            return "no_price"
+        if image_price is None:
+            return "no_price"
+        try:
+            insert_channel_price(
+                query, channel, image_price, image_price, fallback_ym,
+                f"{source_type}_img", source_url,
+            )
+        except Exception:  # noqa: BLE001
+            logger.exception("이미지 가격 저장 실패: %s", source_url)
+            return "no_price"
+        return "priced_from_image"
 
     if deadline_passed():
         timed_out = True
