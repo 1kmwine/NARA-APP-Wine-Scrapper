@@ -13,7 +13,7 @@ from .config import get_settings
 from .naver_search import fetch_all_items
 from .parse import parse_article_meta, extract_visible_text
 from .brand_match import match_brands
-from .jobs import JobStore, run_job
+from .jobs import JobStore, run_job, run_price_job
 from . import db
 from . import source_config
 from . import collectors
@@ -41,6 +41,10 @@ class CreateJobRequest(BaseModel):
 
 class CreateJobResponse(BaseModel):
     job_id: str
+
+
+class CreatePriceJobRequest(BaseModel):
+    wine_name: str
 
 
 class AddSourceRequest(BaseModel):
@@ -87,6 +91,14 @@ def _insert_channel_price(wine_query: str, channel: str, price_low: int, price_h
     return _with_connection(lambda conn: db.insert_channel_price(
         conn, wine_query, channel, price_low, price_high, year_month, source_type, source_url,
     ))
+
+
+def _get_price_history(wine_query: str) -> list[dict]:
+    return _with_connection(lambda conn: db.get_channel_price_history(conn, wine_query))
+
+
+def _get_all_channel_prices() -> list[dict]:
+    return _with_connection(db.get_all_channel_prices)
 
 
 def _load_current_sources():
@@ -156,12 +168,6 @@ def _run_job_in_background(job_id: str, sources, wine_name: str, brand: str) -> 
             def fetch_web_items(query: str) -> list:
                 return collectors.search_web(_resolve_english_query(), client)
 
-            def fetch_blog_body(url: str):
-                return collectors.fetch_blog_full_body(url, client)
-
-            def fetch_wassap_body(source, url: str):
-                return collectors.fetch_wassap_full_body(source.cafe_numeric_id, url, client, settings.naver_cookie)
-
             run_job(
                 job_id,
                 store,
@@ -182,12 +188,46 @@ def _run_job_in_background(job_id: str, sources, wine_name: str, brand: str) -> 
                 fetch_youtube_items=fetch_youtube_items,
                 fetch_wassap_items=fetch_wassap_items,
                 fetch_international_items=fetch_international_items,
-                fetch_blog_body=fetch_blog_body,
-                fetch_wassap_body=fetch_wassap_body,
-                insert_channel_price=_insert_channel_price,
                 deadline=time.monotonic() + 60,
             )
     except Exception as exc:  # noqa: BLE001 — run_job 내부에서 못 잡은 예외까지 대비하는 방어 레이어
+        store.update(job_id, status="failed", error=f"예기치 못한 오류: {exc}")
+
+
+def _run_price_job_in_background(job_id: str, sources, wine_name: str) -> None:
+    """가격검색 탭 전용 백그라운드 진입점 — run_job과 완전히 분리, 블로그·와쌉만 돈다."""
+    try:
+        with httpx.Client(follow_redirects=True, timeout=15.0) as client:
+
+            def fetch_blog_items(query: str) -> list:
+                return collectors.collect_naver_blog(
+                    query, settings.naver_client_id, settings.naver_client_secret, client,
+                )
+
+            def fetch_wassap_items(source) -> list:
+                return collectors.search_wassap(wine_name, source, client, settings.naver_cookie)
+
+            def fetch_blog_body(url: str):
+                return collectors.fetch_blog_full_body(url, client)
+
+            def fetch_wassap_body(source, url: str):
+                return collectors.fetch_wassap_full_body(source.cafe_numeric_id, url, client, settings.naver_cookie)
+
+            run_price_job(
+                job_id,
+                store,
+                sources,
+                wine_name,
+                brand="",
+                fetch_blog_items=fetch_blog_items,
+                fetch_wassap_items=fetch_wassap_items,
+                fetch_blog_body=fetch_blog_body,
+                fetch_wassap_body=fetch_wassap_body,
+                insert_channel_price=_insert_channel_price,
+                get_price_history=_get_price_history,
+                deadline=time.monotonic() + 60,
+            )
+    except Exception as exc:  # noqa: BLE001
         store.update(job_id, status="failed", error=f"예기치 못한 오류: {exc}")
 
 
@@ -243,12 +283,54 @@ def get_job(job_id: str):
             }
             for r in job.results if r.status != "실패"
         ],
-        "price_results": job.price_results,
         "failures": [
             {"source_name": r.source_name, "source_category": r.source_category, "reason": r.reason}
             for r in job.results if r.status == "실패"
         ],
     }
+
+
+@app.post("/price-jobs", response_model=CreateJobResponse)
+def create_price_job(payload: CreatePriceJobRequest) -> CreateJobResponse:
+    if not payload.wine_name.strip():
+        raise HTTPException(status_code=400, detail="와인명을 입력해주세요")
+    wine_name = payload.wine_name.strip()
+
+    try:
+        sources = _load_current_sources()
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=502, detail=f"소스 설정을 불러오지 못했습니다: {exc}") from exc
+
+    job = store.create(wine_name, "", total=1 + len(sources.wassap))  # 블로그(항상 1) + 와쌉 소스 개수
+    thread = threading.Thread(
+        target=_run_price_job_in_background,
+        args=(job.id, sources, wine_name),
+        daemon=True,
+    )
+    thread.start()
+    return CreateJobResponse(job_id=job.id)
+
+
+@app.get("/price-jobs/{job_id}")
+def get_price_job(job_id: str):
+    job = store.get(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="job을 찾을 수 없습니다")
+    return {
+        "job_id": job.id,
+        "status": job.status,
+        "total": job.total,
+        "done": job.done,
+        "error": job.error,
+        "price_results": job.price_results,
+        "price_checked_items": job.price_checked_items,
+    }
+
+
+@app.get("/price-history")
+def get_price_history_debug():
+    """가격검색 탭 검색창 아래 디버깅용 — 검색어 무관 DB 전체 가격 행(최신순)."""
+    return {"rows": _get_all_channel_prices()}
 
 
 @app.get("/sources")

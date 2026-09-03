@@ -114,25 +114,30 @@ def extract_channel_prices(body_text: str, fallback_year_month: str) -> list[dic
     return results
 
 
-def merge_channel_prices_for_display(rows: list[dict]) -> list[dict]:
-    """채널별로 min~max 병합, 출처는 전부 나열, year_month는 가장 최근 값 사용.
-    반환 순서는 CHANNEL_ALIASES 정의 순서를 따른다."""
-    by_channel: dict[str, dict] = {}
+def merge_channel_prices_by_month(rows: list[dict]) -> list[dict]:
+    """채널 × 년월 단위로 병합(가격검색 탭 이력 표시용) — 같은 채널·같은 달에
+    여러 소스가 있으면 min~max, 출처는 전부 나열. 정렬은 채널(CHANNEL_ALIASES
+    순서) → 년월 오름차순 — 시세 추이를 시간순으로 읽을 수 있게."""
+    by_key: dict[tuple[str, str], dict] = {}
     for row in rows:
-        channel = row["channel"]
-        entry = by_channel.get(channel)
+        key = (row["channel"], row["year_month"])
+        entry = by_key.get(key)
         if entry is None:
-            by_channel[channel] = {
-                "channel": channel,
+            by_key[key] = {
+                "channel": row["channel"],
+                "year_month": row["year_month"],
                 "price_low": row["price_low"],
                 "price_high": row["price_high"],
-                "year_month": row["year_month"],
                 "source_urls": [row["source_url"]],
             }
         else:
             entry["price_low"] = min(entry["price_low"], row["price_low"])
             entry["price_high"] = max(entry["price_high"], row["price_high"])
-            if row["year_month"] > entry["year_month"]:
-                entry["year_month"] = row["year_month"]
             entry["source_urls"].append(row["source_url"])
-    return [by_channel[c] for c in _CHANNEL_ORDER if c in by_channel]
+
+    def sort_key(key: tuple[str, str]) -> tuple[int, str]:
+        channel, year_month = key
+        channel_rank = _CHANNEL_ORDER.index(channel) if channel in _CHANNEL_ORDER else len(_CHANNEL_ORDER)
+        return (channel_rank, year_month)
+
+    return [by_key[k] for k in sorted(by_key.keys(), key=sort_key)]

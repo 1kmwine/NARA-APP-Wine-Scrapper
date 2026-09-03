@@ -11,7 +11,7 @@ from .brand_match import fuzzy_find, fuzzy_find_all, make_context_excerpt
 from .sources import SourcesConfig
 from .collectors import CollectedItem
 from .naver_search import items_for_domain
-from .price_extraction import extract_channel_prices, merge_channel_prices_for_display
+from .price_extraction import extract_channel_prices, merge_channel_prices_by_month
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +41,7 @@ class Job:
     done: int = 0
     results: list[JobResultItem] = field(default_factory=list)
     price_results: list[dict] = field(default_factory=list)
+    price_checked_items: list[dict] = field(default_factory=list)
     error: Optional[str] = None
 
 
@@ -234,9 +235,6 @@ def run_job(
     fetch_youtube_items: Callable[[object], list[CollectedItem]],
     fetch_wassap_items: Callable[[object], list[CollectedItem]],
     fetch_international_items: Callable[[object], list[CollectedItem]],
-    fetch_blog_body: Callable[[str], Optional[str]],
-    fetch_wassap_body: Callable[[object, str], Optional[str]],
-    insert_channel_price: Callable[[str, str, int, int, str, str, str], int],
     deadline: float | None = None,
 ) -> None:
     store.update(job_id, status="running")
@@ -250,33 +248,6 @@ def run_job(
 
     had_failure = False
     timed_out = False
-    price_rows: list[dict] = []
-
-    def _today_year_month() -> str:
-        return datetime.now().strftime("%Y-%m")
-
-    def _collect_prices(body_text: str | None, published_date: str | None, source_type: str, source_url: str) -> None:
-        if not body_text:
-            return
-        fallback_ym = (published_date or "")[:7] or _today_year_month()
-        try:
-            prices = extract_channel_prices(body_text, fallback_ym)
-        except Exception:  # noqa: BLE001 — 추출 자체가 깨져도 이 소스만 생략, 검색 전체는 계속
-            logger.exception("가격 추출 실패: %s", source_url)
-            return
-        for p in prices:
-            # 화면 표시(price_rows)는 DB insert 성공 여부와 무관하게 항상 채운다
-            # (스펙: "DB insert 실패는 로그만 남기고 응답 자체는 정상 반환"). insert는
-            # 값 하나마다 독립된 try/except로 감싸서, 한 값의 저장 실패가 같은
-            # 포스트의 다른 값까지 통째로 누락시키지 않게 한다.
-            price_rows.append({**p, "source_url": source_url})
-            try:
-                insert_channel_price(
-                    query, p["channel"], p["price_low"], p["price_high"], p["year_month"],
-                    source_type, source_url,
-                )
-            except Exception:  # noqa: BLE001 — DB 저장 실패는 로그만, 화면 표시는 이미 위에서 확정됨
-                logger.exception("가격 저장 실패: %s", source_url)
 
     def deadline_passed() -> bool:
         return deadline is not None and time.monotonic() > deadline
@@ -408,11 +379,6 @@ def run_job(
                         title="", published_date=None, external_url=item.external_url, status="실패",
                         reason=f"저장 실패: {exc}",
                     ))
-                if not deadline_passed():
-                    try:
-                        _collect_prices(fetch_blog_body(item.external_url), item.published_date, "blog", item.external_url)
-                    except Exception:  # noqa: BLE001 — fetch_blog_body 자체가 예외를 던지는 극단적 경우 대비
-                        logger.exception("블로그 본문 가져오기 실패: %s", item.external_url)
             store.increment_done(job_id)
 
     # ── 유튜브 검색: 등록 채널의 최신 영상만으로는 커버리지가 너무 좁아(대부분
@@ -503,11 +469,6 @@ def run_job(
                         title="", published_date=None, external_url=item.external_url, status="실패",
                         reason=f"저장 실패: {exc}",
                     ))
-                if category == "wassap" and not deadline_passed():
-                    try:
-                        _collect_prices(fetch_wassap_body(source, item.external_url), item.published_date, "wassap", item.external_url)
-                    except Exception:  # noqa: BLE001
-                        logger.exception("와쌉 본문 가져오기 실패: %s", item.external_url)
             store.increment_done(job_id)
 
     # ── 웹 검색: Decanter/Wine Spectator/OIV 3곳으로는 커버리지가 너무 좁아
@@ -548,8 +509,120 @@ def run_job(
                     ))
             store.increment_done(job_id)
 
-    merged_prices = merge_channel_prices_for_display(price_rows)
-    store.update(job_id, price_results=merged_prices)
+    if timed_out:
+        store.update(job_id, status="failed", error="60초 시간 제한을 초과했습니다")
+    else:
+        store.update(job_id, status="partial" if had_failure else "succeeded")
+
+
+def run_price_job(
+    job_id: str,
+    store: JobStore,
+    sources: SourcesConfig,
+    wine_name: str,
+    brand: str,
+    fetch_blog_items: Callable[[str], list[CollectedItem]],
+    fetch_wassap_items: Callable[[object], list[CollectedItem]],
+    fetch_blog_body: Callable[[str], Optional[str]],
+    fetch_wassap_body: Callable[[object, str], Optional[str]],
+    insert_channel_price: Callable[[str, str, int, int, str, str, str], int],
+    get_price_history: Callable[[str], list[dict]],
+    deadline: float | None = None,
+) -> None:
+    """가격검색 탭 전용 — 스크래퍼 탭(run_job)과 완전히 분리된 가벼운 흐름.
+    뉴스/유튜브/해외소스는 스킵하고 블로그·와쌉 검색결과의 본문만 가져와
+    가격을 추출·저장한다. 관련성 재판정도 안 한다 — 둘 다 이미 검색어로
+    검색한 결과라(run_job의 skip_relevance_filter=True/trust_source=True와
+    같은 근거) 기사 저장(wine_articles)과 무관한 이 흐름에선 그 판정 자체가
+    불필요하다."""
+    store.update(job_id, status="running")
+    query = brand or wine_name
+    had_failure = False
+    timed_out = False
+    checked_items: list[dict] = []
+
+    def _today_year_month() -> str:
+        return datetime.now().strftime("%Y-%m")
+
+    def deadline_passed() -> bool:
+        return deadline is not None and time.monotonic() > deadline
+
+    def _collect_prices(body_text: str | None, published_date: str | None, source_type: str, source_url: str) -> None:
+        if not body_text:
+            return
+        fallback_ym = (published_date or "")[:7] or _today_year_month()
+        try:
+            prices = extract_channel_prices(body_text, fallback_ym)
+        except Exception:  # noqa: BLE001 — 추출 자체가 깨져도 이 소스만 생략, 검색 전체는 계속
+            logger.exception("가격 추출 실패: %s", source_url)
+            return
+        for p in prices:
+            try:
+                insert_channel_price(
+                    query, p["channel"], p["price_low"], p["price_high"], p["year_month"],
+                    source_type, source_url,
+                )
+            except Exception:  # noqa: BLE001 — DB 저장 실패는 로그만, 나머지 값 처리는 계속
+                logger.exception("가격 저장 실패: %s", source_url)
+
+    if deadline_passed():
+        timed_out = True
+    else:
+        try:
+            blog_items = fetch_blog_items(query)
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("블로그 수집 실패")
+            had_failure = True
+            blog_items = []
+
+        for item in blog_items:
+            if deadline_passed():
+                timed_out = True
+                break
+            checked_items.append({
+                "source_type": "blog", "source_name": item.source_name, "title": item.title,
+                "external_url": item.external_url, "published_date": item.published_date,
+            })
+            try:
+                _collect_prices(fetch_blog_body(item.external_url), item.published_date, "blog", item.external_url)
+            except Exception:  # noqa: BLE001 — fetch_blog_body 자체가 예외를 던지는 극단적 경우 대비
+                logger.exception("블로그 본문 가져오기 실패: %s", item.external_url)
+        store.update(job_id, price_checked_items=list(checked_items))
+        store.increment_done(job_id)
+
+    for source in sources.wassap:
+        if timed_out or deadline_passed():
+            timed_out = True
+            break
+        try:
+            wassap_items = fetch_wassap_items(source)
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("와쌉(%s) 수집 실패", source.name)
+            had_failure = True
+            store.increment_done(job_id)
+            continue
+
+        for item in wassap_items:
+            if deadline_passed():
+                timed_out = True
+                break
+            checked_items.append({
+                "source_type": "wassap", "source_name": item.source_name, "title": item.title,
+                "external_url": item.external_url, "published_date": item.published_date,
+            })
+            try:
+                _collect_prices(fetch_wassap_body(source, item.external_url), item.published_date, "wassap", item.external_url)
+            except Exception:  # noqa: BLE001
+                logger.exception("와쌉 본문 가져오기 실패: %s", item.external_url)
+        store.update(job_id, price_checked_items=list(checked_items))
+        store.increment_done(job_id)
+
+    try:
+        history_rows = get_price_history(query)
+        store.update(job_id, price_results=merge_channel_prices_by_month(history_rows))
+    except Exception as exc:  # noqa: BLE001 — 이력 조회 실패는 화면에 빈 결과로 남기고 partial 처리
+        logger.exception("가격 이력 조회 실패")
+        had_failure = True
 
     if timed_out:
         store.update(job_id, status="failed", error="60초 시간 제한을 초과했습니다")

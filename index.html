@@ -27,6 +27,7 @@
   <div class="tab-bar">
     <button class="tab-btn active" data-tab="scraper">스크래퍼</button>
     <button class="tab-btn" data-tab="briefing">데일리 브리핑</button>
+    <button class="tab-btn" data-tab="price">가격검색</button>
   </div>
 
   <main class="container">
@@ -86,6 +87,50 @@
 
       <div id="briefingHero"></div>
     </section>
+
+    <!-- 가격검색 탭 -->
+    <section id="tab-price" class="tab-panel">
+      <div class="scraper-view search-view">
+        <div class="search-eyebrow">가격 검색</div>
+        <div class="search-title">와인명으로<br>채널별 가격 시세를 검색합니다</div>
+        <div class="search-row">
+          <input type="text" id="priceQueryInput" class="input" placeholder="예: 몬테스 알파">
+          <button id="btnStartPriceSearch" class="btn search-btn">가격 검색</button>
+        </div>
+      </div>
+
+      <div class="results-view">
+        <div id="priceResultsProgress" class="results-progress hidden">
+          <div class="progress-bar-track"><div class="progress-bar-fill" id="priceProgressBarFill"></div></div>
+          <div class="progress-rows" id="priceProgressRows"></div>
+        </div>
+
+        <div id="priceResultsBlock" class="result-group hidden">
+          <div class="result-group-title" id="priceResultsQuery"></div>
+          <div class="results-count" id="priceResultsEmptyNote"></div>
+          <table class="ds-table" id="priceResultsTable">
+            <thead><tr><th>채널</th><th>년월</th><th>가격</th><th>출처</th></tr></thead>
+            <tbody id="priceResultsTbody"></tbody>
+          </table>
+        </div>
+
+        <div id="priceCheckedBlock" class="result-group hidden">
+          <div class="result-group-title">검색한 블로그·와쌉 글 <span class="result-group-count" id="priceCheckedCount">0</span></div>
+          <table class="ds-table">
+            <thead><tr><th>소스</th><th>제목</th><th>날짜</th><th>링크</th></tr></thead>
+            <tbody id="priceCheckedTbody"></tbody>
+          </table>
+        </div>
+
+        <div class="result-group">
+          <div class="result-group-title">DB 전체 가격 데이터 (디버깅용) <span class="result-group-count" id="priceDebugCount">0</span></div>
+          <table class="ds-table">
+            <thead><tr><th>검색어</th><th>채널</th><th>년월</th><th>가격</th><th>출처</th><th>수집일시</th></tr></thead>
+            <tbody id="priceDebugTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- 소스 추가 패널 -->
@@ -114,6 +159,6 @@
 
   <div class="toast hidden" id="toast"></div>
 
-  <script src="js/app.js?v=15"></script>
+  <script src="js/app.js?v=18"></script>
 </body>
 </html>

@@ -1,6 +1,9 @@
 import pytest
 
-from app.db import get_known_brands, find_english_name, article_exists, get_article, insert_article, ensure_channel_prices_table, insert_channel_price
+from app.db import (
+    get_known_brands, find_english_name, article_exists, get_article, insert_article,
+    ensure_channel_prices_table, insert_channel_price, get_channel_price_history, get_all_channel_prices,
+)
 from app.parse import ParsedArticle
 
 
@@ -189,3 +192,35 @@ def test_insert_channel_price_inserts_one_row():
     assert "`year_month`" in insert_sql
     assert params == ("몬테스 알파", "이마트", 29800, 33000, "2026-07", "blog", "https://blog.naver.com/x/1")
     assert conn.committed
+
+
+def test_get_channel_price_history_returns_rows_for_query():
+    conn = FakeConnection(fetch_results=[
+        ("이마트", 29800, 33000, "2026-07", "blog", "https://blog.naver.com/x/1"),
+    ])
+    rows = get_channel_price_history(conn, "몬테스 알파")
+    assert rows == [{
+        "channel": "이마트", "price_low": 29800, "price_high": 33000, "year_month": "2026-07",
+        "source_type": "blog", "source_url": "https://blog.naver.com/x/1",
+    }]
+    select_sql, params = conn._cursor.executed[-1]
+    assert "WHERE wine_query = %s" in select_sql
+    assert "`year_month`" in select_sql
+    assert params == ("몬테스 알파",)
+
+
+def test_get_all_channel_prices_returns_all_rows_with_iso_timestamp():
+    import datetime
+    conn = FakeConnection(fetch_results=[
+        (1, "몬테스 알파", "이마트", 29800, 33000, "2026-07", "blog", "https://blog.naver.com/x/1",
+         datetime.datetime(2026, 9, 2, 9, 48, 57)),
+    ])
+    rows = get_all_channel_prices(conn, limit=100)
+    assert rows == [{
+        "id": 1, "wine_query": "몬테스 알파", "channel": "이마트", "price_low": 29800, "price_high": 33000,
+        "year_month": "2026-07", "source_type": "blog", "source_url": "https://blog.naver.com/x/1",
+        "created_at": "2026-09-02T09:48:57",
+    }]
+    select_sql, params = conn._cursor.executed[-1]
+    assert "ORDER BY id DESC LIMIT %s" in select_sql
+    assert params == (100,)

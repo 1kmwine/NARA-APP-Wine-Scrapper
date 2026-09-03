@@ -2,7 +2,7 @@ import time
 
 import pytest
 
-from app.jobs import JobStore, run_job
+from app.jobs import JobStore, run_job, run_price_job
 from app.sources import NewsSource, YoutubeSource, WassapSource, InternationalSource, SourcesConfig
 from app.collectors import CollectedItem
 
@@ -37,9 +37,6 @@ def _news_deps(**overrides):
         fetch_youtube_items=lambda source: [],
         fetch_wassap_items=lambda source: [],
         fetch_international_items=lambda source: [],
-        fetch_blog_body=lambda url: None,
-        fetch_wassap_body=lambda source, url: None,
-        insert_channel_price=lambda *a, **k: 1,
     )
     deps.update(overrides)
     return deps
@@ -583,33 +580,6 @@ def test_run_job_stops_early_when_deadline_already_passed():
     assert result.done == 0
 
 
-def test_run_job_skips_price_body_fetch_when_deadline_already_passed():
-    # Finding 6: full-body fetch(fetch_blog_body/fetch_wassap_body)는 시간이
-    # 오래 걸릴 수 있는 추가 호출이라, 마감이 이미 지났으면 아이템 처리 자체는
-    # 계속하되(검색 자체를 막지 않음) 가격 수집 단계만 건너뛰어야 한다.
-    store = JobStore()
-    job = store.create("몬테스", "몬테스", total=1)
-    sources = _empty_sources()
-
-    def must_not_be_called(*a, **k):
-        raise AssertionError("마감 이후에는 호출되면 안 됨")
-
-    run_job(job.id, store, sources, "몬테스", "몬테스", **_news_deps(
-        fetch_blog_items=lambda query: [CollectedItem(
-            title="후기", excerpt="요약", thumbnail_url=None,
-            external_url="https://blog.naver.com/naracellar/1", published_date="2026-06-15",
-            source_name="블로그: 나라셀라",
-        )],
-        fetch_blog_body=must_not_be_called,
-        insert_channel_price=must_not_be_called,
-        deadline=time.monotonic() - 1,
-    ))
-
-    result = store.get(job.id)
-    assert result.status == "failed"  # 마감 초과로 전체 실패 처리 — 크래시 없이 정상 종료
-    assert result.price_results == []
-
-
 def test_run_job_news_insert_receives_news_category():
     store = JobStore()
     job = store.create("몬테스", "몬테스", total=1)
@@ -651,13 +621,26 @@ def test_run_job_youtube_insert_receives_youtube_category():
     assert captured == ["youtube"]
 
 
-def test_run_job_extracts_and_stores_blog_prices():
+def _price_deps(**overrides):
+    deps = dict(
+        fetch_blog_items=lambda query: [],
+        fetch_wassap_items=lambda source: [],
+        fetch_blog_body=lambda url: None,
+        fetch_wassap_body=lambda source, url: None,
+        insert_channel_price=lambda *a, **k: 1,
+        get_price_history=lambda query: [],
+    )
+    deps.update(overrides)
+    return deps
+
+
+def test_run_price_job_extracts_and_stores_blog_prices():
     store = JobStore()
-    job = store.create("몬테스", "몬테스", total=1)
+    job = store.create("몬테스", "", total=1)
     sources = _empty_sources()
     inserted = []
 
-    run_job(job.id, store, sources, "몬테스", "몬테스", **_news_deps(
+    run_price_job(job.id, store, sources, "몬테스", "", **_price_deps(
         fetch_blog_items=lambda query: [CollectedItem(
             title="후기", excerpt="요약", thumbnail_url=None,
             external_url="https://blog.naver.com/naracellar/1", published_date="2026-06-15",
@@ -665,50 +648,51 @@ def test_run_job_extracts_and_stores_blog_prices():
         )],
         fetch_blog_body=lambda url: "이마트 29,800원~33,000원 완전 혜자",
         insert_channel_price=lambda *a, **k: inserted.append(a) or 1,
-    ))
-
-    result = store.get(job.id)
-    assert result.price_results == [{
-        "channel": "이마트", "price_low": 29800, "price_high": 33000,
-        "year_month": "2026-06", "source_urls": ["https://blog.naver.com/naracellar/1"],
-    }]
-    assert len(inserted) == 1
-    assert inserted[0][:2] == ("몬테스", "이마트")
-
-
-def test_run_job_price_display_independent_of_db_insert_failure():
-    # 스펙: DB insert 실패는 로그만, price_results 응답은 그 회차에 실제로 찾은
-    # 값 기준으로 정상 반환돼야 한다(DB 저장 실패가 화면 표시를 막으면 안 됨).
-    store = JobStore()
-    job = store.create("몬테스", "몬테스", total=1)
-    sources = _empty_sources()
-
-    def broken_insert(*a, **k):
-        raise RuntimeError("db down")
-
-    run_job(job.id, store, sources, "몬테스", "몬테스", **_news_deps(
-        fetch_blog_items=lambda query: [CollectedItem(
-            title="후기", excerpt="요약", thumbnail_url=None,
-            external_url="https://blog.naver.com/naracellar/1", published_date="2026-06-15",
-            source_name="블로그: 나라셀라",
-        )],
-        fetch_blog_body=lambda url: "이마트 29,800원~33,000원 완전 혜자",
-        insert_channel_price=broken_insert,
+        get_price_history=lambda query: [{
+            "channel": "이마트", "price_low": 29800, "price_high": 33000,
+            "year_month": "2026-06", "source_type": "blog", "source_url": "https://blog.naver.com/naracellar/1",
+        }],
     ))
 
     result = store.get(job.id)
     assert result.status == "succeeded"
     assert result.price_results == [{
-        "channel": "이마트", "price_low": 29800, "price_high": 33000,
-        "year_month": "2026-06", "source_urls": ["https://blog.naver.com/naracellar/1"],
+        "channel": "이마트", "year_month": "2026-06", "price_low": 29800, "price_high": 33000,
+        "source_urls": ["https://blog.naver.com/naracellar/1"],
+    }]
+    assert len(inserted) == 1
+    assert inserted[0][:2] == ("몬테스", "이마트")
+
+
+def test_run_price_job_lists_checked_items_even_when_no_price_found():
+    # 사용자가 "왜 0건이지?"를 직접 확인할 수 있도록, 가격을 못 찾은 경우에도
+    # 실제로 검색해서 본문까지 확인한 게시글 목록(제목/링크)은 남겨야 한다.
+    store = JobStore()
+    job = store.create("케이머스", "", total=1)
+    sources = _empty_sources()
+
+    run_price_job(job.id, store, sources, "케이머스", "", **_price_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="케이머스 시음기", excerpt="요약", thumbnail_url=None,
+            external_url="https://blog.naver.com/someone/1", published_date="2026-06-15",
+            source_name="블로그: someone",
+        )],
+        fetch_blog_body=lambda url: "가격 얘기는 없고 시음 후기만 있음",
+    ))
+
+    result = store.get(job.id)
+    assert result.price_results == []
+    assert result.price_checked_items == [{
+        "source_type": "blog", "source_name": "블로그: someone", "title": "케이머스 시음기",
+        "external_url": "https://blog.naver.com/someone/1", "published_date": "2026-06-15",
     }]
 
 
-def test_run_job_one_failing_insert_does_not_drop_sibling_price_rows():
+def test_run_price_job_one_failing_insert_does_not_block_siblings():
     # 같은 포스트에서 여러 채널/가격이 나올 때, 하나의 insert 실패가 같은
-    # 포스트의 나머지 값까지 통째로 누락시키면 안 된다(각 값은 독립된 try/except).
+    # 포스트의 나머지 값 처리를 막으면 안 된다(각 값은 독립된 try/except).
     store = JobStore()
-    job = store.create("몬테스", "몬테스", total=1)
+    job = store.create("몬테스", "", total=1)
     sources = _empty_sources()
     insert_calls = []
 
@@ -718,7 +702,7 @@ def test_run_job_one_failing_insert_does_not_drop_sibling_price_rows():
             raise RuntimeError("db down for 이마트")
         return 1
 
-    run_job(job.id, store, sources, "몬테스", "몬테스", **_news_deps(
+    run_price_job(job.id, store, sources, "몬테스", "", **_price_deps(
         fetch_blog_items=lambda query: [CollectedItem(
             title="후기", excerpt="요약", thumbnail_url=None,
             external_url="https://blog.naver.com/naracellar/1", published_date="2026-06-15",
@@ -728,21 +712,20 @@ def test_run_job_one_failing_insert_does_not_drop_sibling_price_rows():
         insert_channel_price=flaky_insert,
     ))
 
-    result = store.get(job.id)
     assert insert_calls == ["이마트", "코스트코"]  # 둘 다 시도됨 — 이마트 실패가 코스트코를 막지 않음
-    channels = {r["channel"] for r in result.price_results}
-    assert channels == {"이마트", "코스트코"}  # 실패한 이마트도 화면 표시엔 여전히 남음
+    result = store.get(job.id)
+    assert result.status == "succeeded"  # insert 실패는 로그만, 전체 job은 계속 성공 처리
 
 
-def test_run_job_price_extraction_failure_does_not_fail_whole_job():
+def test_run_price_job_body_fetch_failure_does_not_fail_whole_job():
     store = JobStore()
-    job = store.create("몬테스", "몬테스", total=1)
+    job = store.create("몬테스", "", total=1)
     sources = _empty_sources()
 
     def broken_fetch_blog_body(url):
         raise RuntimeError("network down")
 
-    run_job(job.id, store, sources, "몬테스", "몬테스", **_news_deps(
+    run_price_job(job.id, store, sources, "몬테스", "", **_price_deps(
         fetch_blog_items=lambda query: [CollectedItem(
             title="후기", excerpt="요약", thumbnail_url=None,
             external_url="https://blog.naver.com/naracellar/1", published_date="2026-06-15",
@@ -756,9 +739,9 @@ def test_run_job_price_extraction_failure_does_not_fail_whole_job():
     assert result.price_results == []
 
 
-def test_run_job_extracts_wassap_prices():
+def test_run_price_job_extracts_wassap_prices():
     store = JobStore()
-    job = store.create("몬테스", "몬테스", total=1)
+    job = store.create("몬테스", "", total=1)
     wassap_source = WassapSource(
         id="winerack24-10050146", name="와쌉", cafe_id="winerack24", clubid="10050146",
         cafe_numeric_id="20564405",
@@ -770,18 +753,61 @@ def test_run_job_extracts_wassap_prices():
         seen_args.append((source.cafe_numeric_id, url))
         return "CU 21,000원에 픽업했어요"
 
-    run_job(job.id, store, sources, "몬테스", "몬테스", **_news_deps(
+    run_price_job(job.id, store, sources, "몬테스", "", **_price_deps(
         fetch_wassap_items=lambda source: [CollectedItem(
             title="후기", excerpt="요약", thumbnail_url=None,
             external_url="https://cafe.naver.com/winerack24/369628", published_date="2026-08-31",
             source_name="와쌉",
         )],
         fetch_wassap_body=fake_fetch_wassap_body,
+        get_price_history=lambda query: [{
+            "channel": "CU", "price_low": 21000, "price_high": 21000,
+            "year_month": "2026-08", "source_type": "wassap", "source_url": "https://cafe.naver.com/winerack24/369628",
+        }],
     ))
 
     result = store.get(job.id)
     assert result.price_results == [{
-        "channel": "CU", "price_low": 21000, "price_high": 21000,
-        "year_month": "2026-08", "source_urls": ["https://cafe.naver.com/winerack24/369628"],
+        "channel": "CU", "year_month": "2026-08", "price_low": 21000, "price_high": 21000,
+        "source_urls": ["https://cafe.naver.com/winerack24/369628"],
     }]
     assert seen_args == [("20564405", "https://cafe.naver.com/winerack24/369628")]
+
+
+def test_run_price_job_skips_body_fetch_when_deadline_already_passed():
+    store = JobStore()
+    job = store.create("몬테스", "", total=1)
+    sources = _empty_sources()
+
+    def must_not_be_called(*a, **k):
+        raise AssertionError("마감 이후에는 호출되면 안 됨")
+
+    run_price_job(job.id, store, sources, "몬테스", "", **_price_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="후기", excerpt="요약", thumbnail_url=None,
+            external_url="https://blog.naver.com/naracellar/1", published_date="2026-06-15",
+            source_name="블로그: 나라셀라",
+        )],
+        fetch_blog_body=must_not_be_called,
+        insert_channel_price=must_not_be_called,
+        deadline=time.monotonic() - 1,
+    ))
+
+    result = store.get(job.id)
+    assert result.status == "failed"
+    assert result.price_results == []
+
+
+def test_run_price_job_history_lookup_failure_marks_partial():
+    store = JobStore()
+    job = store.create("몬테스", "", total=1)
+    sources = _empty_sources()
+
+    def broken_history(query):
+        raise RuntimeError("db down")
+
+    run_price_job(job.id, store, sources, "몬테스", "", **_price_deps(get_price_history=broken_history))
+
+    result = store.get(job.id)
+    assert result.status == "partial"
+    assert result.price_results == []

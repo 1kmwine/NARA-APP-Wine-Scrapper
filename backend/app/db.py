@@ -156,6 +156,39 @@ def ensure_channel_prices_table(conn) -> None:
     conn.commit()
 
 
+def get_channel_price_history(conn, wine_query: str) -> list[dict]:
+    """가격검색 탭의 이력 표시용 — 이 검색어로 지금까지 쌓인 원본 행 전부(방금
+    insert된 것 포함, insert_channel_price가 이미 commit했으므로)."""
+    ensure_channel_prices_table(conn)
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT channel, price_low, price_high, `year_month`, source_type, source_url "
+            "FROM wine_channel_prices WHERE wine_query = %s ORDER BY id",
+            (wine_query,),
+        )
+        cols = ["channel", "price_low", "price_high", "year_month", "source_type", "source_url"]
+        return [dict(zip(cols, row)) for row in cur.fetchall()]
+
+
+def get_all_channel_prices(conn, limit: int = 300) -> list[dict]:
+    """가격검색 탭 검색창 아래 디버깅용 표 — 검색어와 무관하게 DB에 쌓인 전체
+    가격 행을 최신순으로 그대로 보여준다."""
+    ensure_channel_prices_table(conn)
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT id, wine_query, channel, price_low, price_high, `year_month`, source_type, source_url, created_at "
+            "FROM wine_channel_prices ORDER BY id DESC LIMIT %s",
+            (limit,),
+        )
+        cols = ["id", "wine_query", "channel", "price_low", "price_high", "year_month",
+                "source_type", "source_url", "created_at"]
+        rows = [dict(zip(cols, row)) for row in cur.fetchall()]
+        for row in rows:
+            if hasattr(row["created_at"], "isoformat"):
+                row["created_at"] = row["created_at"].isoformat()
+        return rows
+
+
 def insert_channel_price(
     conn, wine_query: str, channel: str, price_low: int, price_high: int,
     year_month: str, source_type: str, source_url: str,
