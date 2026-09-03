@@ -24,12 +24,12 @@ jobs:
       - name: Verify health endpoints
         run: |
           for i in $(seq 1 12); do
-            if curl -sf http://localhost:8013/health > /dev/null; then
+            if curl -sf http://localhost:8016/health > /dev/null; then
               echo "backend healthy"
               break
             fi
             echo "backend not ready yet, retrying ($i/12)..."
             sleep 5
           done
-          curl -sf http://localhost:8013/health
-          curl -sf http://localhost:3013/ > /dev/null
+          curl -sf http://localhost:8016/health
+          curl -sf http://localhost:3016/ > /dev/null
