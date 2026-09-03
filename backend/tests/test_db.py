@@ -188,7 +188,11 @@ def test_insert_channel_price_inserts_one_row():
     )
     assert row_id == 42  # FakeCursor 기본 lastrowid
     insert_sql, params = conn._cursor.executed[-1]
-    assert "INSERT IGNORE INTO wine_channel_prices" in insert_sql
+    assert "INSERT INTO wine_channel_prices" in insert_sql
+    # 재수집 시 최신 추출값으로 덮어써야 한다 — 예전 INSERT IGNORE는 한 번 잘못
+    # 저장된 값이 영구히 남는 문제가 있었다(2026-09-03 묶음가 오저장 사례).
+    assert "ON DUPLICATE KEY UPDATE" in insert_sql
+    assert "price_low = VALUES(price_low)" in insert_sql
     assert "`year_month`" in insert_sql
     assert params == ("몬테스 알파", "이마트", 29800, 33000, "2026-07", "blog", "https://blog.naver.com/x/1")
     assert conn.committed

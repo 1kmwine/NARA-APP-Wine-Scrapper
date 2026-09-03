@@ -39,6 +39,12 @@ _RANGE_RE = re.compile(
     rf'(?P<low>{_NUM_SRC})\s*원?\s*(?:~|-|부터)\s*(?P<high>{_NUM_SRC})\s*원\s*(?:까지)?'
 )
 _MONTH_RE = re.compile(r'(\d{1,2})\s*월')
+# "2병 행사가 36,000원 적용 시 한 병당 18,000원"처럼 묶음가와 병당가가 같은 줄에
+# 같이 적히는 경우가 흔하다(실측 2026-09-03 GS25 2병 행사 글 — 묶음가 36,000원이
+# 병당 가격으로 저장됐다). 병당 가격 표기가 있는 줄에서는 그 값만 후보로 쓴다.
+_PER_BOTTLE_RE = re.compile(
+    rf'(?:한\s*병\s*(?:당|에)|1\s*병\s*(?:당|에)|병\s*당)\s*[:\-]?\s*(?P<val>{_NUM_SRC})\s*원'
+)
 
 
 def _resolve_year_month(line: str, fallback_year_month: str) -> str:
@@ -83,6 +89,14 @@ def _find_price_values(line: str) -> list[dict]:
             continue  # 이미 범위로 묶인 숫자 — 단일 값으로 중복 추가하지 않음
         value = int(m.group(1).replace(",", ""))
         values.append({"start": m.start(), "price_low": value, "price_high": value})
+
+    # 병당 가격이 명시된 줄이면 묶음가(2병 행사가 등)는 후보에서 빼고 병당가만 쓴다 —
+    # 채널별 시세는 병당 가격이어야 비교가 된다.
+    per_bottle_starts = {m.start("val") for m in _PER_BOTTLE_RE.finditer(line)}
+    if per_bottle_starts:
+        per_bottle_values = [v for v in values if v["start"] in per_bottle_starts]
+        if per_bottle_values:
+            return per_bottle_values
 
     return values
 
