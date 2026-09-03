@@ -125,6 +125,17 @@ def line_attributable_to_query(line: str, query: str) -> bool:
     return True
 
 
+def resolve_single_channel(text: str) -> str | None:
+    """글 전체 텍스트에서 채널을 하나로 확정한다. 이미지에서 읽은 가격은 채널
+    정보가 없으므로(결제화면에 채널명이 안 찍히는 경우가 많다) 글 텍스트에서
+    채널을 정해야 한다.
+
+    채널이 0개거나 2개 이상이면 None — 어느 채널 가격인지 확정할 수 없으면
+    저장하지 않는다(기존 '지어내지 않음' 원칙)."""
+    found = [channel for channel, pattern in _CHANNEL_PATTERNS.items() if pattern.search(text)]
+    return found[0] if len(found) == 1 else None
+
+
 def extract_channel_prices(body_text: str, fallback_year_month: str, query: str | None = None) -> list[dict]:
     """정규식 기반 휴리스틱 — 본문에 직접 타이핑된 채널명+가격만 잡는다.
     위젯/이미지 안의 가격, 표현이 크게 다른 문장은 놓칠 수 있음(지어내지 않음:

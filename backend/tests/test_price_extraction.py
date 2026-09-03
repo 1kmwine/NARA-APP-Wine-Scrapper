@@ -153,3 +153,25 @@ def test_merge_by_month_sorts_by_canonical_channel_order_then_month():
     assert [(r["channel"], r["year_month"]) for r in merged] == [
         ("이마트", "2026-07"), ("이마트", "2026-08"), ("코스트코", "2026-07"),
     ]
+
+
+from app.price_extraction import resolve_single_channel
+
+
+def test_resolve_single_channel_returns_the_only_channel():
+    assert resolve_single_channel("GS25 오늘의 와인 - 베터하프 문의") == "GS25"
+
+
+def test_resolve_single_channel_returns_none_when_no_channel():
+    assert resolve_single_channel("베터하프 마셔봤어요 맛있네요") is None
+
+
+def test_resolve_single_channel_returns_none_when_ambiguous():
+    # 채널이 둘 이상이면 이미지 속 가격이 어느 채널 것인지 확정할 수 없다 —
+    # 지어내지 않고 버린다.
+    assert resolve_single_channel("이마트랑 GS25 둘 다 가봤는데") is None
+
+
+def test_resolve_single_channel_does_not_double_count_emart24():
+    # "이마트24"는 "이마트" 패턴에 negative lookahead가 걸려 있어 한 채널로만 잡힌다.
+    assert resolve_single_channel("이마트24에서 봤어요") == "이마트24"
