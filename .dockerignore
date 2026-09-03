@@ -1,0 +1,13 @@
+.git/
+.venv/
+.claude/
+.hermes/
+.superpowers/
+.worktrees/
+.pytest_cache/
+backend/
+docs/
+scripts/
+tests/
+wine-briefing/
+*.md

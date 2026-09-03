@@ -1,0 +1,35 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-nara-app-wine-scrapper
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Pull latest and rebuild containers
+        run: |
+          cd /opt/nara-app-wine-scrapper
+          git fetch origin main
+          git reset --hard origin/main
+          docker compose down --remove-orphans
+          docker compose up -d --build
+
+      - name: Verify health endpoints
+        run: |
+          for i in $(seq 1 12); do
+            if curl -sf http://localhost:8013/health > /dev/null; then
+              echo "backend healthy"
+              break
+            fi
+            echo "backend not ready yet, retrying ($i/12)..."
+            sleep 5
+          done
+          curl -sf http://localhost:8013/health
+          curl -sf http://localhost:3013/ > /dev/null

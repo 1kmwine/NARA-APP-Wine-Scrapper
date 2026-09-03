@@ -242,6 +242,11 @@ def _run_price_job_in_background(job_id: str, sources, wine_name: str) -> None:
         store.update(job_id, status="failed", error=f"예기치 못한 오류: {exc}")
 
 
+@app.get("/health")
+def health() -> dict:
+    return {"status": "ok"}
+
+
 @app.post("/jobs", response_model=CreateJobResponse)
 def create_job(payload: CreateJobRequest) -> CreateJobResponse:
     if not payload.wine_name.strip():
