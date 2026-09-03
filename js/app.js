@@ -549,6 +549,7 @@ const SOURCE_TYPE_LABEL={blog:'블로그', wassap:'와쌉'};
 /* 백엔드 run_price_job의 _collect_prices 반환값과 1:1로 맞춰야 한다 */
 const PRICE_STATUS_LABEL={
   priced:'가격 추출',
+  priced_from_image:'가격 추출 (이미지)',
   no_price:'가격 언급 없음',
   unrelated:'제외 — 검색어 없는 글(다른 제품)',
   no_body:'본문 가져오기 실패',
@@ -568,7 +569,7 @@ function renderPriceCheckedItems(items){
     // 검색어 문제인지, 본문 파싱 문제인지, 그냥 가격이 없는 글인지 구분되게.
     const tdRelated=document.createElement('td');
     tdRelated.textContent = PRICE_STATUS_LABEL[it.status] || it.status || '';
-    if(it.status!=='priced') tdRelated.style.color='var(--color-text-muted)';
+    if(it.status!=='priced' && it.status!=='priced_from_image') tdRelated.style.color='var(--color-text-muted)';
     const tdLink=document.createElement('td');
     const a=document.createElement('a');
     a.href=it.external_url||'#'; a.target='_blank'; a.rel='noopener'; a.textContent='바로가기';
