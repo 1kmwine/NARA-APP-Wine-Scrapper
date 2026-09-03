@@ -6,3 +6,4 @@ backend/**/__pycache__/
 .DS_Store
 docs/summaries/
 wine-briefing/
+data/bench_images/

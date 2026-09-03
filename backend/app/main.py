@@ -17,6 +17,7 @@ from .jobs import JobStore, run_job, run_price_job
 from . import db
 from . import source_config
 from . import collectors
+from . import image_price
 from . import briefing_summary
 
 app = FastAPI(title="NARA Wine Scraper API")
@@ -213,6 +214,15 @@ def _run_price_job_in_background(job_id: str, sources, wine_name: str) -> None:
             def fetch_wassap_body(source, url: str):
                 return collectors.fetch_wassap_full_body(source.cafe_numeric_id, url, client, settings.naver_cookie)
 
+            extractor = image_price.get_extractor(
+                os.environ.get("IMAGE_PRICE_EXTRACTOR", "off"),
+                os.environ.get("GEMINI_API_KEY"),
+            )
+
+            def extract_image_price(image_urls: list[str]):
+                return image_price.extract_price_from_images(
+                    image_urls, client, extractor, cookie=settings.naver_cookie)
+
             run_price_job(
                 job_id,
                 store,
@@ -225,6 +235,7 @@ def _run_price_job_in_background(job_id: str, sources, wine_name: str) -> None:
                 fetch_wassap_body=fetch_wassap_body,
                 insert_channel_price=_insert_channel_price,
                 get_price_history=_get_price_history,
+                extract_image_price=extract_image_price if extractor else None,
                 deadline=time.monotonic() + 60,
             )
     except Exception as exc:  # noqa: BLE001

@@ -4,7 +4,7 @@ import pytest
 
 from app.jobs import JobStore, run_job, run_price_job
 from app.sources import NewsSource, YoutubeSource, WassapSource, InternationalSource, SourcesConfig
-from app.collectors import CollectedItem
+from app.collectors import CollectedItem, FetchedBody
 
 
 class _Article:
@@ -629,6 +629,7 @@ def _price_deps(**overrides):
         fetch_wassap_body=lambda source, url: None,
         insert_channel_price=lambda *a, **k: 1,
         get_price_history=lambda query: [],
+        extract_image_price=None,
     )
     deps.update(overrides)
     return deps
@@ -878,3 +879,106 @@ def test_run_price_job_history_lookup_failure_marks_partial():
     result = store.get(job.id)
     assert result.status == "partial"
     assert result.price_results == []
+
+
+def test_run_price_job_accepts_fetched_body_object():
+    store = JobStore()
+    job = store.create("몬테스", "", total=1)
+    sources = _empty_sources()
+
+    run_price_job(job.id, store, sources, "몬테스", "", **_price_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="후기", excerpt="", thumbnail_url=None,
+            external_url="https://blog.naver.com/x/9", published_date="2026-06-15",
+            source_name="블로그: x",
+        )],
+        fetch_blog_body=lambda url: FetchedBody(text="몬테스 이마트 29,800원", image_urls=["https://img/a.png"]),
+    ))
+
+    assert store.get(job.id).price_checked_items[0]["status"] == "priced"
+
+
+def test_run_price_job_still_accepts_plain_string_body():
+    store = JobStore()
+    job = store.create("몬테스", "", total=1)
+    sources = _empty_sources()
+
+    run_price_job(job.id, store, sources, "몬테스", "", **_price_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="후기", excerpt="", thumbnail_url=None,
+            external_url="https://blog.naver.com/x/10", published_date="2026-06-15",
+            source_name="블로그: x",
+        )],
+        fetch_blog_body=lambda url: "몬테스 이마트 29,800원",
+    ))
+
+    assert store.get(job.id).price_checked_items[0]["status"] == "priced"
+
+
+def test_run_price_job_falls_back_to_image_when_text_has_no_price():
+    # 스펙의 근거 사례: GS25 와쌉 글은 본문에 가격 텍스트가 없고 결제화면 캡처
+    # 이미지에만 15,920원이 찍혀 있다.
+    store = JobStore()
+    job = store.create("베터하프", "", total=1)
+    sources = _empty_sources()
+    inserted = []
+
+    run_price_job(job.id, store, sources, "베터하프", "", **_price_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="GS25 오늘의 와인 - 베터하프 문의", excerpt="", thumbnail_url=None,
+            external_url="https://blog.naver.com/x/1", published_date="2026-08-04",
+            source_name="블로그: x",
+        )],
+        fetch_blog_body=lambda url: FetchedBody(
+            text="베터하프 이거 문의드려요", image_urls=["https://img/pay.png"]),
+        extract_image_price=lambda urls: 15920,
+        insert_channel_price=lambda *a, **k: inserted.append(a) or 1,
+    ))
+
+    result = store.get(job.id)
+    assert result.price_checked_items[0]["status"] == "priced_from_image"
+    assert inserted[0] == ("베터하프", "GS25", 15920, 15920, "2026-08", "blog_img", "https://blog.naver.com/x/1")
+
+
+def test_run_price_job_does_not_use_images_when_text_price_found():
+    # 본문에서 가격을 찾았으면 이미지는 보지 않는다 — 호출 최소화.
+    store = JobStore()
+    job = store.create("몬테스", "", total=1)
+    sources = _empty_sources()
+    image_calls = []
+
+    run_price_job(job.id, store, sources, "몬테스", "", **_price_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="후기", excerpt="", thumbnail_url=None,
+            external_url="https://blog.naver.com/x/2", published_date="2026-06-15",
+            source_name="블로그: x",
+        )],
+        fetch_blog_body=lambda url: FetchedBody(
+            text="몬테스 이마트 29,800원", image_urls=["https://img/a.png"]),
+        extract_image_price=lambda urls: image_calls.append(urls) or 9999,
+    ))
+
+    assert image_calls == []
+    assert store.get(job.id).price_checked_items[0]["status"] == "priced"
+
+
+def test_run_price_job_skips_image_price_when_channel_ambiguous():
+    # 이미지에서 가격을 읽어도 글에서 채널이 하나로 확정 안 되면 저장하지 않는다.
+    store = JobStore()
+    job = store.create("베터하프", "", total=1)
+    sources = _empty_sources()
+    inserted = []
+
+    run_price_job(job.id, store, sources, "베터하프", "", **_price_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="이마트랑 GS25 비교", excerpt="", thumbnail_url=None,
+            external_url="https://blog.naver.com/x/3", published_date="2026-08-04",
+            source_name="블로그: x",
+        )],
+        fetch_blog_body=lambda url: FetchedBody(text="베터하프 어디가 싼가요", image_urls=["https://img/a.png"]),
+        extract_image_price=lambda urls: 15920,
+        insert_channel_price=lambda *a, **k: inserted.append(a) or 1,
+    ))
+
+    assert inserted == []
+    assert store.get(job.id).price_checked_items[0]["status"] == "no_price"
