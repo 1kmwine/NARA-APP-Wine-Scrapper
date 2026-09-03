@@ -813,3 +813,47 @@ def test_html_to_lines_strips_script_and_style_content_entirely():
     html = "<style>div.spi_unity { width:291px; }</style><p>이마트 29,800원</p><script>var gbTrackingCode = '';</script>"
     result = _html_to_lines(html)
     assert result == "이마트 29,800원"
+
+
+from app.collectors import extract_image_urls
+
+
+def test_extract_image_urls_keeps_body_photos_in_order():
+    html = (
+        '<p>사진</p>'
+        '<img src="https://mblogthumb-phinf.pstatic.net/a.jpg">'
+        '<img src="https://mblogthumb-phinf.pstatic.net/b.jpg">'
+    )
+    assert extract_image_urls(html) == [
+        "https://mblogthumb-phinf.pstatic.net/a.jpg",
+        "https://mblogthumb-phinf.pstatic.net/b.jpg",
+    ]
+
+
+def test_extract_image_urls_drops_profile_and_link_thumbnails():
+    # 2026-09-03 실측: 블로그 글 1건의 <img> 11개 중 작성자 프로필(blogpfthumb),
+    # 외부 링크 카드 썸네일(dthumb)이 섞여 있다 — 본문 사진이 아니라 제외한다.
+    html = (
+        '<img src="https://blogpfthumb-phinf.pstatic.net/profile.jpg">'
+        '<img src="https://dthumb-phinf.pstatic.net/?src=external">'
+        '<img src="https://ssl.pstatic.net/static/icon.png">'
+        '<img src="https://mblogthumb-phinf.pstatic.net/real.jpg">'
+    )
+    assert extract_image_urls(html) == ["https://mblogthumb-phinf.pstatic.net/real.jpg"]
+
+
+def test_extract_image_urls_drops_gif_emoticons():
+    html = '<img src="https://cafeptthumb-phinf.pstatic.net/sticker.gif"><img src="https://cafeptthumb-phinf.pstatic.net/pay.png">'
+    assert extract_image_urls(html) == ["https://cafeptthumb-phinf.pstatic.net/pay.png"]
+
+
+def test_extract_image_urls_applies_limit():
+    html = "".join(f'<img src="https://mblogthumb-phinf.pstatic.net/{i}.jpg">' for i in range(10))
+    assert len(extract_image_urls(html, limit=3)) == 3
+
+
+def test_extract_image_urls_unescapes_html_entities():
+    # Smart Editor 콘텐츠는 &amp; 같은 엔티티가 그대로 들어있다 — 그대로 두면
+    # 다운로드 URL이 깨진다.
+    html = '<img src="https://mblogthumb-phinf.pstatic.net/a.jpg?type=w800&amp;quality=90">'
+    assert extract_image_urls(html) == ["https://mblogthumb-phinf.pstatic.net/a.jpg?type=w800&quality=90"]
