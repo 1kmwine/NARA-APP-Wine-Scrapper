@@ -98,6 +98,30 @@ def test_future_month_relative_to_post_date_implies_prior_year():
     assert result[0]["year_month"] == "2023-12"
 
 
+def test_per_bottle_price_wins_over_bundle_price_on_same_line():
+    # 실측(2026-09-03 GS25 2병 행사 글): 묶음가 36,000원이 병당 가격으로 저장됐다.
+    text = "편의점 구매 시(GS25편의점 기준) : 2병 행사가 36,000원 적용 시 한 병당 18,000원"
+    result = extract_channel_prices(text, fallback_year_month="2026-07")
+    assert result == [{"channel": "GS25", "price_low": 18000, "price_high": 18000, "year_month": "2026-07"}]
+
+
+def test_per_bottle_variants_are_recognized():
+    for text in (
+        "이마트 2병 49,000원, 1병당 24,500원",
+        "이마트 2병 49,000원, 병당 24,500원",
+        "이마트 2병에 49,000원 → 한 병에 24,500원",
+    ):
+        result = extract_channel_prices(text, fallback_year_month="2026-07")
+        assert result[0]["price_low"] == 24500, text
+
+
+def test_line_without_per_bottle_marker_keeps_all_values():
+    # 병당 표기가 없으면 기존 동작 그대로 — 가장 가까운 값에 묶인다.
+    text = "이마트 29,800원"
+    result = extract_channel_prices(text, fallback_year_month="2026-07")
+    assert result == [{"channel": "이마트", "price_low": 29800, "price_high": 29800, "year_month": "2026-07"}]
+
+
 def test_merge_by_month_combines_multiple_sources_in_same_month_into_range():
     rows = [
         {"channel": "이마트", "price_low": 29800, "price_high": 29800, "year_month": "2026-07", "source_url": "https://a"},

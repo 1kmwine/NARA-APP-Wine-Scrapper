@@ -195,11 +195,20 @@ def insert_channel_price(
 ) -> int:
     ensure_channel_prices_table(conn)
     with conn.cursor() as cur:
+        # 같은 (source_url, channel, year_month)를 다시 수집하면 최신 추출값으로
+        # 덮어쓴다 — INSERT IGNORE만 쓰던 때는 추출 로직을 고쳐도 예전에 잘못
+        # 저장된 값이 영구히 남아 화면에 계속 노출됐다(실측 2026-09-03 — 2병
+        # 묶음가 36,000원이 병당 가격으로 저장된 행이 재검색으로도 안 고쳐짐).
         cur.execute(
             """
-            INSERT IGNORE INTO wine_channel_prices
+            INSERT INTO wine_channel_prices
                 (wine_query, channel, price_low, price_high, `year_month`, source_type, source_url)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                wine_query = VALUES(wine_query),
+                price_low = VALUES(price_low),
+                price_high = VALUES(price_high),
+                source_type = VALUES(source_type)
             """,
             (wine_query, channel, price_low, price_high, year_month, source_type, source_url),
         )
