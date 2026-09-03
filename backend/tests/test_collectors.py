@@ -743,7 +743,8 @@ def test_fetch_blog_full_body_uses_mobile_url_and_strips_tags():
 
     body = fetch_blog_full_body("https://blog.naver.com/naracellar/224352889386", client)
 
-    assert body == "이마트 7월 29,800원~33,000원 정도\n완전 혜자"
+    assert body.text == "이마트 7월 29,800원~33,000원 정도\n완전 혜자"
+    assert body.image_urls == []
 
 
 def test_fetch_blog_full_body_returns_none_on_unparseable_url():
@@ -790,7 +791,8 @@ def test_fetch_wassap_full_body_calls_article_detail_endpoint():
 
     body = fetch_wassap_full_body("20564405", "https://cafe.naver.com/winerack24/369628", client, naver_cookie="fake-cookie")
 
-    assert body == "CU 21,000원에 픽업했어요"
+    assert body.text == "CU 21,000원에 픽업했어요"
+    assert body.image_urls == []
     assert client.last_call["headers"]["Cookie"] == "fake-cookie"
 
 
@@ -857,3 +859,26 @@ def test_extract_image_urls_unescapes_html_entities():
     # 다운로드 URL이 깨진다.
     html = '<img src="https://mblogthumb-phinf.pstatic.net/a.jpg?type=w800&amp;quality=90">'
     assert extract_image_urls(html) == ["https://mblogthumb-phinf.pstatic.net/a.jpg?type=w800&quality=90"]
+
+
+def test_fetch_blog_full_body_collects_image_urls():
+    client = FakeMobileBlogClient({
+        "naracellar/1": '<p>본문</p><img src="https://mblogthumb-phinf.pstatic.net/pay.jpg">',
+    })
+
+    body = fetch_blog_full_body("https://blog.naver.com/naracellar/1", client)
+
+    assert body.text == "본문"
+    assert body.image_urls == ["https://mblogthumb-phinf.pstatic.net/pay.jpg"]
+
+
+def test_fetch_wassap_full_body_collects_image_urls():
+    payload = {"result": {"article": {
+        "contentHtml": '<p>문의</p><img src="https://cafeptthumb-phinf.pstatic.net/pay.png">',
+    }}}
+    client = FakeArticleDetailClient(payload)
+
+    body = fetch_wassap_full_body("20564405", "https://cafe.naver.com/winerack24/369628", client, naver_cookie="x")
+
+    assert body.text == "문의"
+    assert body.image_urls == ["https://cafeptthumb-phinf.pstatic.net/pay.png"]

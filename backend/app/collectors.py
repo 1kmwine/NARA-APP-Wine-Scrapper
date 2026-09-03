@@ -4,6 +4,7 @@ import json
 import re
 from dataclasses import dataclass
 from datetime import date, timedelta
+from typing import NamedTuple
 
 import httpx
 
@@ -780,6 +781,13 @@ def extract_image_urls(html_str: str, limit: int = 5) -> list[str]:
     return urls
 
 
+class FetchedBody(NamedTuple):
+    """본문 텍스트와 그 글에 붙은 사진 URL을 같이 나른다 — 이미지 가격 추출이
+    본문을 다시 내려받지 않아도 되게(한 번 받은 HTML에서 둘 다 뽑는다)."""
+    text: str
+    image_urls: list[str]
+
+
 _SCRIPT_STYLE_RE = re.compile(r'<(script|style)\b[^>]*>.*?</\1>', re.DOTALL | re.IGNORECASE)
 _BLOCK_BREAK_RE = re.compile(r'</p>|<br\s*/?>|</div>', re.IGNORECASE)
 _TAG_RE = re.compile(r'<[^>]+>')
@@ -799,7 +807,7 @@ def _html_to_lines(html_str: str) -> str:
     return '\n'.join(ln for ln in lines if ln)
 
 
-def fetch_blog_full_body(external_url: str, client) -> str | None:
+def fetch_blog_full_body(external_url: str, client) -> FetchedBody | None:
     """검색 스니펫(description)만으론 본문 속 가격 언급을 못 잡는다. m.blog.naver.com은
     PC용 PostView.naver(iframe 껍데기, og:image만 있음)와 달리 본문을 서버에서
     직접 렌더링해준다."""
@@ -810,7 +818,7 @@ def fetch_blog_full_body(external_url: str, client) -> str | None:
     try:
         response = client.get(f"https://m.blog.naver.com/{blog_id}/{log_no}", timeout=10.0)
         response.raise_for_status()
-        return _html_to_lines(response.text)
+        return FetchedBody(text=_html_to_lines(response.text), image_urls=extract_image_urls(response.text))
     except Exception:  # noqa: BLE001 — 이 게시글만 스킵, 전체 검색은 계속
         return None
 
@@ -818,7 +826,7 @@ def fetch_blog_full_body(external_url: str, client) -> str | None:
 _ARTICLE_ID_RE = re.compile(r'cafe\.naver\.com/[\w-]+/(\d+)')
 
 
-def fetch_wassap_full_body(cafe_numeric_id: str, external_url: str, client, naver_cookie: str) -> str | None:
+def fetch_wassap_full_body(cafe_numeric_id: str, external_url: str, client, naver_cookie: str) -> FetchedBody | None:
     """search_wassap()의 summary(150자 스니펫)만으론 본문 속 가격 언급을 못 잡는다.
     게시글 상세 API(2026-08-31 devtools로 실측 확인)로 본문 전체(contentHtml)를
     가져온다. CU픽업주문 위젯/이미지 안의 가격은 이 방식으로도 못 잡음(정규식
@@ -845,6 +853,9 @@ def fetch_wassap_full_body(cafe_numeric_id: str, external_url: str, client, nave
         )
         response.raise_for_status()
         content_html = response.json().get("result", {}).get("article", {}).get("contentHtml") or ""
-        return _html_to_lines(content_html) or None
+        text = _html_to_lines(content_html)
+        if not text:
+            return None
+        return FetchedBody(text=text, image_urls=extract_image_urls(content_html))
     except Exception:  # noqa: BLE001 — 이 게시글만 스킵, 전체 검색은 계속
         return None
