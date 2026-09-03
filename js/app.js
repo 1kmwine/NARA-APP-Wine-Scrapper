@@ -546,6 +546,14 @@ function renderPriceSearchResults(query, priceResults){
 
 const SOURCE_TYPE_LABEL={blog:'블로그', wassap:'와쌉'};
 
+/* 백엔드 run_price_job의 _collect_prices 반환값과 1:1로 맞춰야 한다 */
+const PRICE_STATUS_LABEL={
+  priced:'가격 추출',
+  no_price:'가격 언급 없음',
+  unrelated:'제외 — 검색어 없는 글(다른 제품)',
+  no_body:'본문 가져오기 실패',
+};
+
 function renderPriceCheckedItems(items){
   priceCheckedTbody.innerHTML='';
   priceCheckedBlockEl.classList.toggle('hidden', !items || !items.length);
@@ -556,11 +564,17 @@ function renderPriceCheckedItems(items){
     const tdSource=document.createElement('td'); tdSource.textContent=SOURCE_TYPE_LABEL[it.source_type]||it.source_type;
     const tdTitle=document.createElement('td'); tdTitle.textContent=it.title||'';
     const tdDate=document.createElement('td'); tdDate.textContent=it.published_date||'';
+    // 이 글을 왜 가격에 못 썼는지 사유를 그대로 보여준다 — 결과가 적을 때
+    // 검색어 문제인지, 본문 파싱 문제인지, 그냥 가격이 없는 글인지 구분되게.
+    const tdRelated=document.createElement('td');
+    tdRelated.textContent = PRICE_STATUS_LABEL[it.status] || it.status || '';
+    if(it.status!=='priced') tdRelated.style.color='var(--color-text-muted)';
     const tdLink=document.createElement('td');
     const a=document.createElement('a');
     a.href=it.external_url||'#'; a.target='_blank'; a.rel='noopener'; a.textContent='바로가기';
     tdLink.appendChild(a);
-    tr.appendChild(tdSource); tr.appendChild(tdTitle); tr.appendChild(tdDate); tr.appendChild(tdLink);
+    tr.appendChild(tdSource); tr.appendChild(tdTitle); tr.appendChild(tdDate);
+    tr.appendChild(tdRelated); tr.appendChild(tdLink);
     priceCheckedTbody.appendChild(tr);
   });
 }
