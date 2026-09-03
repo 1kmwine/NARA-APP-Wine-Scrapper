@@ -1,6 +1,8 @@
 from __future__ import annotations
 import re
 
+from .brand_match import fuzzy_find
+
 # 순서가 매칭 우선순위다 — "이마트24"를 "이마트"보다 먼저 둬서, 아래 CHANNEL 매칭
 # 루프가 "이마트24"를 먼저 확정하면 그 라인에서 "이마트"(plain)는 negative
 # lookahead로 걸러진다(둘 다 매칭되는 이중 카운트 방지).
@@ -85,7 +87,31 @@ def _find_price_values(line: str) -> list[dict]:
     return values
 
 
-def extract_channel_prices(body_text: str, fallback_year_month: str) -> list[dict]:
+def line_attributable_to_query(line: str, query: str) -> bool:
+    """가격이 적힌 이 줄이 정말 '검색한 그 와인' 가격인지 판정.
+
+    같은 브랜드의 다른 제품 가격을 검색한 제품 가격으로 붙여버리는 문제가
+    실측으로 확인됐다(2026-09-03 — "몬테스 클래식" 검색 결과에 몬테스 알파·
+    몬테스 알파 스페셜 퀴베 글의 가격이 클래식 가격으로 저장됨). 판정 규칙:
+
+    - 줄에 검색어가 (띄어쓰기·대소문자 무시) 그대로 있으면 그 와인 가격이다.
+    - 검색어도 없고 브랜드 토큰(검색어 첫 단어)도 없는 줄이면 글 전체 문맥을
+      따른다 — 글 자체가 이미 검색어 관련으로 걸러진 상태이고, "이마트에서
+      19,900원" 처럼 제품명 없이 가격만 적는 게 흔하다.
+    - 검색어는 없는데 브랜드 토큰만 있으면 같은 브랜드의 **다른 제품** 줄이다
+      (예: "몬테스 클래식" 검색인데 줄엔 "몬테스 알파 45,000원"). 지어내지
+      않기 위해 버린다 — 애매하면 놓치는 쪽.
+    """
+    if fuzzy_find(line, query):
+        return True
+    tokens = query.split()
+    brand_token = tokens[0] if tokens else ""
+    if brand_token and fuzzy_find(line, brand_token):
+        return False
+    return True
+
+
+def extract_channel_prices(body_text: str, fallback_year_month: str, query: str | None = None) -> list[dict]:
     """정규식 기반 휴리스틱 — 본문에 직접 타이핑된 채널명+가격만 잡는다.
     위젯/이미지 안의 가격, 표현이 크게 다른 문장은 놓칠 수 있음(지어내지 않음:
     채널명과 가격 패턴이 같은 줄에서 둘 다 확인될 때만 결과에 넣는다).
@@ -93,13 +119,18 @@ def extract_channel_prices(body_text: str, fallback_year_month: str) -> list[dic
     한 줄에 채널이 여러 개 있으면(예: 가격비교표가 한 줄로 뭉개진 경우) 각
     채널은 그 줄의 모든 가격을 다 받는 게 아니라, 문자 위치상 가장 가까운
     가격/범위 하나에만 묶인다(Finding 3 — 그 전엔 같은 줄의 모든 숫자를 풀링해
-    모든 채널에 똑같이 붙여서 없는 범위를 지어냈었다)."""
+    모든 채널에 똑같이 붙여서 없는 범위를 지어냈었다).
+
+    query를 주면 같은 브랜드의 다른 제품 가격 줄을 걸러낸다
+    (line_attributable_to_query 참고)."""
     results: list[dict] = []
     for line in body_text.splitlines():
         if not line.strip():
             continue
         values = _find_price_values(line)
         if not values:
+            continue
+        if query and not line_attributable_to_query(line, query):
             continue
         year_month = _resolve_year_month(line, fallback_year_month)
         for channel, pattern in _CHANNEL_PATTERNS.items():

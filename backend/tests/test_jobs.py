@@ -646,7 +646,7 @@ def test_run_price_job_extracts_and_stores_blog_prices():
             external_url="https://blog.naver.com/naracellar/1", published_date="2026-06-15",
             source_name="블로그: 나라셀라",
         )],
-        fetch_blog_body=lambda url: "이마트 29,800원~33,000원 완전 혜자",
+        fetch_blog_body=lambda url: "몬테스 이마트 29,800원~33,000원 완전 혜자",
         insert_channel_price=lambda *a, **k: inserted.append(a) or 1,
         get_price_history=lambda query: [{
             "channel": "이마트", "price_low": 29800, "price_high": 33000,
@@ -677,7 +677,7 @@ def test_run_price_job_lists_checked_items_even_when_no_price_found():
             external_url="https://blog.naver.com/someone/1", published_date="2026-06-15",
             source_name="블로그: someone",
         )],
-        fetch_blog_body=lambda url: "가격 얘기는 없고 시음 후기만 있음",
+        fetch_blog_body=lambda url: "케이머스 마셔봤다. 가격 얘기는 없고 시음 후기만 있음",
     ))
 
     result = store.get(job.id)
@@ -685,6 +685,7 @@ def test_run_price_job_lists_checked_items_even_when_no_price_found():
     assert result.price_checked_items == [{
         "source_type": "blog", "source_name": "블로그: someone", "title": "케이머스 시음기",
         "external_url": "https://blog.naver.com/someone/1", "published_date": "2026-06-15",
+        "status": "no_price",  # 검색어는 나오는 글 — 가격만 없었다
     }]
 
 
@@ -708,13 +709,79 @@ def test_run_price_job_one_failing_insert_does_not_block_siblings():
             external_url="https://blog.naver.com/naracellar/1", published_date="2026-06-15",
             source_name="블로그: 나라셀라",
         )],
-        fetch_blog_body=lambda url: "이마트 29,800원\n코스트코 25,000원",
+        fetch_blog_body=lambda url: "몬테스 이마트 29,800원\n몬테스 코스트코 25,000원",
         insert_channel_price=flaky_insert,
     ))
 
     assert insert_calls == ["이마트", "코스트코"]  # 둘 다 시도됨 — 이마트 실패가 코스트코를 막지 않음
     result = store.get(job.id)
     assert result.status == "succeeded"  # insert 실패는 로그만, 전체 job은 계속 성공 처리
+
+
+def test_run_price_job_skips_post_about_different_product_of_same_brand():
+    # 실측(2026-09-03): "몬테스 클래식" 검색에 네이버 블로그가 "몬테스 알파
+    # 스페셜 퀴베" 글을 돌려줬고, 그 글의 가격이 클래식 가격으로 저장됐다.
+    # 검색어가 제목·본문에 아예 없는 글은 통째로 버려야 한다.
+    store = JobStore()
+    job = store.create("몬테스 클래식", "", total=1)
+    sources = _empty_sources()
+    inserted = []
+
+    run_price_job(job.id, store, sources, "몬테스 클래식", "", **_price_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="39. 몬테스 알파 스페셜 퀴베 카버네 소비뇽 2022", excerpt="요약", thumbnail_url=None,
+            external_url="https://blog.naver.com/mimikim0/224344190304", published_date="2026-07-12",
+            source_name="블로그: 김미미",
+        )],
+        fetch_blog_body=lambda url: "몬테스 알파 스페셜 퀴베 GS25에서 32,900원에 샀다",
+        insert_channel_price=lambda *a, **k: inserted.append(a) or 1,
+    ))
+
+    result = store.get(job.id)
+    assert inserted == []  # 다른 제품 글 — 가격 저장 안 함
+    assert result.price_checked_items[0]["status"] == "unrelated"
+
+
+def test_run_price_job_comparison_post_binds_only_the_searched_products_line():
+    # 검색어가 나오는 글이라도 같은 브랜드 다른 제품 가격이 같이 적혀 있으면
+    # 그 줄은 버린다 — 검색한 제품 줄만 저장한다.
+    store = JobStore()
+    job = store.create("몬테스 클래식", "", total=1)
+    sources = _empty_sources()
+    inserted = []
+
+    run_price_job(job.id, store, sources, "몬테스 클래식", "", **_price_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="몬테스 클래식 vs 알파 가격 비교", excerpt="요약", thumbnail_url=None,
+            external_url="https://blog.naver.com/someone/2", published_date="2026-07-01",
+            source_name="블로그: someone",
+        )],
+        fetch_blog_body=lambda url: "몬테스 알파 이마트 45,000원\n몬테스 클래식 GS25 19,900원",
+        insert_channel_price=lambda *a, **k: inserted.append(a) or 1,
+    ))
+
+    assert [(a[1], a[2]) for a in inserted] == [("GS25", 19900)]  # 알파(이마트 45,000)는 제외
+
+
+def test_run_price_job_blog_search_query_includes_price_keyword():
+    # 블로그 검색은 시음기가 대부분이라 검색어에 "가격"을 붙여 좁힌다.
+    # 와쌉은 특가 글만 올라오는 카페라 검색어를 그대로 쓴다.
+    store = JobStore()
+    job = store.create("몬테스 클래식", "", total=1)
+    wassap_source = WassapSource(
+        id="winerack24-10050146", name="와쌉", cafe_id="winerack24", clubid="10050146",
+        cafe_numeric_id="20564405",
+    )
+    sources = _empty_sources(wassap=[wassap_source])
+    blog_queries, wassap_calls = [], []
+
+    run_price_job(job.id, store, sources, "몬테스 클래식", "", **_price_deps(
+        fetch_blog_items=lambda query: blog_queries.append(query) or [],
+        fetch_wassap_items=lambda source: wassap_calls.append(source.name) or [],
+    ))
+
+    assert blog_queries == ["몬테스 클래식 가격"]
+    assert wassap_calls == ["와쌉"]
 
 
 def test_run_price_job_body_fetch_failure_does_not_fail_whole_job():

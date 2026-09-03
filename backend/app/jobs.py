@@ -531,12 +531,23 @@ def run_price_job(
 ) -> None:
     """가격검색 탭 전용 — 스크래퍼 탭(run_job)과 완전히 분리된 가벼운 흐름.
     뉴스/유튜브/해외소스는 스킵하고 블로그·와쌉 검색결과의 본문만 가져와
-    가격을 추출·저장한다. 관련성 재판정도 안 한다 — 둘 다 이미 검색어로
-    검색한 결과라(run_job의 skip_relevance_filter=True/trust_source=True와
-    같은 근거) 기사 저장(wine_articles)과 무관한 이 흐름에선 그 판정 자체가
-    불필요하다."""
+    가격을 추출·저장한다.
+
+    관련성은 두 단계로 본다(2026-09-03 실측 — 네이버 블로그 검색이 "몬테스
+    클래식"에 몬테스 알파·스페셜 퀴베 글까지 돌려줘서, 다른 제품 가격이 클래식
+    가격으로 저장되는 문제가 있었다):
+      1) 글 단위 — 제목+본문에 검색어가 (띄어쓰기 무시) 아예 없으면 그 글은
+         버린다. 검색엔진이 토큰 단위로 느슨하게 매칭해 온 다른 제품 글을 여기서
+         걷어낸다.
+      2) 줄 단위 — extract_channel_prices(query=...)가 같은 브랜드의 다른 제품
+         가격 줄을 버린다(가격비교 글 대응)."""
     store.update(job_id, status="running")
     query = brand or wine_name
+    # 블로그 검색은 시음기·여행기 등 가격과 무관한 글이 대부분이라(실측: 25건 중
+    # 가격 언급 2건) 검색어에 "가격"을 붙여 가격 얘기하는 글 위주로 좁힌다.
+    # 와쌉은 애초에 특가/구매 글만 올라오는 카페라 그대로 검색한다 — 좁은 코퍼스에
+    # "가격"까지 붙이면 0건이 되기 쉽다.
+    blog_query = f"{query} 가격"
     had_failure = False
     timed_out = False
     checked_items: list[dict] = []
@@ -547,15 +558,22 @@ def run_price_job(
     def deadline_passed() -> bool:
         return deadline is not None and time.monotonic() > deadline
 
-    def _collect_prices(body_text: str | None, published_date: str | None, source_type: str, source_url: str) -> None:
+    def _collect_prices(body_text: str | None, published_date: str | None, source_type: str,
+                        source_url: str, title: str = "") -> str:
+        """가격을 추출·저장하고, 이 글을 어떻게 처리했는지 상태 문자열을 돌려준다.
+        화면의 '검색한 글' 목록에 사유를 그대로 보여주기 위한 값 —
+        'no_body'(본문 못 가져옴) | 'unrelated'(검색어가 글에 없음, 다른 제품)
+        | 'priced'(가격 저장) | 'no_price'(관련 글이지만 가격 언급 없음)."""
         if not body_text:
-            return
+            return "no_body"
+        if not fuzzy_find(f"{title}\n{body_text}", query):
+            return "unrelated"  # 검색어가 글 어디에도 없다 — 다른 제품 글
         fallback_ym = (published_date or "")[:7] or _today_year_month()
         try:
-            prices = extract_channel_prices(body_text, fallback_ym)
+            prices = extract_channel_prices(body_text, fallback_ym, query=query)
         except Exception:  # noqa: BLE001 — 추출 자체가 깨져도 이 소스만 생략, 검색 전체는 계속
             logger.exception("가격 추출 실패: %s", source_url)
-            return
+            return "no_price"
         for p in prices:
             try:
                 insert_channel_price(
@@ -564,12 +582,13 @@ def run_price_job(
                 )
             except Exception:  # noqa: BLE001 — DB 저장 실패는 로그만, 나머지 값 처리는 계속
                 logger.exception("가격 저장 실패: %s", source_url)
+        return "priced" if prices else "no_price"
 
     if deadline_passed():
         timed_out = True
     else:
         try:
-            blog_items = fetch_blog_items(query)
+            blog_items = fetch_blog_items(blog_query)
         except Exception as exc:  # noqa: BLE001
             logger.exception("블로그 수집 실패")
             had_failure = True
@@ -579,12 +598,16 @@ def run_price_job(
             if deadline_passed():
                 timed_out = True
                 break
-            checked_items.append({
+            entry = {
                 "source_type": "blog", "source_name": item.source_name, "title": item.title,
                 "external_url": item.external_url, "published_date": item.published_date,
-            })
+                "status": "no_body",
+            }
+            checked_items.append(entry)
             try:
-                _collect_prices(fetch_blog_body(item.external_url), item.published_date, "blog", item.external_url)
+                entry["status"] = _collect_prices(
+                    fetch_blog_body(item.external_url), item.published_date, "blog",
+                    item.external_url, item.title)
             except Exception:  # noqa: BLE001 — fetch_blog_body 자체가 예외를 던지는 극단적 경우 대비
                 logger.exception("블로그 본문 가져오기 실패: %s", item.external_url)
         store.update(job_id, price_checked_items=list(checked_items))
@@ -606,12 +629,16 @@ def run_price_job(
             if deadline_passed():
                 timed_out = True
                 break
-            checked_items.append({
+            entry = {
                 "source_type": "wassap", "source_name": item.source_name, "title": item.title,
                 "external_url": item.external_url, "published_date": item.published_date,
-            })
+                "status": "no_body",
+            }
+            checked_items.append(entry)
             try:
-                _collect_prices(fetch_wassap_body(source, item.external_url), item.published_date, "wassap", item.external_url)
+                entry["status"] = _collect_prices(
+                    fetch_wassap_body(source, item.external_url), item.published_date, "wassap",
+                    item.external_url, item.title)
             except Exception:  # noqa: BLE001
                 logger.exception("와쌉 본문 가져오기 실패: %s", item.external_url)
         store.update(job_id, price_checked_items=list(checked_items))
