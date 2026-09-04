@@ -3,6 +3,19 @@ name: Deploy
 on:
   push:
     branches: [main]
+    # 이 레포는 매일 스크래퍼 봇이 scrape/briefing 커밋을 main에 직접 여러 번 찍는다
+    # (data/, docs/ 등) — 그것과 무관하게 매번 재배포되는 걸 막기 위해 앱 코드
+    # 경로로만 트리거를 좁힌다.
+    paths:
+      - "backend/**"
+      - "css/**"
+      - "js/**"
+      - "index.html"
+      - "gallery.html"
+      - "Dockerfile.frontend"
+      - "nginx.conf"
+      - "docker-compose.yml"
+      - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
 concurrency:
