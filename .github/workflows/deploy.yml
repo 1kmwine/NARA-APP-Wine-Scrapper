@@ -12,9 +12,6 @@ on:
       - "js/**"
       - "index.html"
       - "gallery.html"
-      - "Dockerfile.frontend"
-      - "nginx.conf"
-      - "docker-compose.yml"
       - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
@@ -26,28 +23,42 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      - name: Pull latest and rebuild containers
+      - name: Pull latest
         run: |
           cd /opt/nara-app-wine-scrapper
           git fetch origin main
           git reset --hard origin/main
-          docker compose down --remove-orphans
-          docker compose up -d --build
 
-      - name: Verify health endpoints
+      - name: Sync backend to production path and restart
+        # 실제 운영 경로는 docker가 아니라 NID 허브 블록 a5("와인정보 스크래퍼")가
+        # 물고 있는 systemd 서비스(wine-scraper-api.service, 포트 8001,
+        # /var/www/NID/wine-scraper-api/) — git 없이 파일을 직접 배포하던 곳이다
+        # (2026-09-04 확인: 별도로 만들었던 docker-compose 배포는 허브에 안 물려있어
+        # 아무도 안 보고 있었다). .env는 그 디렉토리에 이미 있는 걸 그대로 쓴다.
         run: |
-          check() {
-            local name="$1" url="$2"
-            for i in $(seq 1 12); do
-              if curl -sf "$url" > /dev/null; then
-                echo "$name healthy"
-                return 0
-              fi
-              echo "$name not ready yet, retrying ($i/12)..."
-              sleep 5
-            done
-            echo "$name did not become healthy in time"
-            return 1
-          }
-          check backend http://localhost:8016/health
-          check frontend http://localhost:3016/
+          rsync -a --delete /opt/nara-app-wine-scrapper/backend/app/ /var/www/NID/wine-scraper-api/app/
+          cp /opt/nara-app-wine-scrapper/backend/requirements.txt /var/www/NID/wine-scraper-api/requirements.txt
+          /var/www/NID/wine-scraper-api/.venv/bin/pip install -q -r /var/www/NID/wine-scraper-api/requirements.txt
+          grep -q '^IMAGE_PRICE_EXTRACTOR=' /var/www/NID/wine-scraper-api/.env || \
+            echo 'IMAGE_PRICE_EXTRACTOR=gemini' >> /var/www/NID/wine-scraper-api/.env
+          systemctl restart wine-scraper-api
+
+      - name: Sync frontend to production path
+        # docs/(briefings·data·summaries — 스크래퍼가 쌓는 산출물)는 건드리지 않는다.
+        run: |
+          cp /opt/nara-app-wine-scrapper/index.html /opt/nara-app-wine-scrapper/gallery.html /var/www/NID/wine-scraper/
+          rsync -a --delete /opt/nara-app-wine-scrapper/css/ /var/www/NID/wine-scraper/css/
+          rsync -a --delete /opt/nara-app-wine-scrapper/js/ /var/www/NID/wine-scraper/js/
+
+      - name: Verify health endpoint
+        run: |
+          for i in $(seq 1 12); do
+            if curl -sf http://127.0.0.1:8001/health > /dev/null; then
+              echo "backend healthy"
+              exit 0
+            fi
+            echo "backend not ready yet, retrying ($i/12)..."
+            sleep 5
+          done
+          echo "backend did not become healthy in time"
+          exit 1

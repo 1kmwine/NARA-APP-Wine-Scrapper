@@ -1,8 +1,0 @@
-.venv/
-tests/
-__pycache__/
-**/__pycache__/
-.env
-.env.example
-pytest.ini
-requirements-dev.txt
