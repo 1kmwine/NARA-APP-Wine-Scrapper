@@ -52,12 +52,14 @@ jobs:
 
       - name: Verify health endpoint
         run: |
-          for i in $(seq 1 12); do
+          # 이 서버는 앱 기동에 ~60초가 걸린다(2026-09-04 실측: 재시작 58초 뒤
+          # startup complete) — 12회(60초)로는 2초 차이로 실패했다. 넉넉히 120초.
+          for i in $(seq 1 24); do
             if curl -sf http://127.0.0.1:8001/health > /dev/null; then
               echo "backend healthy"
               exit 0
             fi
-            echo "backend not ready yet, retrying ($i/12)..."
+            echo "backend not ready yet, retrying ($i/24)..."
             sleep 5
           done
           echo "backend did not become healthy in time"
