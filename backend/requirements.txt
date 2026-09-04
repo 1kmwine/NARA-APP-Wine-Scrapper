@@ -7,5 +7,8 @@ lxml==6.1.1
 pymysql==1.1.1
 python-dotenv==1.2.2
 pydantic==2.13.4
-pytesseract==0.3.13
-pillow==11.0.0
+# pytesseract/pillow는 일부러 뺐다 — 채택된 이미지 가격 추출기는 gemini고
+# (2026-09-03 벤치마크: OCR은 실제 결제화면 라벨을 못 읽어 탈락), price_image_ocr.py는
+# pytesseract/PIL을 함수 안에서 지연 import해서 이 패키지 없이도 앱이 뜬다.
+# 운영서버(Python 3.14)에 jpeg 헤더가 없어 pillow가 소스 빌드에서 실패하는 문제도 있었다.
+# OCR을 다시 켜려면 이 두 줄을 되살리고 서버에 libjpeg-dev도 설치해야 한다.
