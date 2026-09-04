@@ -261,3 +261,17 @@ def test_extract_channel_prices_skips_ambiguous_multi_price_next_line():
     text = "구매처 : 코스트코\n가격 : 19,990원 / 정가 29,900원\n"
     result = extract_channel_prices(text, fallback_year_month="2026-07")
     assert result == []
+
+
+def test_emart_traders_counts_only_as_traders():
+    # 실측(2026-09-04, blog.naver.com/zjnnja/224319139901): "구매처 이마트 트레이더스"는
+    # 창고형 매장 한 곳인데 이마트·트레이더스 두 채널로 중복 저장됐다 — 가격대가 다른
+    # 별개 채널이라 이마트 시세가 오염된다. "이마트24"와 같은 방식으로 막는다.
+    text = "구매처 이마트 트레이더스\n구매가 24,980원"
+    result = extract_channel_prices(text, fallback_year_month="2026-06")
+    assert [(r["channel"], r["price_low"]) for r in result] == [("트레이더스", 24980)]
+
+
+def test_plain_emart_still_detected_when_not_followed_by_traders():
+    result = extract_channel_prices("이마트 29,800원", fallback_year_month="2026-07")
+    assert [r["channel"] for r in result] == ["이마트"]
