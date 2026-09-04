@@ -130,8 +130,29 @@ def test_merge_by_month_combines_multiple_sources_in_same_month_into_range():
     merged = merge_channel_prices_by_month(rows)
     assert merged == [{
         "channel": "이마트", "year_month": "2026-07", "price_low": 29800, "price_high": 31000,
-        "source_urls": ["https://a", "https://b"],
+        "source_urls": ["https://a", "https://b"], "via_image": False,
     }]
+
+
+def test_merge_by_month_flags_image_sourced_rows():
+    # 화면에서 이미지(OCR/Gemini) 추출 가격을 텍스트 추출과 구분 표시하기 위한 플래그.
+    rows = [{"channel": "GS25", "price_low": 15920, "price_high": 15920, "year_month": "2026-08",
+              "source_url": "https://a", "source_type": "wassap_img"}]
+    merged = merge_channel_prices_by_month(rows)
+    assert merged[0]["via_image"] is True
+
+
+def test_merge_by_month_flags_mixed_month_as_image_if_any_row_is():
+    # 같은 채널·같은 달에 텍스트 추출 값과 이미지 추출 값이 섞이면, 이미지가
+    # 하나라도 기여했으면 표시한다 — 어느 쪽인지 몰라도 "확인 필요" 신호로 충분.
+    rows = [
+        {"channel": "GS25", "price_low": 15000, "price_high": 15000, "year_month": "2026-08",
+         "source_url": "https://a", "source_type": "wassap"},
+        {"channel": "GS25", "price_low": 15920, "price_high": 15920, "year_month": "2026-08",
+         "source_url": "https://b", "source_type": "wassap_img"},
+    ]
+    merged = merge_channel_prices_by_month(rows)
+    assert merged[0]["via_image"] is True
 
 
 def test_merge_by_month_keeps_different_months_as_separate_rows():
@@ -175,3 +196,26 @@ def test_resolve_single_channel_returns_none_when_ambiguous():
 def test_resolve_single_channel_does_not_double_count_emart24():
     # "이마트24"는 "이마트" 패턴에 negative lookahead가 걸려 있어 한 채널로만 잡힌다.
     assert resolve_single_channel("이마트24에서 봤어요") == "이마트24"
+
+
+def test_extract_channel_prices_ignores_other_products_sections_when_headers_present():
+    # 실측(2026-09-04): "로저구라트" 검색인데 같은 글(레드셀러류 다품목 비교 리뷰,
+    # [📍 상품명] 섹션 헤더로 상품이 나뉜다) 속 완전히 다른 상품(알마비바) 섹션의
+    # 이마트 가격이 붙었다 — 브랜드 토큰 충돌이 없어서 기존 line_attributable_to_query가
+    # 못 걸렀다. 섹션 헤더가 검색어를 언급하는 섹션의 가격만 인정해야 한다.
+    text = (
+        "[📍 알마비바 2022]\n"
+        "지난 5월 이마트 장터에서 249,800원.\n"
+        "\n"
+        "[📍 로저 구라트, 까바 밀레짐 브뤼 2024]\n"
+        "조양마트에서 21,000원에 봤어요.\n"
+    )
+    result = extract_channel_prices(text, fallback_year_month="2026-08", query="로저구라트")
+    assert [(r["channel"], r["price_low"]) for r in result] == [("조양마트", 21000)]
+
+
+def test_extract_channel_prices_without_section_headers_keeps_old_behavior():
+    # 섹션 헤더가 아예 없는 글은 기존 전역 문맥 판정을 그대로 쓴다(회귀 방지).
+    text = "이마트에서 19,900원에 샀어요"
+    result = extract_channel_prices(text, fallback_year_month="2026-08", query="몬테스 클래식")
+    assert result == [{"channel": "이마트", "price_low": 19900, "price_high": 19900, "year_month": "2026-08"}]

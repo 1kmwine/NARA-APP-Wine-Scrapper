@@ -39,6 +39,9 @@ _RANGE_RE = re.compile(
     rf'(?P<low>{_NUM_SRC})\s*원?\s*(?:~|-|부터)\s*(?P<high>{_NUM_SRC})\s*원\s*(?:까지)?'
 )
 _MONTH_RE = re.compile(r'(\d{1,2})\s*월')
+# "[📍 로저 구라트, 까바 밀레짐 브뤼 2024]"처럼 한 줄 전체가 대괄호로 싸인 상품
+# 섹션 헤더 — 여러 상품을 나열/비교하는 글(레드셀러류 성지 리뷰)의 관례적 표기.
+_SECTION_HEADER_RE = re.compile(r'^\[.+\]$')
 # "2병 행사가 36,000원 적용 시 한 병당 18,000원"처럼 묶음가와 병당가가 같은 줄에
 # 같이 적히는 경우가 흔하다(실측 2026-09-03 GS25 2병 행사 글 — 묶음가 36,000원이
 # 병당 가격으로 저장됐다). 병당 가격 표기가 있는 줄에서는 그 값만 후보로 쓴다.
@@ -101,7 +104,7 @@ def _find_price_values(line: str) -> list[dict]:
     return values
 
 
-def line_attributable_to_query(line: str, query: str) -> bool:
+def line_attributable_to_query(line: str, query: str, section: str | None = None) -> bool:
     """가격이 적힌 이 줄이 정말 '검색한 그 와인' 가격인지 판정.
 
     같은 브랜드의 다른 제품 가격을 검색한 제품 가격으로 붙여버리는 문제가
@@ -109,15 +112,25 @@ def line_attributable_to_query(line: str, query: str) -> bool:
     몬테스 알파 스페셜 퀴베 글의 가격이 클래식 가격으로 저장됨). 판정 규칙:
 
     - 줄에 검색어가 (띄어쓰기·대소문자 무시) 그대로 있으면 그 와인 가격이다.
-    - 검색어도 없고 브랜드 토큰(검색어 첫 단어)도 없는 줄이면 글 전체 문맥을
-      따른다 — 글 자체가 이미 검색어 관련으로 걸러진 상태이고, "이마트에서
-      19,900원" 처럼 제품명 없이 가격만 적는 게 흔하다.
-    - 검색어는 없는데 브랜드 토큰만 있으면 같은 브랜드의 **다른 제품** 줄이다
+    - `section`이 주어지면(글이 [📍 상품명] 섹션 헤더로 여러 상품을 나열하는
+      글이라는 뜻 — extract_channel_prices 참고) 줄 자체엔 검색어가 없어도
+      그 줄이 속한 섹션 헤더가 검색어를 언급해야만 인정한다. 헤더가 없으면
+      (첫 헤더 이전 줄이거나 헤더가 검색어와 무관하면) 버린다 — 완전히 다른
+      상품 섹션의 가격이 붙는 걸 막기 위함(2026-09-04 실측 — "로저구라트"
+      검색인데 같은 글 속 알마비바·루이나 섹션의 이마트/CU/조양마트 가격이
+      붙었다).
+    - `section`이 없는(=섹션 헤더가 아예 없는 글) 경우: 검색어도 없고 브랜드
+      토큰(검색어 첫 단어)도 없는 줄이면 글 전체 문맥을 따른다 — 글 자체가
+      이미 검색어 관련으로 걸러진 상태이고, "이마트에서 19,900원" 처럼
+      제품명 없이 가격만 적는 짧은 단일상품 글이 흔하다.
+    - 브랜드 토큰만 있고 검색어는 없으면 같은 브랜드의 **다른 제품** 줄이다
       (예: "몬테스 클래식" 검색인데 줄엔 "몬테스 알파 45,000원"). 지어내지
       않기 위해 버린다 — 애매하면 놓치는 쪽.
     """
     if fuzzy_find(line, query):
         return True
+    if section is not None:
+        return fuzzy_find(section, query)
     tokens = query.split()
     brand_token = tokens[0] if tokens else ""
     if brand_token and fuzzy_find(line, brand_token):
@@ -147,16 +160,27 @@ def extract_channel_prices(body_text: str, fallback_year_month: str, query: str 
     모든 채널에 똑같이 붙여서 없는 범위를 지어냈었다).
 
     query를 주면 같은 브랜드의 다른 제품 가격 줄을 걸러낸다
-    (line_attributable_to_query 참고)."""
+    (line_attributable_to_query 참고). 글에 [📍 상품명] 형태의 섹션 헤더가
+    있으면(여러 상품을 나열/비교하는 글) 가격 줄을 그 직전 헤더에 귀속시켜
+    헤더가 검색어와 무관한 섹션의 가격은 버린다."""
     results: list[dict] = []
-    for line in body_text.splitlines():
-        if not line.strip():
+    lines = body_text.splitlines()
+    has_sections = any(_SECTION_HEADER_RE.match(ln.strip()) for ln in lines if ln.strip())
+    current_section = ""
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if _SECTION_HEADER_RE.match(stripped):
+            current_section = stripped
             continue
         values = _find_price_values(line)
         if not values:
             continue
-        if query and not line_attributable_to_query(line, query):
-            continue
+        if query:
+            section_arg = current_section if has_sections else None
+            if not line_attributable_to_query(line, query, section=section_arg):
+                continue
         year_month = _resolve_year_month(line, fallback_year_month)
         for channel, pattern in _CHANNEL_PATTERNS.items():
             for channel_match in pattern.finditer(line):
@@ -178,6 +202,9 @@ def merge_channel_prices_by_month(rows: list[dict]) -> list[dict]:
     for row in rows:
         key = (row["channel"], row["year_month"])
         entry = by_key.get(key)
+        # source_type이 "_img"로 끝나면(blog_img/wassap_img) 본문 텍스트가 아니라
+        # 이미지에서 읽은 가격이다 — 화면에서 구분 표시하기 위한 플래그.
+        is_image_sourced = str(row.get("source_type", "")).endswith("_img")
         if entry is None:
             by_key[key] = {
                 "channel": row["channel"],
@@ -185,11 +212,13 @@ def merge_channel_prices_by_month(rows: list[dict]) -> list[dict]:
                 "price_low": row["price_low"],
                 "price_high": row["price_high"],
                 "source_urls": [row["source_url"]],
+                "via_image": is_image_sourced,
             }
         else:
             entry["price_low"] = min(entry["price_low"], row["price_low"])
             entry["price_high"] = max(entry["price_high"], row["price_high"])
             entry["source_urls"].append(row["source_url"])
+            entry["via_image"] = entry["via_image"] or is_image_sourced
 
     def sort_key(key: tuple[str, str]) -> tuple[int, str]:
         channel, year_month = key

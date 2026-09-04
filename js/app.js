@@ -537,7 +537,16 @@ function renderPriceSearchResults(query, priceResults){
     const tr=document.createElement('tr');
     const tdChannel=document.createElement('td'); tdChannel.textContent=p.channel;
     const tdMonth=document.createElement('td'); tdMonth.textContent=p.year_month;
-    const tdPrice=document.createElement('td'); tdPrice.textContent=formatPriceRange(p.price_low, p.price_high);
+    const tdPrice=document.createElement('td');
+    tdPrice.textContent=formatPriceRange(p.price_low, p.price_high);
+    if(p.via_image){
+      // 본문 텍스트가 아니라 첨부 이미지(결제화면 캡처 등)에서 읽은 값 —
+      // 오탐 가능성이 텍스트 추출보다 높으니 화면에서 구분해 보여준다.
+      const badge=document.createElement('span');
+      badge.className='badge'; badge.style.marginLeft='6px';
+      badge.textContent='이미지 추출';
+      tdPrice.appendChild(badge);
+    }
     tr.appendChild(tdChannel); tr.appendChild(tdMonth); tr.appendChild(tdPrice);
     tr.appendChild(buildSourceLinksCell(p.source_urls));
     priceResultsTbody.appendChild(tr);

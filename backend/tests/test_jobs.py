@@ -659,7 +659,7 @@ def test_run_price_job_extracts_and_stores_blog_prices():
     assert result.status == "succeeded"
     assert result.price_results == [{
         "channel": "이마트", "year_month": "2026-06", "price_low": 29800, "price_high": 33000,
-        "source_urls": ["https://blog.naver.com/naracellar/1"],
+        "source_urls": ["https://blog.naver.com/naracellar/1"], "via_image": False,
     }]
     assert len(inserted) == 1
     assert inserted[0][:2] == ("몬테스", "이마트")
@@ -837,7 +837,7 @@ def test_run_price_job_extracts_wassap_prices():
     result = store.get(job.id)
     assert result.price_results == [{
         "channel": "CU", "year_month": "2026-08", "price_low": 21000, "price_high": 21000,
-        "source_urls": ["https://cafe.naver.com/winerack24/369628"],
+        "source_urls": ["https://cafe.naver.com/winerack24/369628"], "via_image": False,
     }]
     assert seen_args == [("20564405", "https://cafe.naver.com/winerack24/369628")]
 
