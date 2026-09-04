@@ -115,3 +115,56 @@ def test_get_extractor_ocr_does_not_need_api_key():
 
 def test_get_extractor_unknown_name_returns_none():
     assert get_extractor("magic", api_key="k") is None
+
+
+def test_extract_price_from_images_stops_when_time_budget_is_spent():
+    # 실측(2026-09-04): 글 하나의 이미지 분석에서 40초 넘게 머무는 구간이 있었다
+    # (이미지 5장 × 다운로드+Gemini). 글당 상한이 없으면 글 수가 늘 때 다시 끊긴다.
+    client = FakeImageClient({
+        "https://x/1.png": FakeImageResponse(b"one"),
+        "https://x/2.png": FakeImageResponse(b"two"),
+        "https://x/3.png": FakeImageResponse(b"three"),
+    })
+    seen = []
+    clock = iter([0.0, 30.0, 60.0, 90.0])  # 첫 장 처리에 이미 예산 초과
+
+    def extractor(image_bytes, mime_type):
+        seen.append(image_bytes)
+        return None
+
+    result = extract_price_from_images(
+        ["https://x/1.png", "https://x/2.png", "https://x/3.png"], client, extractor,
+        budget_seconds=25.0, now=lambda: next(clock),
+    )
+
+    assert result is None
+    assert seen == [b"one"]  # 예산 초과 후엔 남은 이미지를 안 본다
+
+
+def test_extract_price_from_images_always_tries_at_least_one_image():
+    # 예산이 0이어도 첫 장은 본다 — 안 그러면 이미지 경로가 통째로 죽는다.
+    client = FakeImageClient({"https://x/1.png": FakeImageResponse(b"one")})
+
+    assert extract_price_from_images(
+        ["https://x/1.png"], client, lambda b, m: 15920, budget_seconds=0.0,
+    ) == 15920
+
+
+def test_extract_price_from_images_keeps_going_within_budget():
+    client = FakeImageClient({
+        "https://x/1.png": FakeImageResponse(b"one"),
+        "https://x/2.png": FakeImageResponse(b"two"),
+    })
+    seen = []
+    clock = iter([0.0, 1.0, 2.0, 3.0])
+
+    def extractor(image_bytes, mime_type):
+        seen.append(image_bytes)
+        return 15920 if image_bytes == b"two" else None
+
+    result = extract_price_from_images(
+        ["https://x/1.png", "https://x/2.png"], client, extractor,
+        budget_seconds=25.0, now=lambda: next(clock),
+    )
+
+    assert result == 15920 and seen == [b"one", b"two"]

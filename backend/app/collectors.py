@@ -764,12 +764,14 @@ _NON_CONTENT_IMG_RE = re.compile(
 )
 
 
-def extract_image_urls(html_str: str, limit: int = 5) -> list[str]:
+def extract_image_urls(html_str: str, limit: int = 3) -> list[str]:
     """본문 HTML에서 사진 URL을 순서대로 뽑는다. _html_to_lines()는 태그를 벗기면서
     <img>까지 버리므로, 이미지 가격 추출용으로 벗기기 전에 따로 뽑아둔다.
 
     limit을 두는 이유: 사진 30장짜리 후기 글이 흔한데, 이미지 1장당 추출기 호출이
-    한 번씩 붙으므로 호출 수·소요 시간 상한을 보장해야 한다."""
+    한 번씩 붙으므로 호출 수·소요 시간 상한을 보장해야 한다. 5장이었는데 3장으로
+    줄였다(2026-09-04) — 시간은 image_price의 글당 예산이 잡아주지만, Gemini 무료
+    티어 429가 잦아서 호출 수 자체를 아껴야 한다."""
     urls: list[str] = []
     for match in _IMG_SRC_RE.finditer(html_str):
         url = html_module.unescape(match.group(1)).strip()

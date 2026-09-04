@@ -44,7 +44,9 @@ def extract_final_price(
                 ]}],
                 "generationConfig": {"responseMimeType": "application/json", "temperature": 0.0},
             },
-            timeout=30.0,
+            # 30초였는데, 한 장이 오래 매달리면 글당 예산(image_price의 25초)을
+            # 한 장이 다 먹는다 — 정상 응답은 실측 6초 안팎이라 20초면 충분하다.
+            timeout=20.0,
         )
         response.raise_for_status()
         text = response.json()["candidates"][0]["content"]["parts"][0]["text"]
