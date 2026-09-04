@@ -1,0 +1,393 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "Decanter magazine September 2026 issue: See what's inside",
+      "title_ko": "Decanter magazine September 2026 issue: See what's inside",
+      "summary_ko": "Our latest issue is out now...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "California&rsquo;s not dreaming: the state&rsquo;s wines stand with the best at DWWA 2026",
+      "title_ko": "California&rsquo;s not dreaming: the state&rsquo;s wines stand with the best at DWWA 2026",
+      "summary_ko": "California can do it all, with remarkable consistency...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Mountain high: How Alto Adige became Italy's white-wine star at DWWA 2026",
+      "title_ko": "Mountain high: How Alto Adige became Italy's white-wine star at DWWA 2026",
+      "summary_ko": "A DWWA special issue...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Contrary to Conventional Wisdom, \"The Earlier Grapes are Harvested, The More Prone the Wine is to Oxidation\"",
+      "summary": "일반적인 통념과 달리 포도를 일찍 수확할수록 와인이 산화에 더 취약하다는 주장을 제기하는 기사입니다.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Henkell Freixenet acquires majority stake in Irish importer Cassidy Wines",
+      "summary": "Henkell Freixenet has acquired a majority stake in Irish importer Cassidy Wines.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 8/30/26",
+      "summary": "필자가 웹에서 흥미롭게 읽은 와인 관련 이야기들을 매주 모아서 소개하는 최신 뉴스레터입니다.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Why South Africa Is the Most Exciting Wine Region on the Planet, Part II",
+      "summary": "남아프리카공화국이 왜 세계에서 가장 흥미로운 와인 산지인지 다루는 심층 기사의 두 번째 파트입니다.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "XANDER SOREN WINES BRIDGE JAPANESE AND AMERICAN PALATES",
+      "summary": "Xander Soren wines successfully bridge the gap between Japanese and American palates.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "RED SPARKLING WINE—AND YES, IT’S A THING. FROM ITALY. STARTING WITH LAMBRUSCO",
+      "summary": "An exploration of Italian red sparkling wines, beginning with the famous Lambrusco.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "WINES OF…DID YOU SAY CALABRIA? FOOD-FRIENDLY AND PLANET-FRIENDLY LIBRANDI WINES FROM SOUTHERN ITALY",
+      "summary": "Discover food-friendly and environmentally conscious Librandi wines from the Calabria region of southern Italy.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "VinePair",
+      "title": "As Climate Change Shifts Harvest Earlier, Winemakers Face a New Set of Challenges Beyond the Vineyard",
+      "summary": "기후 변화로 인해 포도 수확 시기가 앞당겨짐에 따라 와인 양조자들이 포도밭 외적인 새로운 도전에 직면해 있다는 내용입니다.",
+      "url": "https://vinepair.com/",
+      "date": ""
+    },
+    {
+      "source": "VinePair",
+      "title": "The 17 Best High-Low Wine Pairings, According to Sommeliers",
+      "summary": "소믈리에들이 추천하는 최고의 가성비 및 고저 조합 와인 페어링 17가지를 소개합니다.",
+      "url": "https://vinepair.com/",
+      "date": ""
+    },
+    {
+      "source": "Punch",
+      "title": "Rolo’s Wine Program Is On Fire",
+      "summary": "After a fire ravaged its cellar, the restaurant made a quick pivot to the delight of wine lovers.",
+      "url": "https://punchdrink.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Turkish vines and wines – sustaining a culture",
+      "summary": "A week exploring Türkiye's wine culture provides both a reality check and reasons for optimism, highlighted by the extraordinary volcanic landscape of Cappadocia.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "From Argentina to Yunnan – wines to seek out now",
+      "summary": "A curated selection of exciting wines to discover right now, ranging from Argentina all the way to Yunnan.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Old Vines, New Lessons: Rosa Kruger on Climate and the Future of Wine",
+      "summary": "As the guiding force behind the Old Vine Project, Kruger has reshaped how South Africa recognizes and safeguards its viticultural inheritance.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "A Mighty Fortress Is Our God: A Tribute to Pierre Trimbach",
+      "summary": "Stephan Reinhardt pays tribute to Pierre Trimbach and his enduring legacy in the wine world.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Northern Rhône Today: Preserving Identity in a Warming Climate",
+      "summary": "Yohan Castaing explores how the Northern Rhône is working to preserve its unique identity amidst a warming climate.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Ribera del Duero: Take a Walk on the Light Side",
+      "summary": "Spain's Ribera del Duero region is experiencing a stylistic shift toward lighter, more elegant red wines as reflected in this comprehensive report.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "2025 Rheingau & Pfalz: Energy, Ripeness, Brilliance and Speed",
+      "summary": "The 2025 growing season in the Rheingau and Pfalz produced energetic, juicy Rieslings alongside elegant 2024 Pinot Noirs, despite low yields and rapid harvests.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Producer Profiles: Canada",
+      "summary": "Get to know 25 of the key wineries in Canada with our latest set of producer profiles.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Oregon and Method Sparkling with MW Bree Stock",
+      "summary": "Guest MW Bree Stock speaks with host Chris Tanghe about the Oregon wine scene and the exciting Method Oregon sparkling wines.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "The Rise of Japanese Wine",
+      "summary": "Yasha Lysenko explores the dynamic Japanese wine industry and its innovative winemakers.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "‘The Worst Is Behind Us’: Silicon Valley Bank’s 2026 Wine Industry Report",
+      "summary": "The 25th annual Silicon Valley Bank report highlights 'green shoots' as the first signs of recovery for a declining wine industry.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "SevenFifty Daily’s Most Popular Articles of 2025",
+      "summary": "The most-read stories of the year focused on major industry issues like tariffs alongside educational deep dives into viticulture and wine aging.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Yiannis Karakasis MW on taking Great Greek Wines to another level",
+      "summary": "Yiannis Karakasis MW discusses his efforts and vision to elevate Great Greek Wines to new heights.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "How Federico Orione is updating Bersano for contemporary tastes",
+      "summary": "Federico Orione explains how he is modernizing the historic Bersano winery to appeal to contemporary wine drinkers.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Tanked up: London’s vibrant urban winery scene",
+      "summary": "English Wine Week is uniting London’s urban wineries for a celebration among tanks and barrels, reflecting the community spirit and inclusivity found at these innovative sites.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Ten red wines made for summer days",
+      "summary": "A curated selection of ten red wines that are perfectly suited for enjoyment during warm summer days.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "How wine can adapt to a changing climate",
+      "summary": "Wine is facing increased pressure as temperatures rise and the industry looks for ways to adapt to climate change.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "New beverage launches: Rice lager, sailing champagne and more…",
+      "summary": "Brands are tapping into flavour experimentation, wellness, and premiumisation through functional drinks, RTDs, and premium spirits.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "Treasury Wine Estates set to overhaul US business",
+      "summary": "Treasury Wine Estates (TWE) is set to overhaul its US business by fallowing vineyards and writing down inventory.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "A vin miraculeux from Fronton, in France’s Southwest",
+      "summary": "Joshua Greene highlights a miraculous wine from the Fronton region in southwestern France.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Latest Releases from France’s Southwest",
+      "summary": "Joshua Greene reviews and discusses the newest wine releases coming out of southwestern France.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Morandé Wine Group unveils new mid-strength cherry rosé-style wine",
+      "summary": "Chilean wine producer Morandé Wine Group has introduced a mid-strength cherry rosé-style wine for global markets that blends cherry wine with Sauvignon Blanc.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Maison Pommery and Henkell International end partnership discussions",
+      "summary": "Champagne producer Maison Pommery & Associés has called off its exclusive partnership discussions with sparkling wine group Henkell International.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Joel Gott Wines brings RTD wine with electrolytes to US market",
+      "summary": "California-based Joel Gott Wines has launched Sauvy B, a new line of ready-to-drink canned Sauvignon Blanc spritz beverages featuring added electrolytes.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "Drinks Retailing News",
+      "title": "WSET debuts queer dating night for wine lovers",
+      "summary": "The Wine and Spirit Education Trust is launching its first LGBT+ speed dating night tailored for wine enthusiasts on October 1.",
+      "url": "https://drinksretailingnews.co.uk/category/news/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "El vino barato concentra la mayor pérdida del mercado mundial del vino",
+      "summary": "전 세계 와인 시장에서 저가 와인이 가장 큰 폭의 판매 감소를 겪고 있다.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "El vino se encarece un 27% en Estados Unidos con menos consumo",
+      "summary": "미국에서는 소비가 감소한 가운데 와인 가격이 27% 상승했다.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Australia prevé una caída del 12% en el valor de sus exportaciones de vino",
+      "summary": "호주는 와인 수출액이 12% 감소할 것으로 예상하고 있다.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "title_ko": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/registration-opens-47th-world-congress-vine-and-wine",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "title_ko": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-hosts-inaugural-ambassadors-day-dijon",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "The OIV headquarters awarded the “Heritage of Diplomacy” label",
+      "title_ko": "The OIV headquarters awarded the “Heritage of Diplomacy” label",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-headquarters-awarded-heritage-diplomacy-label",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Global Bulk Wine Trade Slumps in Q1 2026, Value...",
+      "summary": "Global bulk wine exports fell 18.8% in value to €566M in Q1 2026, and 18.9% in volume, per Vinexposium's report.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "SVB State of the US Wine Industry",
+      "title": "State of the US Wine Industry 2026: Key Takeaways",
+      "summary": "The US wine industry is facing a challenging cycle with a clear divide between top-performing wineries growing through market evolution and struggling ones falling behind.",
+      "url": "https://www.svb.com/trends-insights/reports/wine-report",
+      "date": ""
+    },
+    {
+      "source": "SVB State of the US Wine Industry",
+      "title": "The Passive Growth Era Is Over",
+      "summary": "Top-quartile wineries achieved notable sales growth and operating income by actively repositioning their strategies, whereas bottom-quartile wineries experienced significant declines.",
+      "url": "https://www.svb.com/trends-insights/reports/wine-report",
+      "date": ""
+    },
+    {
+      "source": "SVB State of the US Wine Industry",
+      "title": "Top Performers Prioritize Customer and Digital Tools",
+      "summary": "Leading wineries leverage direct-to-consumer channels and hospitality-driven strategies as loyalty engines to build resilience in a soft market.",
+      "url": "https://www.svb.com/trends-insights/reports/wine-report",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "AI Adoption Grows Across the U.S. Wine Industry, but Progress Remains Uneven",
+      "summary": "U.S. wine industry is seeing growth in AI adoption, though the progress across different sectors remains uneven.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "Gen Z Isn’t Actually Killing Wine",
+      "summary": "Recent insights challenge the common narrative by showing that Generation Z is not actually killing the wine market.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "Wine’s consumer problem may be everyday relevance — not its appeal, study says",
+      "summary": "A new study indicates that wine's primary consumer challenge is maintaining everyday relevance rather than a lack of overall appeal.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    },
+    {
+      "source": "IWSC News",
+      "title": "House of Cards wins IWSC 2026 Western Australian Wine Producer Trophy",
+      "summary": "Margaret River producer House of Cards won the IWSC 2026 Western Australian Wine Producer Trophy after a historic 100-point score at this year’s Global Judging.",
+      "url": "https://www.iwsc.net/news/wine",
+      "date": ""
+    },
+    {
+      "source": "IWSC News",
+      "title": "IWSC 2026 Wine Judging in Margaret River yields record-breaking results",
+      "summary": "The IWSC’s fourth Global Judging in Margaret River awarded over 230 medals, highlighted by a historic 100-point score for House of Cards Ace High Chardonnay 2025.",
+      "url": "https://www.iwsc.net/news/wine",
+      "date": ""
+    },
+    {
+      "source": "IWSC News",
+      "title": "“One of the most exciting Chardonnay regions on the planet”",
+      "summary": "An international panel of experts gathered in Margaret River to taste hundreds of wines and discuss why the area is becoming a world-class Chardonnay region.",
+      "url": "https://www.iwsc.net/news/wine",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
