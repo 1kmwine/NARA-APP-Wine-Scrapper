@@ -48,6 +48,14 @@ _SECTION_HEADER_RE = re.compile(r'^\[.+\]$')
 _PER_BOTTLE_RE = re.compile(
     rf'(?:한\s*병\s*(?:당|에)|1\s*병\s*(?:당|에)|병\s*당)\s*[:\-]?\s*(?P<val>{_NUM_SRC})\s*원'
 )
+# "가격 : 19,990원"처럼 값이 가격임을 라벨로 밝히는 줄. 블로그 스펙블록
+# (지역/품종/빈티지/구매처/가격)에서 채널과 가격이 다른 줄로 갈릴 때, 다음 줄을
+# 그 채널 가격으로 인정할지 판단하는 근거로 쓴다.
+_PRICE_LABEL_RE = re.compile(r'(가격|판매가|구매가|구입가|정가|행사가|결제\s*금액)')
+# 라벨조차 없이 가격만 덩그러니 있는 줄("19,990원")도 같은 용도로 인정한다.
+_BARE_PRICE_LINE_RE = re.compile(rf'^\s*({_NUM_SRC})\s*원\s*$')
+# 내용이 없는 줄 판정 — 네이버 본문엔 zero-width space(​)만 있는 줄이 흔하다.
+_BLANKISH_RE = re.compile(r'^[\s​]*$')
 
 
 def _resolve_year_month(line: str, fallback_year_month: str) -> str:
@@ -149,6 +157,32 @@ def resolve_single_channel(text: str) -> str | None:
     return found[0] if len(found) == 1 else None
 
 
+def _price_from_following_line(lines: list[str], index: int) -> tuple[str, list[dict]] | None:
+    """채널만 있고 가격이 없는 줄(lines[index]) 바로 다음 줄에서 그 채널의 가격을
+    찾는다. 못 찾으면 None.
+
+    실측(2026-09-04, blog.naver.com/silver0930/224363835611): 블로그 스펙블록은
+    "구매처 : 코스트코 일산점" / "가격 : 19,990원"처럼 채널과 가격을 다른 줄에
+    적는다. 같은 줄만 보던 기존 로직은 이런 글을 통째로 놓쳤다.
+
+    지어내지 않기 위해 조건을 좁게 잡는다 — 바로 다음(빈 줄 건너뛴) 한 줄만 보고,
+    그 줄이 (1) 가격 라벨이 붙었거나 가격만 있는 줄이고, (2) 자기 채널명을 갖고
+    있지 않고(그 줄은 그 줄대로 처리되므로 중복 귀속 방지), (3) 가격 값이 정확히
+    하나일 때만 인정한다."""
+    for following in lines[index + 1:]:
+        if _BLANKISH_RE.match(following):
+            continue  # 빈 줄/zero-width space 줄은 건너뛴다
+        if not (_PRICE_LABEL_RE.search(following) or _BARE_PRICE_LINE_RE.match(following)):
+            return None
+        if any(pattern.search(following) for pattern in _CHANNEL_PATTERNS.values()):
+            return None
+        values = _find_price_values(following)
+        if len(values) != 1:
+            return None  # 가격이 0개면 붙일 게 없고, 2개 이상이면 어느 건지 확정 불가
+        return following, values
+    return None
+
+
 def extract_channel_prices(body_text: str, fallback_year_month: str, query: str | None = None) -> list[dict]:
     """정규식 기반 휴리스틱 — 본문에 직접 타이핑된 채널명+가격만 잡는다.
     위젯/이미지 안의 가격, 표현이 크게 다른 문장은 놓칠 수 있음(지어내지 않음:
@@ -162,12 +196,16 @@ def extract_channel_prices(body_text: str, fallback_year_month: str, query: str 
     query를 주면 같은 브랜드의 다른 제품 가격 줄을 걸러낸다
     (line_attributable_to_query 참고). 글에 [📍 상품명] 형태의 섹션 헤더가
     있으면(여러 상품을 나열/비교하는 글) 가격 줄을 그 직전 헤더에 귀속시켜
-    헤더가 검색어와 무관한 섹션의 가격은 버린다."""
+    헤더가 검색어와 무관한 섹션의 가격은 버린다.
+
+    채널만 있고 가격이 없는 줄은 바로 다음 줄과 짝지어 본다
+    (_price_from_following_line 참고) — 블로그 스펙블록이 "구매처 : 코스트코
+    일산점" / "가격 : 19,990원"처럼 줄을 나눠 적는 게 흔하다."""
     results: list[dict] = []
     lines = body_text.splitlines()
     has_sections = any(_SECTION_HEADER_RE.match(ln.strip()) for ln in lines if ln.strip())
     current_section = ""
-    for line in lines:
+    for index, line in enumerate(lines):
         stripped = line.strip()
         if not stripped:
             continue
@@ -175,13 +213,20 @@ def extract_channel_prices(body_text: str, fallback_year_month: str, query: str 
             current_section = stripped
             continue
         values = _find_price_values(line)
+        attribution_text = line
         if not values:
-            continue
+            following = _price_from_following_line(lines, index)
+            if following is None:
+                continue
+            price_line, values = following
+            # 귀속 판정은 채널 줄 + 가격 줄을 함께 본다 — 둘 중 어디에 제품명이
+            # 적혀 있든 같은 항목을 가리키기 때문.
+            attribution_text = f"{line}\n{price_line}"
         if query:
             section_arg = current_section if has_sections else None
-            if not line_attributable_to_query(line, query, section=section_arg):
+            if not line_attributable_to_query(attribution_text, query, section=section_arg):
                 continue
-        year_month = _resolve_year_month(line, fallback_year_month)
+        year_month = _resolve_year_month(attribution_text, fallback_year_month)
         for channel, pattern in _CHANNEL_PATTERNS.items():
             for channel_match in pattern.finditer(line):
                 nearest = min(values, key=lambda v: abs(channel_match.end() - v["start"]))

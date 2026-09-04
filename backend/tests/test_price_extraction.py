@@ -219,3 +219,45 @@ def test_extract_channel_prices_without_section_headers_keeps_old_behavior():
     text = "이마트에서 19,900원에 샀어요"
     result = extract_channel_prices(text, fallback_year_month="2026-08", query="몬테스 클래식")
     assert result == [{"channel": "이마트", "price_low": 19900, "price_high": 19900, "year_month": "2026-08"}]
+
+
+def test_extract_channel_prices_pairs_channel_line_with_next_line_price():
+    # 실측(2026-09-04, blog.naver.com/silver0930/224363835611): 블로그 스펙블록은
+    # "구매처 : 코스트코 일산점" / "가격 : 19,990원"처럼 채널과 가격이 다른 줄에 적힌다.
+    # 같은 줄만 보던 기존 로직은 이걸 통째로 놓쳤다.
+    text = (
+        "지역 : 스페인-카탈루냐\n"
+        "수입사 : 나라셀라(주)\n"
+        "구매처 : 코스트코 일산점\n"
+        "가격 : 19,990원\n"
+    )
+    result = extract_channel_prices(text, fallback_year_month="2026-07", query="로저구라트")
+    assert [(r["channel"], r["price_low"], r["price_high"]) for r in result] == [("코스트코", 19990, 19990)]
+
+
+def test_extract_channel_prices_pairs_with_bare_price_line():
+    # 라벨 없이 가격만 있는 줄도 붙인다.
+    text = "구매처 : 이마트\n29,800원\n"
+    result = extract_channel_prices(text, fallback_year_month="2026-07")
+    assert [(r["channel"], r["price_low"]) for r in result] == [("이마트", 29800)]
+
+
+def test_extract_channel_prices_does_not_pair_unrelated_next_line():
+    # 다음 줄이 가격 라벨도 아니고 가격만 있는 줄도 아니면 붙이지 않는다 — 지어내지 않음.
+    text = "코스트코에서 부담 없는 스파클링 찾는 분\n이 와인은 30,000원짜리 안주와 잘 어울린다\n"
+    result = extract_channel_prices(text, fallback_year_month="2026-07")
+    assert result == []
+
+
+def test_extract_channel_prices_does_not_pair_when_next_line_has_own_channel():
+    # 다음 줄에 자기 채널이 있으면 그 줄은 그 줄대로 처리된다(중복 귀속 방지).
+    text = "구매처 : 코스트코\n이마트 가격 : 29,800원\n"
+    result = extract_channel_prices(text, fallback_year_month="2026-07")
+    assert [(r["channel"], r["price_low"]) for r in result] == [("이마트", 29800)]
+
+
+def test_extract_channel_prices_skips_ambiguous_multi_price_next_line():
+    # 다음 줄에 가격이 여러 개면 어느 게 그 채널 값인지 확정 못 하므로 버린다.
+    text = "구매처 : 코스트코\n가격 : 19,990원 / 정가 29,900원\n"
+    result = extract_channel_prices(text, fallback_year_month="2026-07")
+    assert result == []
