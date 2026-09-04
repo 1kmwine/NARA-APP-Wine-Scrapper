@@ -433,6 +433,7 @@ const priceResultsTableEl=document.getElementById('priceResultsTable');
 const priceResultsTbody=document.getElementById('priceResultsTbody');
 const priceCheckedBlockEl=document.getElementById('priceCheckedBlock');
 const priceCheckedCountEl=document.getElementById('priceCheckedCount');
+const priceProgressNoteEl=document.getElementById('priceProgressNote');
 const priceCheckedTbody=document.getElementById('priceCheckedTbody');
 
 /* 가격검색 job은 블로그(항상-켜짐 1) → 와쌉(등록 소스 개수) 순으로 done을
@@ -470,7 +471,9 @@ function renderPriceProgressRows(done){
 }
 
 let pricePollTimer=null, pricePollDeadline=null;
-const PRICE_POLL_TIMEOUT_MS=60000;
+/* 백엔드 main.py PRICE_JOB_TIMEOUT_SECONDS(300초)와 맞춰야 한다 — 프론트가 먼저
+   포기하면 서버는 계속 돌고 있는데 화면만 중단된다. 여유로 10초 더 준다. */
+const PRICE_POLL_TIMEOUT_MS=310000;
 
 function formatPriceRange(low, high){
   return low===high ? `${low.toLocaleString()}원` : `${low.toLocaleString()}원 ~ ${high.toLocaleString()}원`;
@@ -557,12 +560,16 @@ const SOURCE_TYPE_LABEL={blog:'블로그', wassap:'와쌉'};
 
 /* 백엔드 run_price_job의 _collect_prices 반환값과 1:1로 맞춰야 한다 */
 const PRICE_STATUS_LABEL={
+  checking:'확인 중…',
+  checking_image:'이미지 분석 중…',
   priced:'가격 추출',
   priced_from_image:'가격 추출 (이미지)',
   no_price:'가격 언급 없음',
   unrelated:'제외 — 검색어 없는 글(다른 제품)',
   no_body:'본문 가져오기 실패',
 };
+/* 진행 중 상태 — 회색 처리 대상에서 빼고 글자를 살려둔다 */
+const PRICE_STATUS_IN_PROGRESS=new Set(['checking','checking_image']);
 
 function renderPriceCheckedItems(items){
   priceCheckedTbody.innerHTML='';
@@ -577,8 +584,21 @@ function renderPriceCheckedItems(items){
     // 이 글을 왜 가격에 못 썼는지 사유를 그대로 보여준다 — 결과가 적을 때
     // 검색어 문제인지, 본문 파싱 문제인지, 그냥 가격이 없는 글인지 구분되게.
     const tdRelated=document.createElement('td');
-    tdRelated.textContent = PRICE_STATUS_LABEL[it.status] || it.status || '';
-    if(it.status!=='priced' && it.status!=='priced_from_image') tdRelated.style.color='var(--color-text-muted)';
+    const statusText=document.createElement('span');
+    statusText.textContent = PRICE_STATUS_LABEL[it.status] || it.status || '';
+    if(it.status!=='priced' && it.status!=='priced_from_image' && !PRICE_STATUS_IN_PROGRESS.has(it.status)){
+      statusText.style.color='var(--color-text-muted)';
+    }
+    tdRelated.appendChild(statusText);
+    // 본문에 가격이 없어서 첨부 이미지까지 추출기(OCR/Gemini)에 돌린 글은
+    // 결과와 무관하게 표시한다 — 텍스트로 잡은 값과 구분하고, 이미지를 봤는데도
+    // 못 찾은 글인지 아예 안 본 글인지 구분되게.
+    if(it.image_checked && it.status!=='priced_from_image'){
+      const badge=document.createElement('span');
+      badge.className='badge'; badge.style.marginLeft='6px';
+      badge.textContent='이미지 확인함';
+      tdRelated.appendChild(badge);
+    }
     const tdLink=document.createElement('td');
     const a=document.createElement('a');
     a.href=it.external_url||'#'; a.target='_blank'; a.rel='noopener'; a.textContent='바로가기';
@@ -597,6 +617,7 @@ async function startPriceSearch(){
   priceCheckedBlockEl.classList.add('hidden');
   priceResultsProgressEl.classList.remove('hidden');
   priceProgressBarFillEl.style.width='0%';
+  if(priceProgressNoteEl) priceProgressNoteEl.textContent='검색 준비 중…';
   renderPriceProgressRows(0);
   btnStartPriceSearch.disabled=true;
 
@@ -621,7 +642,7 @@ priceQueryInput.addEventListener('keydown', e=>{ if(e.key==='Enter') startPriceS
 async function pollPriceJob(jobId, query){
   if(Date.now()>pricePollDeadline){
     if(pricePollTimer) clearTimeout(pricePollTimer);
-    alert('60초 안에 끝나지 않아 중단했습니다. 다시 시도해주세요.');
+    alert('5분 안에 끝나지 않아 중단했습니다. 다시 시도해주세요.');
     priceResultsProgressEl.classList.add('hidden');
     btnStartPriceSearch.disabled=false;
     return;
@@ -631,6 +652,7 @@ async function pollPriceJob(jobId, query){
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const job=await res.json();
     priceProgressBarFillEl.style.width=`${job.total?(job.done/job.total)*100:0}%`;
+    if(priceProgressNoteEl) priceProgressNoteEl.textContent=job.progress||'';
     renderPriceProgressRows(job.done);
     renderPriceCheckedItems(job.price_checked_items||[]);
 

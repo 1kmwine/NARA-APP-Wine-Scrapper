@@ -982,3 +982,88 @@ def test_run_price_job_skips_image_price_when_channel_ambiguous():
 
     assert inserted == []
     assert store.get(job.id).price_checked_items[0]["status"] == "no_price"
+
+
+def test_run_price_job_reports_progress_while_running():
+    # 실행 중에 "지금 어느 글을 보고 있는지"가 화면에 뜨도록 job.progress를 갱신한다.
+    store = JobStore()
+    job = store.create("몬테스", "", total=1)
+    sources = _empty_sources()
+    seen_progress = []
+
+    def fetch_blog_body(url):
+        seen_progress.append(store.get(job.id).progress)
+        return "몬테스 이마트 29,800원"
+
+    run_price_job(job.id, store, sources, "몬테스", "", **_price_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="후기 제목", excerpt="", thumbnail_url=None,
+            external_url="https://blog.naver.com/x/1", published_date="2026-06-15",
+            source_name="블로그: x",
+        )],
+        fetch_blog_body=fetch_blog_body,
+    ))
+
+    assert seen_progress and "후기 제목" in seen_progress[0]
+
+
+def test_run_price_job_publishes_items_incrementally():
+    # 글 하나 처리할 때마다 목록이 갱신돼야 진행 상황이 실시간으로 보인다.
+    store = JobStore()
+    job = store.create("몬테스", "", total=1)
+    sources = _empty_sources()
+    counts = []
+
+    def fetch_blog_body(url):
+        counts.append(len(store.get(job.id).price_checked_items))
+        return "몬테스 이마트 29,800원"
+
+    items = [CollectedItem(
+        title=f"글{i}", excerpt="", thumbnail_url=None,
+        external_url=f"https://blog.naver.com/x/{i}", published_date="2026-06-15",
+        source_name="블로그: x",
+    ) for i in range(3)]
+
+    run_price_job(job.id, store, sources, "몬테스", "", **_price_deps(
+        fetch_blog_items=lambda query: items, fetch_blog_body=fetch_blog_body,
+    ))
+
+    assert counts == [1, 2, 3]  # 마지막에 한꺼번에가 아니라 건건이 반영
+
+
+def test_run_price_job_marks_items_whose_images_were_checked():
+    # 이미지까지 본 글은 목록에서 따로 표시할 수 있어야 한다(OCR/이미지 확인 여부).
+    store = JobStore()
+    job = store.create("베터하프", "", total=1)
+    sources = _empty_sources()
+
+    run_price_job(job.id, store, sources, "베터하프", "", **_price_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="GS25 베터하프", excerpt="", thumbnail_url=None,
+            external_url="https://blog.naver.com/x/1", published_date="2026-08-04",
+            source_name="블로그: x",
+        )],
+        fetch_blog_body=lambda url: FetchedBody(text="베터하프 문의", image_urls=["https://img/a.png"]),
+        extract_image_price=lambda urls: None,  # 이미지도 봤지만 가격 못 찾음
+    ))
+
+    entry = store.get(job.id).price_checked_items[0]
+    assert entry["status"] == "no_price"
+    assert entry["image_checked"] is True
+
+
+def test_run_price_job_does_not_mark_image_checked_when_images_not_used():
+    store = JobStore()
+    job = store.create("몬테스", "", total=1)
+    sources = _empty_sources()
+
+    run_price_job(job.id, store, sources, "몬테스", "", **_price_deps(
+        fetch_blog_items=lambda query: [CollectedItem(
+            title="후기", excerpt="", thumbnail_url=None,
+            external_url="https://blog.naver.com/x/2", published_date="2026-06-15",
+            source_name="블로그: x",
+        )],
+        fetch_blog_body=lambda url: "몬테스 이마트 29,800원",
+    ))
+
+    assert store.get(job.id).price_checked_items[0].get("image_checked") is not True

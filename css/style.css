@@ -78,6 +78,11 @@
   overflow:hidden; margin-bottom:32px;
 }
 .progress-bar-fill{ height:100%; background:var(--accent); border-radius:999px; width:0%; transition:width .4s ease; }
+/* 진행 중 "지금 보고 있는 글" 한 줄 — 가격검색이 수 분 걸려서 필요하다 */
+.progress-note{
+  font-size:13px; color:var(--color-text-muted); margin:-20px 0 20px;
+  min-height:18px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
 .progress-rows{ display:flex; flex-direction:column; gap:12px; }
 .progress-row{
   display:flex; align-items:center; justify-content:space-between;

@@ -44,6 +44,9 @@ class Job:
     results: list[JobResultItem] = field(default_factory=list)
     price_results: list[dict] = field(default_factory=list)
     price_checked_items: list[dict] = field(default_factory=list)
+    # 지금 무슨 글을 보고 있는지 한 줄로 — 가격검색이 글 20~30개를 순차로 훑고
+    # 이미지까지 보면 수 분이 걸려서, 진행 상황을 화면에 보여주려면 필요하다.
+    progress: str = ""
     error: Optional[str] = None
 
 
@@ -561,6 +564,16 @@ def run_price_job(
     def deadline_passed() -> bool:
         return deadline is not None and time.monotonic() > deadline
 
+    def publish(note: str = "") -> None:
+        """진행 상황과 지금까지의 목록을 화면에 즉시 반영한다. 글 하나 끝날 때마다
+        불러야 프론트가 폴링할 때 실시간으로 보인다(예전엔 루프가 다 끝난 뒤
+        한꺼번에 반영해서 몇 분간 빈 화면이었다)."""
+        store.update(job_id, progress=note, price_checked_items=list(checked_items))
+
+    def _shorten(text: str, limit: int = 40) -> str:
+        text = (text or "").strip()
+        return text if len(text) <= limit else text[:limit] + "…"
+
     def _normalize_body(body) -> tuple[str | None, list[str]]:
         """fetch_*_body는 FetchedBody(text, image_urls)를 돌려주지만, 문자열을
         돌려주는 호출부도 계속 지원한다(기존 테스트/호출 호환). 문자열이면
@@ -572,7 +585,7 @@ def run_price_job(
         return body.text, list(body.image_urls)
 
     def _collect_prices(body, published_date: str | None, source_type: str,
-                        source_url: str, title: str = "") -> str:
+                        source_url: str, title: str = "", entry: dict | None = None) -> str:
         """가격을 추출·저장하고, 이 글을 어떻게 처리했는지 상태 문자열을 돌려준다.
         화면의 '검색한 글' 목록에 사유를 그대로 보여주기 위한 값 —
         'no_body'(본문 못 가져옴) | 'unrelated'(검색어가 글에 없음, 다른 제품)
@@ -606,6 +619,13 @@ def run_price_job(
         channel = resolve_single_channel(f"{title}\n{body_text}")
         if channel is None:
             return "no_price"  # 어느 채널 가격인지 확정 불가 — 지어내지 않는다
+        # 여기서부터 실제로 이미지를 내려받아 추출기를 돌린다 — 글당 수 초 걸리므로
+        # 화면에 "이미지 분석 중"으로 표시하고, 결과와 무관하게 '이미지도 봤다'는
+        # 사실을 목록에 남긴다(image_checked).
+        if entry is not None:
+            entry["image_checked"] = True
+            entry["status"] = "checking_image"
+            publish(f"이미지 분석 중 · {_shorten(title)}")
         try:
             image_price = extract_image_price(image_urls)
         except Exception:  # noqa: BLE001 — 이 글만 생략
@@ -633,23 +653,25 @@ def run_price_job(
             had_failure = True
             blog_items = []
 
-        for item in blog_items:
+        for index, item in enumerate(blog_items, start=1):
             if deadline_passed():
                 timed_out = True
                 break
             entry = {
                 "source_type": "blog", "source_name": item.source_name, "title": item.title,
                 "external_url": item.external_url, "published_date": item.published_date,
-                "status": "no_body",
+                "status": "checking",
             }
             checked_items.append(entry)
+            publish(f"블로그 {index}/{len(blog_items)} · {_shorten(item.title)}")
             try:
                 entry["status"] = _collect_prices(
                     fetch_blog_body(item.external_url), item.published_date, "blog",
-                    item.external_url, item.title)
+                    item.external_url, item.title, entry=entry)
             except Exception:  # noqa: BLE001 — fetch_blog_body 자체가 예외를 던지는 극단적 경우 대비
                 logger.exception("블로그 본문 가져오기 실패: %s", item.external_url)
-        store.update(job_id, price_checked_items=list(checked_items))
+                entry["status"] = "no_body"
+            publish(f"블로그 {index}/{len(blog_items)} · {_shorten(item.title)}")
         store.increment_done(job_id)
 
     for source in sources.wassap:
@@ -664,23 +686,25 @@ def run_price_job(
             store.increment_done(job_id)
             continue
 
-        for item in wassap_items:
+        for index, item in enumerate(wassap_items, start=1):
             if deadline_passed():
                 timed_out = True
                 break
             entry = {
                 "source_type": "wassap", "source_name": item.source_name, "title": item.title,
                 "external_url": item.external_url, "published_date": item.published_date,
-                "status": "no_body",
+                "status": "checking",
             }
             checked_items.append(entry)
+            publish(f"와쌉 {index}/{len(wassap_items)} · {_shorten(item.title)}")
             try:
                 entry["status"] = _collect_prices(
                     fetch_wassap_body(source, item.external_url), item.published_date, "wassap",
-                    item.external_url, item.title)
+                    item.external_url, item.title, entry=entry)
             except Exception:  # noqa: BLE001
                 logger.exception("와쌉 본문 가져오기 실패: %s", item.external_url)
-        store.update(job_id, price_checked_items=list(checked_items))
+                entry["status"] = "no_body"
+            publish(f"와쌉 {index}/{len(wassap_items)} · {_shorten(item.title)}")
         store.increment_done(job_id)
 
     try:
@@ -691,6 +715,10 @@ def run_price_job(
         had_failure = True
 
     if timed_out:
-        store.update(job_id, status="failed", error="60초 시간 제한을 초과했습니다")
+        # 제한 시간은 호출부(main.py)가 정하므로 메시지에 초를 하드코딩하지 않는다.
+        # 중간까지 확인한 게 있으면 그것까지는 살려서 partial로 돌려준다 —
+        # 예전엔 통째로 failed라 20개 중 18개를 봤어도 결과가 안 보였다.
+        store.update(job_id, status="partial" if checked_items else "failed",
+                     progress="", error="시간 제한을 초과해 중간까지만 확인했습니다")
     else:
-        store.update(job_id, status="partial" if had_failure else "succeeded")
+        store.update(job_id, status="partial" if had_failure else "succeeded", progress="")

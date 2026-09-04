@@ -33,6 +33,8 @@ app.add_middleware(
 store = JobStore()
 settings = get_settings()
 YOUTUBE_MAX_AGE_DAYS = 365 * 5
+# 가격검색 제한 시간(초). 프론트(js/app.js PRICE_POLL_TIMEOUT_MS)도 같이 맞춰야 한다.
+PRICE_JOB_TIMEOUT_SECONDS = 300
 
 
 class CreateJobRequest(BaseModel):
@@ -236,7 +238,10 @@ def _run_price_job_in_background(job_id: str, sources, wine_name: str) -> None:
                 insert_channel_price=_insert_channel_price,
                 get_price_history=_get_price_history,
                 extract_image_price=extract_image_price if extractor else None,
-                deadline=time.monotonic() + 60,
+                # 블로그·와쌉 글 20~30개를 순차로 훑고, 본문에 가격이 없는 글은
+                # 이미지까지 내려받아 추출기(Gemini)를 돌린다 — 글당 1~7초라
+                # 60초로는 매번 중간에 끊겼다(2026-09-04 사용자 실측 2회).
+                deadline=time.monotonic() + PRICE_JOB_TIMEOUT_SECONDS,
             )
     except Exception as exc:  # noqa: BLE001
         store.update(job_id, status="failed", error=f"예기치 못한 오류: {exc}")
@@ -338,6 +343,7 @@ def get_price_job(job_id: str):
         "total": job.total,
         "done": job.done,
         "error": job.error,
+        "progress": job.progress,
         "price_results": job.price_results,
         "price_checked_items": job.price_checked_items,
     }
