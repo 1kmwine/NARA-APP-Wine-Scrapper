@@ -905,3 +905,29 @@ def test_html_to_lines_drops_smart_editor_link_card_text():
     assert "20% 할인 구매 후기" not in text
     assert "빌까르 살몽 가격 비교" in text
     assert "이마트 용산점 120,000원" in text
+
+
+def test_table_lines_join_cells_by_row_and_column():
+    # 실측(2026-09-07): 가격 비교표는 채널명 셀 4개가 먼저, 가격 셀 4개가 뒤따라
+    # 나와서 줄 단위 추출로는 짝을 못 맞췄다(이마트 120,000 / 와인앤모어 150,000).
+    from app.collectors import _table_lines
+
+    html = (
+        '<table><tbody>'
+        '<tr><td></td><td>이마트 용산점</td><td>와인앤모어 한남점</td></tr>'
+        '<tr><td>가격 (상시가)</td><td>120,000원</td><td>150,000원</td></tr>'
+        '</tbody></table>'
+    )
+    lines = _table_lines(html)
+    assert any("이마트 용산점" in ln and "120,000원" in ln for ln in lines)
+    assert any("와인앤모어 한남점" in ln and "150,000원" in ln for ln in lines)
+
+
+def test_html_to_lines_includes_table_joined_lines():
+    from app.collectors import _html_to_lines
+
+    html = ('<p>가격 비교</p><table><tbody>'
+            '<tr><td>이마트</td></tr><tr><td>120,000원</td></tr>'
+            '</tbody></table>')
+    text = _html_to_lines(html)
+    assert any("이마트" in ln and "120,000원" in ln for ln in text.split("\n"))

@@ -264,6 +264,14 @@ def mentions_duty_free(text: str) -> bool:
     return bool(_DUTY_FREE_RE.search(text or ""))
 
 
+def _append_unique(results: list[dict], row: dict) -> None:
+    """같은 값이 여러 번 나오는 걸 막는다 — 표를 행·열 두 방향으로 이어붙이면
+    같은 (채널, 가격, 년월)이 중복으로 잡힌다(DB는 유니크 키로 접히지만 화면
+    출처 링크가 중복 표시된다)."""
+    if row not in results:
+        results.append(row)
+
+
 def _price_from_preceding_line(lines: list[str], index: int) -> tuple[str, list[dict]] | None:
     """채널만 있고 가격이 없는 줄(lines[index]) 바로 앞 줄에서 그 채널의 가격을
     찾는다. 못 찾으면 None.
@@ -352,7 +360,7 @@ def extract_channel_prices(body_text: str, fallback_year_month: str, query: str 
             for channel_match in pattern.finditer(line):
                 matched_any_channel = True
                 nearest = min(values, key=lambda v: abs(channel_match.end() - v["start"]))
-                results.append({
+                _append_unique(results, {
                     "channel": channel,
                     "price_low": nearest["price_low"],
                     "price_high": nearest["price_high"],
@@ -367,7 +375,7 @@ def extract_channel_prices(body_text: str, fallback_year_month: str, query: str 
         if (not matched_any_channel and values_from_own_line and query and post_channel
                 and query_tokens_all_present(line, query)):
             nearest = min(values, key=lambda v: v["start"])
-            results.append({
+            _append_unique(results, {
                 "channel": post_channel,
                 "price_low": nearest["price_low"],
                 "price_high": nearest["price_high"],
