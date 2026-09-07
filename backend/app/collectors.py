@@ -791,6 +791,14 @@ class FetchedBody(NamedTuple):
 
 
 _SCRIPT_STYLE_RE = re.compile(r'<(script|style)\b[^>]*>.*?</\1>', re.DOTALL | re.IGNORECASE)
+# Smart Editor 링크카드(se-oglink) — 이 글이 아니라 **다른 글**의 제목·요약·URL이다.
+# 그대로 본문 텍스트에 섞이면 그 글의 가격/채널이 이 글 가격으로 잡힌다(실측
+# 2026-09-07 — "빌까르 살몽" 검색 결과에 링크카드 "[이마트 행사] 신촌점 - 3만 원
+# 이상 20% 할인 구매 후기"의 3만 원이 이마트 30,000원으로 저장됨).
+_OGLINK_TEXT_RE = re.compile(
+    r'<(strong|p|span|div|a)\b[^>]*class="[^"]*se-oglink-(?:title|summary|url)[^"]*"[^>]*>.*?</\1>',
+    re.DOTALL | re.IGNORECASE,
+)
 _BLOCK_BREAK_RE = re.compile(r'</p>|<br\s*/?>|</div>', re.IGNORECASE)
 _TAG_RE = re.compile(r'<[^>]+>')
 
@@ -800,8 +808,10 @@ def _html_to_lines(html_str: str) -> str:
     HTML 엔티티(&#x3D; 등, Smart Editor 콘텐츠에 흔함)를 복원한다. 빈 줄은 버린다.
     <script>/<style> 블록은 태그+내용째 통째로 먼저 제거한다 — 안 그러면 JS/CSS
     텍스트가 그대로 새서 가격 추출 단계에서 오탐(채널명+가격 패턴이 우연히 코드
-    안에 같이 있는 경우)이 생길 수 있다."""
+    안에 같이 있는 경우)이 생길 수 있다. 링크카드(se-oglink)의 제목/요약/URL도
+    같은 이유로 제거한다 — 그건 이 글이 아니라 다른 글의 내용이다."""
     text = _SCRIPT_STYLE_RE.sub('', html_str)
+    text = _OGLINK_TEXT_RE.sub('', text)
     text = _BLOCK_BREAK_RE.sub('\n', text)
     text = _TAG_RE.sub('', text)
     text = html_module.unescape(text)
