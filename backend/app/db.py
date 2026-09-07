@@ -37,6 +37,23 @@ def get_known_brands(conn) -> list[str]:
         return [row[0] for row in cur.fetchall()]
 
 
+def get_catalog_names_ko(conn) -> list[str]:
+    """가격검색 검색어 표기 교정용 — 취급 상품의 한글 제품명 목록.
+    브랜드명(brandName)도 합친다: 사용자가 "리베라"처럼 생산자명만 넣는 경우도
+    같은 방식으로 교정돼야 한다."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT DISTINCT name FROM (
+                SELECT nameKo AS name FROM integrated_item_info WHERE nameKo IS NOT NULL AND nameKo != ''
+                UNION
+                SELECT brandName AS name FROM integrated_item_info WHERE brandName IS NOT NULL AND brandName != ''
+            ) AS combined
+            """
+        )
+        return [row[0] for row in cur.fetchall()]
+
+
 def find_english_name(conn, query: str) -> str | None:
     """뉴스 검색어를 영문으로도 확장하기 위해, 사용자가 입력한 한글 와인명이
     nameKo와 (공백 유무 빼고) 일치하는 제품을 찾아 그 nameEn을 돌려준다.

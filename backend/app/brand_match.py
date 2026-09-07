@@ -118,6 +118,28 @@ def fold_translit(text: str) -> str:
     return "".join(out)
 
 
+def correct_query_spelling(query: str, catalog_names: list[str]) -> str:
+    """검색어의 각 토큰을 상품 카탈로그(integrated_item_info nameKo)에 실제로
+    쓰이는 표기로 바꿔준다. 음역 표기가 갈리면 네이버 검색이 아예 다른 글을
+    돌려주기 때문이다(실측 2026-09-07 — "프렐류디오 가격"은 유니슨리서치
+    프렐류디오 인티앰프 글을, "프렐루디오 가격"은 와인 글을 돌려줬다).
+
+    카탈로그 전체 이름으로 갈아치우지 않고 **토큰 단위로만** 교정한다 —
+    "리베라 프렐루디오 넘버원 샤도네이" 같은 긴 정식명으로 검색하면 오히려
+    결과가 줄어든다. 매칭되는 카탈로그 토큰이 없으면 입력 그대로 둔다."""
+    tokens = (query or "").split()
+    if not tokens or not catalog_names:
+        return query
+    catalog_tokens: dict[str, str] = {}
+    for name in catalog_names:
+        for token in (name or "").split():
+            folded = fold_translit(token)
+            # 같은 폴딩 키에 여러 표기가 있으면 먼저 본 것을 쓴다(카탈로그 순서).
+            catalog_tokens.setdefault(folded, token)
+    corrected = [catalog_tokens.get(fold_translit(t), t) for t in tokens]
+    return " ".join(corrected)
+
+
 def query_tokens_all_present(text: str, query: str) -> bool:
     """검색어의 토큰이 (순서·사이에 낀 단어 무관) 전부 text에 있으면 True.
 
