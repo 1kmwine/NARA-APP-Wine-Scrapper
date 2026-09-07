@@ -40,9 +40,24 @@ def parse_price_from_ocr_text(text: str) -> int | None:
     return None
 
 
-def extract_final_price(image_bytes: bytes, mime_type: str) -> int | None:
+def ocr_text_mentions_query(text: str, query: str) -> bool:
+    """OCR로 읽은 이미지가 검색한 와인 것인지 본다 — 와인명(공백 무시)이나 그
+    구성 토큰 중 하나가 텍스트에 있으면 인정한다.
+
+    Gemini 경로와 달리 OCR은 의미 판단을 못 해서, 와인 글에 같이 올라온 다른
+    상품(음식 등) 영수증의 금액도 그대로 읽어버린다(실측 2026-09-05 초밥
+    영수증 사례). 이름 흔적이 전혀 없으면 지어내지 않고 버린다."""
+    flat_text = re.sub(r'\s+', '', text)
+    if re.sub(r'\s+', '', query) and re.sub(r'\s+', '', query) in flat_text:
+        return True
+    return any(len(token) >= 2 and token in flat_text for token in query.split())
+
+
+def extract_final_price(image_bytes: bytes, mime_type: str, query: str | None = None) -> int | None:
     """Tesseract로 이미지를 읽어 최종 결제금액을 뽑는다. 언어팩 미설치 등
     OCR 실패는 예외 대신 None — 이 이미지만 스킵하고 검색은 계속된다.
+
+    query를 주면 OCR 텍스트에 그 와인명 흔적이 있을 때만 가격을 인정한다.
 
     서버에 apt 패키지 tesseract-ocr, tesseract-ocr-kor 설치가 필요하다."""
     try:
@@ -52,5 +67,7 @@ def extract_final_price(image_bytes: bytes, mime_type: str) -> int | None:
         text = pytesseract.image_to_string(Image.open(io.BytesIO(image_bytes)), lang="kor+eng")
     except Exception:  # noqa: BLE001 — 이 이미지만 스킵
         logger.exception("OCR 이미지 가격 추출 실패")
+        return None
+    if query and not ocr_text_mentions_query(text, query):
         return None
     return parse_price_from_ocr_text(text)
