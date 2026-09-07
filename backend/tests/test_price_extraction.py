@@ -394,3 +394,13 @@ def test_transliteration_variant_query_matches_title():
     title = "리베라 프렐루디오 넘버원 샤도네이 2023"
     result = extract_channel_prices(body, "2025-05", query="프렐류디오 샤도네이", title=title)
     assert result[0]["price_low"] == 17800
+
+
+def test_threshold_amount_is_not_a_price():
+    # 실측(2026-09-07): 링크카드 "[이마트 행사] 신촌점 - 3만 원 이상 20% 할인
+    # 구매 후기"의 "3만 원"이 이마트 30,000원으로 저장됐다. 조건 금액은 가격이 아니다.
+    assert extract_channel_prices("[이마트 행사] 신촌점 - 3만 원 이상 20% 할인 구매 후기", "2023-03") == []
+    assert extract_channel_prices("봉쥬르 와인샵 20만원 이하 상품", "2023-03") == []
+    assert extract_channel_prices("이마트 30,000원 이상 구매시 할인", "2023-03") == []
+    # 조건 문구가 없으면 그대로 인정
+    assert extract_channel_prices("이마트 30,000원", "2023-03")[0]["price_low"] == 30000

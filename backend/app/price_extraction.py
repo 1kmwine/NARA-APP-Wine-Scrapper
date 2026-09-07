@@ -61,6 +61,9 @@ _BARE_COMMA_NUM_RE = re.compile(
 # 장터/행사/특가 가격은 그 채널의 상시 시세와 다르다 — 저장은 하되 화면에서
 # 구분 표시한다(사용자 결정 2026-09-07). "할인"만 있는 문구는 너무 흔해서 제외.
 _PROMO_RE = re.compile(r'(장터|행사가|행사\s|행사$|특가|세일|프로모션|1\s*\+\s*1|원\s*플러스\s*원)')
+# "3만 원 이상 20% 할인", "20만원 이하 상품" 처럼 **조건**으로 쓰인 금액은 가격이
+# 아니다(실측 2026-09-07 — 링크카드의 "3만 원 이상"이 이마트 30,000원으로 저장됨).
+_THRESHOLD_SUFFIX_RE = re.compile(r'^\s*(?:이상|이하|초과|미만|넘게|이내|부터\s*\d*\s*%)')
 # "[📍 로저 구라트, 까바 밀레짐 브뤼 2024]"처럼 한 줄 전체가 대괄호로 싸인 상품
 # 섹션 헤더 — 여러 상품을 나열/비교하는 글(레드셀러류 성지 리뷰)의 관례적 표기.
 _SECTION_HEADER_RE = re.compile(r'^\[.+\]$')
@@ -100,6 +103,11 @@ def _resolve_year_month(line: str, fallback_year_month: str) -> str:
     return f"{year:04d}-{month:02d}"
 
 
+def _is_threshold_amount(line: str, match_end: int) -> bool:
+    """금액 바로 뒤가 이상/이하/초과/미만이면 가격이 아니라 조건이다."""
+    return bool(_THRESHOLD_SUFFIX_RE.match(line[match_end:match_end + 8]))
+
+
 def _find_price_values(line: str) -> list[dict]:
     """줄에서 가격 값들을 찾는다. `~`/`-`/`부터...까지`로 바로 이어진 두 숫자는
     하나의 범위 값(위치는 그 조합의 시작점)으로, 그 외 숫자는 각각 독립된
@@ -120,6 +128,8 @@ def _find_price_values(line: str) -> list[dict]:
     for m in _PRICE_RE.finditer(line):
         if any(start <= m.start() < end for start, end in consumed):
             continue  # 이미 범위로 묶인 숫자 — 단일 값으로 중복 추가하지 않음
+        if _is_threshold_amount(line, m.end()):
+            continue
         value = int(m.group(1).replace(",", ""))
         values.append({"start": m.start(), "price_low": value, "price_high": value})
 
@@ -134,6 +144,8 @@ def _find_price_values(line: str) -> list[dict]:
             value += int(cheon) * 1_000
         if not _MANWON_MIN <= value <= _MANWON_MAX:
             continue
+        if _is_threshold_amount(line, m.end()):
+            continue
         values.append({"start": m.start(), "price_low": value, "price_high": value})
 
     for m in _BARE_COMMA_NUM_RE.finditer(line):
@@ -143,6 +155,8 @@ def _find_price_values(line: str) -> list[dict]:
             continue  # 이미 "원" 붙은 가격으로 잡힌 숫자
         value = int(m.group(1).replace(",", ""))
         if not _MANWON_MIN <= value <= _MANWON_MAX:
+            continue
+        if _is_threshold_amount(line, m.end()):
             continue
         values.append({"start": m.start(), "price_low": value, "price_high": value})
 

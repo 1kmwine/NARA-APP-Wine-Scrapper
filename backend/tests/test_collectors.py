@@ -882,3 +882,26 @@ def test_fetch_wassap_full_body_collects_image_urls():
 
     assert body.text == "문의"
     assert body.image_urls == ["https://cafeptthumb-phinf.pstatic.net/pay.png"]
+
+
+def test_html_to_lines_drops_smart_editor_link_card_text():
+    # 실측(2026-09-07): 링크카드는 이 글이 아니라 **다른 글**의 제목·요약이다.
+    # 그대로 본문에 섞이면 그 글의 가격이 이 글 가격으로 저장된다.
+    from app.collectors import _html_to_lines
+
+    html = (
+        '<p>빌까르 살몽 가격 비교</p>'
+        '<div class="se-component se-oglink se-l-text">'
+        '<div class="se-module se-module-oglink">'
+        '<a href="https://blog.naver.com/x/1" class="se-oglink-info">'
+        '<strong class="se-oglink-title">[이마트 행사] 신촌점 - 3만 원 이상 20% 할인 구매 후기</strong>'
+        '<p class="se-oglink-summary">이마트 20% 행사 3만 원 이상</p>'
+        '<span class="se-oglink-url">blog.naver.com</span>'
+        '</a></div></div>'
+        '<p>이마트 용산점 120,000원</p>'
+    )
+    text = _html_to_lines(html)
+    assert "3만 원 이상" not in text
+    assert "20% 할인 구매 후기" not in text
+    assert "빌까르 살몽 가격 비교" in text
+    assert "이마트 용산점 120,000원" in text
