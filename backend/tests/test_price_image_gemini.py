@@ -163,3 +163,33 @@ def test_query_path_requires_name_fields_so_old_style_response_is_rejected():
     client = FakeClient(FakeResponse(_gemini_payload({"final_price": 51900, "label": "가격"})))
     assert extract_final_price(
         b"img", "image/png", api_key="k", client=client, query="케이머스 나파밸리") is None
+
+
+def test_rejects_kendall_jackson_tag_for_roger_goulart_search():
+    # 실측(2026-09-05): 주간 코스트코 와인 모음글의 "켄달 잭슨 샤도네이
+    # K.J. RESERVE CHARDONNAY 33,990원" 가격표가 로저구라트 가격으로 저장됐다.
+    client = FakeClient(FakeResponse(_gemini_payload({
+        "final_price": 33990, "label": "가격표",
+        "matched_name": "켄달 잭슨 샤도네이", "matches_target": True,
+    })))
+
+    assert extract_final_price(
+        b"img", "image/png", api_key="k", client=client, query="로저구라트") is None
+
+
+def test_rejects_other_napa_wine_tag_for_caymus_search():
+    client = FakeClient(FakeResponse(_gemini_payload({
+        "final_price": 89000, "label": "가격표",
+        "matched_name": "나파밸리 카베르네 소비뇽", "matches_target": True,
+    })))
+
+    assert extract_final_price(
+        b"img", "image/png", api_key="k", client=client, query="케이머스 나파밸리") is None
+
+
+def test_defaults_to_flash_lite_model_for_quota_headroom():
+    # gemini-flash-latest는 무료 쿼터가 하루 ~20건이라 이미지 경로(1장=1호출)가
+    # 곧 429로 죽는다(실측 2026-09-05). lite는 쿼터가 넉넉하고 실측 판독도 정확했다.
+    client = FakeClient(FakeResponse(_gemini_payload({"final_price": None})))
+    extract_final_price(b"img", "image/png", api_key="k", client=client)
+    assert "gemini-flash-lite-latest" in client.last_call["url"]

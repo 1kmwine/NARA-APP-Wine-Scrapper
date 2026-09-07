@@ -130,3 +130,19 @@ def test_flexible_name_match_rejects_different_wine():
 
     assert flexible_name_match("꼬르동루즈 샴페인", "케이머스 나파밸리") is False
     assert flexible_name_match("", "케이머스") is False
+
+
+def test_flexible_name_match_rejects_other_wine_sharing_region_token():
+    # 실측(2026-09-05): 산지/품종 토큰만 겹치는 다른 와인 가격표가 통과하면 안 된다.
+    from app.brand_match import flexible_name_match
+
+    assert flexible_name_match("나파밸리 카베르네 소비뇽", "케이머스 나파밸리") is False
+    assert flexible_name_match("켄달 잭슨 샤도네이", "로저구라트") is False
+    assert flexible_name_match("꼬르동루즈 샴페인", "로저구라트 까바") is False
+
+
+def test_flexible_name_match_accepts_when_brand_token_present():
+    from app.brand_match import flexible_name_match
+
+    assert flexible_name_match("케이머스 카베르네 소비뇽 나파밸리", "케이머스 나파밸리") is True
+    assert flexible_name_match("로저구라트 브뤼 나뚜레", "로저구라트") is True

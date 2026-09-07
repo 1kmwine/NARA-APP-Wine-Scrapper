@@ -98,7 +98,12 @@ def flexible_name_match(candidate: str, query: str) -> bool:
         return False
     if flat_query in flat_candidate or flat_candidate in flat_query:
         return True
-    return any(len(token) >= 2 and token.lower() in flat_candidate for token in query.split())
+    # 첫 토큰(브랜드/생산자명)만 인정한다 — 아무 토큰이나 겹치면 통과시키면
+    # "케이머스 나파밸리" 검색에 "나파밸리 카베르네"(다른 나파 와인) 가격표가
+    # 통과한다. 산지·품종 토큰은 제품 구분에 쓸 수 없다.
+    tokens = query.split()
+    brand_token = tokens[0].lower() if tokens else ""
+    return len(brand_token) >= 2 and brand_token in flat_candidate
 
 
 def is_ascii_only(text: str) -> bool:
