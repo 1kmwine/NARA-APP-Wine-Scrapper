@@ -1,7 +1,7 @@
 from __future__ import annotations
 import re
 
-from .brand_match import fuzzy_find
+from .brand_match import fuzzy_find, query_tokens_all_present
 
 # 순서가 매칭 우선순위다 — "이마트24"를 "이마트"보다 먼저 둬서, 아래 CHANNEL 매칭
 # 루프가 "이마트24"를 먼저 확정하면 그 라인에서 "이마트"(plain)는 negative
@@ -181,10 +181,10 @@ def line_attributable_to_query(line: str, query: str, section: str | None = None
       (예: "몬테스 클래식" 검색인데 줄엔 "몬테스 알파 45,000원"). 지어내지
       않기 위해 버린다 — 애매하면 놓치는 쪽.
     """
-    if fuzzy_find(line, query):
+    if query_tokens_all_present(line, query):
         return True
     if section is not None:
-        return fuzzy_find(section, query)
+        return query_tokens_all_present(section, query)
     tokens = query.split()
     brand_token = tokens[0] if tokens else ""
     if brand_token and fuzzy_find(line, brand_token):
@@ -197,7 +197,7 @@ def line_attributable_to_query(line: str, query: str, section: str | None = None
     # 사시까이아를 "세컨드 와인"으로만 언급하는데 귀달베르토의 세븐일레븐
     # 6만원이 사시까이아 가격으로 저장됐다).
     if title is not None:
-        return bool(fuzzy_find(title, query))
+        return query_tokens_all_present(title, query)
     return True
 
 
@@ -351,7 +351,7 @@ def extract_channel_prices(body_text: str, fallback_year_month: str, query: str 
         # 2026-09-07). 실측: "이마트 장터" 목록글은 채널이 제목에만 있고 각 줄은
         # "와인명 가격" 형태다(cafe.naver.com/winerack24/241157).
         if (not matched_any_channel and values_from_own_line and query and post_channel
-                and fuzzy_find(line, query)):
+                and query_tokens_all_present(line, query)):
             nearest = min(values, key=lambda v: v["start"])
             results.append({
                 "channel": post_channel,

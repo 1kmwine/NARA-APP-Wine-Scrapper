@@ -7,7 +7,9 @@ from dataclasses import dataclass, field, replace
 from datetime import datetime
 from typing import Callable, Optional
 
-from .brand_match import fuzzy_find, fuzzy_find_all, make_context_excerpt
+from .brand_match import (
+    fuzzy_find, fuzzy_find_all, make_context_excerpt, query_tokens_all_present,
+)
 from .sources import SourcesConfig
 from .collectors import CollectedItem
 from .naver_search import items_for_domain
@@ -595,7 +597,7 @@ def run_price_job(
         body_text, image_urls = _normalize_body(body)
         if not body_text:
             return "no_body"
-        if not fuzzy_find(f"{title}\n{body_text}", query):
+        if not query_tokens_all_present(f"{title}\n{body_text}", query):
             return "unrelated"  # 검색어가 글 어디에도 없다 — 다른 제품 글
         fallback_ym = (published_date or "")[:7] or _today_year_month()
         try:

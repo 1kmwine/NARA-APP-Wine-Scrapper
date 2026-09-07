@@ -375,3 +375,22 @@ def test_post_level_channel_requires_exactly_one_channel_in_post():
     body = "퀘르체토 치냘레 17 82,800 (이탈리아)"
     assert extract_channel_prices(body, "2023-05", query="퀘르체토 치냘레",
                                   title="이마트랑 코스트코 장터 비교") == []
+
+
+def test_title_with_words_between_query_tokens_is_accepted():
+    # 실측(2026-09-07, blog.naver.com/shdlswl123/223853284134): 제목이
+    # "리베라 프렐루디오 넘버원 샤도네이"인데 "프렐루디오 샤도네이"로 검색하면
+    # 이마트 17,800원을 통째로 놓쳤다.
+    body = "이마트 화이트와인 세일 가격으로 17,800원에 구입 / 정상가 2만원 초반"
+    title = "Rivera Preludio 리베라 프렐루디오 넘버원 샤도네이 2023 이탈리아 화이트와인 추천"
+    result = extract_channel_prices(body, "2025-05", query="프렐루디오 샤도네이", title=title)
+    assert result[0]["channel"] == "이마트"
+    assert result[0]["price_low"] == 17800
+    assert result[0]["is_promo"] is True  # "세일" → 행사가
+
+
+def test_transliteration_variant_query_matches_title():
+    body = "이마트 화이트와인 세일 가격으로 17,800원에 구입"
+    title = "리베라 프렐루디오 넘버원 샤도네이 2023"
+    result = extract_channel_prices(body, "2025-05", query="프렐류디오 샤도네이", title=title)
+    assert result[0]["price_low"] == 17800

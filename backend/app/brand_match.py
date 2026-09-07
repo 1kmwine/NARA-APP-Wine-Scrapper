@@ -81,6 +81,56 @@ def fuzzy_find(text: str, needle: str) -> re.Match | None:
 
 _ASCII_ONLY_RE = re.compile(r'^[\x00-\x7F]+$')
 
+# 외국 와인명 한글 음역은 표기가 사람마다 갈린다 — 같은 와인을 "프렐루디오/
+# 프렐류디오", "샤도네이/사도네이", "까베르네/카베르네", "샤또/샤토"로 적는다
+# (실측 2026-09-07). 자모를 거센소리·된소리 → 예사소리, 이중모음 → 단모음으로
+# 접어서 이런 변형을 같은 문자열로 만든다. 매칭 판정에만 쓰고 화면 표기는
+# 원문 그대로 둔다.
+_CHO_FOLD = {
+    "ㄲ": "ㄱ", "ㅋ": "ㄱ", "ㄸ": "ㄷ", "ㅌ": "ㄷ", "ㅃ": "ㅂ", "ㅍ": "ㅂ",
+    "ㅆ": "ㅅ", "ㅉ": "ㅈ", "ㅊ": "ㅈ",
+}
+_JUNG_FOLD = {
+    "ㅠ": "ㅜ", "ㅛ": "ㅗ", "ㅑ": "ㅏ", "ㅕ": "ㅓ",
+    "ㅐ": "ㅔ", "ㅒ": "ㅔ", "ㅖ": "ㅔ", "ㅢ": "ㅣ",
+}
+_CHO_LIST = list("ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ")
+_JUNG_LIST = list("ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ")
+_JONG_LIST = ["", *"ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ"]
+
+
+def fold_translit(text: str) -> str:
+    """음역 표기 차이를 접은 문자열을 돌려준다(매칭 비교용)."""
+    out = []
+    for ch in text or "":
+        code = ord(ch) - 0xAC00
+        if 0 <= code < 11172:
+            cho = _CHO_LIST[code // 588]
+            jung = _JUNG_LIST[(code % 588) // 28]
+            jong = _JONG_LIST[code % 28]
+            cho = _CHO_FOLD.get(cho, cho)
+            jung = _JUNG_FOLD.get(jung, jung)
+            jong = _CHO_FOLD.get(jong, jong) if jong else jong
+            out.append(chr(0xAC00 + _CHO_LIST.index(cho) * 588
+                           + _JUNG_LIST.index(jung) * 28 + _JONG_LIST.index(jong)))
+        else:
+            out.append(ch.lower())
+    return "".join(out)
+
+
+def query_tokens_all_present(text: str, query: str) -> bool:
+    """검색어의 토큰이 (순서·사이에 낀 단어 무관) 전부 text에 있으면 True.
+
+    구절 그대로 찾는 fuzzy_find만 쓰면 제품명 중간에 다른 단어가 끼는 실제
+    표기를 놓친다(실측 2026-09-07 — "프렐루디오 샤도네이" 검색인데 글 제목은
+    "리베라 프렐루디오 넘버원 샤도네이"라 매칭 실패, 그래서 이마트 17,800원을
+    통째로 놓쳤다). 음역 표기 차이도 fold_translit으로 함께 흡수한다."""
+    tokens = [t for t in (query or "").split() if t]
+    if not tokens:
+        return False
+    folded_text = fold_translit(text)
+    return all(fuzzy_find(folded_text, fold_translit(token)) for token in tokens)
+
 
 def flexible_name_match(candidate: str, query: str) -> bool:
     """가격표/영수증에 인쇄된 상품명(candidate)이 검색한 와인(query)과 같은
