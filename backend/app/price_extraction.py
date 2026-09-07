@@ -42,6 +42,15 @@ _RANGE_RE = re.compile(
     rf'(?P<low>{_NUM_SRC})\s*원?\s*(?:~|-|부터)\s*(?P<high>{_NUM_SRC})\s*원\s*(?:까지)?'
 )
 _MONTH_RE = re.compile(r'(\d{1,2})\s*월')
+# "39만원", "39.5만원", "3만9천원" 같은 만/천 단위 표기 — 와쌉 구매글 템플릿에서
+# 아주 흔하다(실측 2026-09-05: "- 가격:  39만원", "26만원에 팔길래"). 숫자+원만
+# 보던 기존 정규식은 이런 글을 통째로 놓쳤다.
+_MANWON_RE = re.compile(r'(?<![\d,])(\d{1,4})(?:\.(\d))?\s*만\s*(?:(\d{1,3})\s*천)?\s*원')
+# 만원 표기로 인정할 값의 범위 — 1,000원 미만이나 1천만원 초과는 가격 오인일 확률이 높다.
+_MANWON_MIN, _MANWON_MAX = 1_000, 9_999_999
+# 면세점/duty free 가격은 국내 채널 시세와 같이 놓을 수 없다(관세·주세 제외 가격).
+# 실측 2026-09-05 — 현대면세점 26만원, 에노테카 면세 $187.86 결제화면 글.
+_DUTY_FREE_RE = re.compile(r'(면세점|면세|듀티\s*프리|duty\s*free|dfs)', re.IGNORECASE)
 # "[📍 로저 구라트, 까바 밀레짐 브뤼 2024]"처럼 한 줄 전체가 대괄호로 싸인 상품
 # 섹션 헤더 — 여러 상품을 나열/비교하는 글(레드셀러류 성지 리뷰)의 관례적 표기.
 _SECTION_HEADER_RE = re.compile(r'^\[.+\]$')
@@ -102,6 +111,19 @@ def _find_price_values(line: str) -> list[dict]:
         if any(start <= m.start() < end for start, end in consumed):
             continue  # 이미 범위로 묶인 숫자 — 단일 값으로 중복 추가하지 않음
         value = int(m.group(1).replace(",", ""))
+        values.append({"start": m.start(), "price_low": value, "price_high": value})
+
+    for m in _MANWON_RE.finditer(line):
+        if any(start <= m.start() < end for start, end in consumed):
+            continue
+        man, decimal, cheon = m.group(1), m.group(2), m.group(3)
+        value = int(man) * 10_000
+        if decimal:
+            value += int(decimal) * 1_000
+        if cheon:
+            value += int(cheon) * 1_000
+        if not _MANWON_MIN <= value <= _MANWON_MAX:
+            continue
         values.append({"start": m.start(), "price_low": value, "price_high": value})
 
     # 병당 가격이 명시된 줄이면 묶음가(2병 행사가 등)는 후보에서 빼고 병당가만 쓴다 —
@@ -186,6 +208,35 @@ def _price_from_following_line(lines: list[str], index: int) -> tuple[str, list[
     return None
 
 
+def mentions_duty_free(text: str) -> bool:
+    """면세 문맥인지 — 이미지 경로처럼 어느 가격을 읽었는지 코드가 알 수 없는
+    경우 글 단위로 판단해 아예 건너뛰는 데 쓴다."""
+    return bool(_DUTY_FREE_RE.search(text or ""))
+
+
+def _price_from_preceding_line(lines: list[str], index: int) -> tuple[str, list[dict]] | None:
+    """채널만 있고 가격이 없는 줄(lines[index]) 바로 앞 줄에서 그 채널의 가격을
+    찾는다. 못 찾으면 None.
+
+    실측(2026-09-05, cafe.naver.com/winerack24/369751): 와쌉 구매글 템플릿은
+    "- 가격:  39만원" / "- 구입처:  와인픽스 청담점"처럼 가격을 채널보다 **먼저**
+    적는다. 다음 줄만 보던 _price_from_following_line으로는 못 잡는다.
+
+    조건은 _price_from_following_line과 같게 좁힌다(지어내지 않기 위해)."""
+    for preceding in reversed(lines[:index]):
+        if _BLANKISH_RE.match(preceding):
+            continue  # 빈 줄/zero-width space 줄은 건너뛴다
+        if not (_PRICE_LABEL_RE.search(preceding) or _BARE_PRICE_LINE_RE.match(preceding)):
+            return None
+        if any(pattern.search(preceding) for pattern in _CHANNEL_PATTERNS.values()):
+            return None
+        values = _find_price_values(preceding)
+        if len(values) != 1:
+            return None
+        return preceding, values
+    return None
+
+
 def extract_channel_prices(body_text: str, fallback_year_month: str, query: str | None = None) -> list[dict]:
     """정규식 기반 휴리스틱 — 본문에 직접 타이핑된 채널명+가격만 잡는다.
     위젯/이미지 안의 가격, 표현이 크게 다른 문장은 놓칠 수 있음(지어내지 않음:
@@ -218,13 +269,20 @@ def extract_channel_prices(body_text: str, fallback_year_month: str, query: str 
         values = _find_price_values(line)
         attribution_text = line
         if not values:
-            following = _price_from_following_line(lines, index)
-            if following is None:
+            # 채널만 있는 줄은 바로 다음 줄, 없으면 바로 앞 줄과 짝지어 본다 —
+            # 블로그 스펙블록은 "구매처/가격" 순, 와쌉 구매글 템플릿은
+            # "가격/구입처" 순으로 적는다.
+            paired = _price_from_following_line(lines, index) or _price_from_preceding_line(lines, index)
+            if paired is None:
                 continue
-            price_line, values = following
+            price_line, values = paired
             # 귀속 판정은 채널 줄 + 가격 줄을 함께 본다 — 둘 중 어디에 제품명이
             # 적혀 있든 같은 항목을 가리키기 때문.
             attribution_text = f"{line}\n{price_line}"
+        # 면세점 가격은 국내 채널 시세와 섞으면 안 된다 — 가격 줄이든 채널 줄이든
+        # 면세 문맥이 있으면 그 값은 버린다(실측 2026-09-05 현대면세점/에노테카 면세).
+        if _DUTY_FREE_RE.search(attribution_text):
+            continue
         if query:
             section_arg = current_section if has_sections else None
             if not line_attributable_to_query(attribution_text, query, section=section_arg):
