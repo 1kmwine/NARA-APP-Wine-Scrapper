@@ -116,3 +116,17 @@ def test_match_brands_empty_text_returns_empty_list():
 
 def test_match_brands_empty_known_brands_returns_empty_list():
     assert match_brands("Montes Alpha", []) == []
+
+
+def test_flexible_name_match_accepts_longer_tag_name():
+    from app.brand_match import flexible_name_match
+
+    assert flexible_name_match("케이머스 카베르네 소비뇽 나파밸리", "케이머스 나파밸리") is True
+    assert flexible_name_match("케이머스", "케이머스 나파밸리") is True
+
+
+def test_flexible_name_match_rejects_different_wine():
+    from app.brand_match import flexible_name_match
+
+    assert flexible_name_match("꼬르동루즈 샴페인", "케이머스 나파밸리") is False
+    assert flexible_name_match("", "케이머스") is False

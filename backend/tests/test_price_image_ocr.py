@@ -30,3 +30,21 @@ def test_returns_none_when_no_payment_label():
 
 def test_returns_none_when_label_has_no_number_nearby():
     assert parse_price_from_ocr_text("최종 결제 금액\n확인 중") is None
+
+
+def test_ocr_rejects_price_when_wine_name_absent():
+    # OCR은 의미 판단을 못 하므로, 검색한 와인명 흔적이 없는 이미지의 금액은
+    # 버린다(초밥 영수증 사례) — 지어내지 않는다.
+    from app.price_image_ocr import ocr_text_mentions_query
+
+    sushi_receipt = "코스트코코리아 양재점\n프리미엄스시콤보 52P\n결제 금액 49,990원"
+    assert ocr_text_mentions_query(sushi_receipt, "로저구라트") is False
+
+    wine_receipt = "코스트코코리아 양재점\n로저구라트 까바 브뤼\n결제 금액 19,900원"
+    assert ocr_text_mentions_query(wine_receipt, "로저구라트") is True
+
+
+def test_ocr_mentions_query_ignores_spacing():
+    from app.price_image_ocr import ocr_text_mentions_query
+
+    assert ocr_text_mentions_query("로저 구라트 까바 19,900원", "로저구라트") is True

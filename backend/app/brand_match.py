@@ -79,6 +79,34 @@ def fuzzy_find(text: str, needle: str) -> re.Match | None:
     return next(fuzzy_find_all(text, needle), None)
 
 
+_ASCII_ONLY_RE = re.compile(r'^[\x00-\x7F]+$')
+
+
+def flexible_name_match(candidate: str, query: str) -> bool:
+    """가격표/영수증에 인쇄된 상품명(candidate)이 검색한 와인(query)과 같은
+    제품인지 느슨하게 판정한다. 공백·대소문자는 무시하고, 어느 쪽이 더 긴
+    표기여도(예: query "케이머스 나파밸리" vs 가격표 "케이머스 카베르네
+    소비뇽 나파밸리") 통과시킨다.
+
+    진열 사진에 가격표가 여러 개 찍힌 경우 모델이 엉뚱한 가격표를 읽는 일이
+    있어서(실측 2026-09-05 — 케이머스 진열대 사진에서 아래칸 "꼬르동루즈
+    샴페인 51,900원" 가격표를 읽음) 모델이 돌려준 상품명을 코드로 다시
+    검증하는 데 쓴다."""
+    flat_candidate = re.sub(r'\s+', '', candidate or '').lower()
+    flat_query = re.sub(r'\s+', '', query or '').lower()
+    if not flat_candidate or not flat_query:
+        return False
+    if flat_query in flat_candidate or flat_candidate in flat_query:
+        return True
+    return any(len(token) >= 2 and token.lower() in flat_candidate for token in query.split())
+
+
+def is_ascii_only(text: str) -> bool:
+    """영문 표기 가격표("CAYMUS")인지 판단 — 한글 검색어와는 문자 그대로
+    비교가 불가능하므로, 이 경우엔 모델 판정을 신뢰하는 예외를 둔다."""
+    return bool(text) and bool(_ASCII_ONLY_RE.match(text))
+
+
 def make_context_excerpt(full_text: str, highlight: str, fallback_excerpt: str, window: int = 90) -> str:
     """검색어/매칭된 브랜드가 실제로 등장하는 위치를 중심으로 요약을 만든다.
     og:description(기사 도입부)엔 매칭된 브랜드가 아예 안 나오는 경우가 흔해서

@@ -219,6 +219,7 @@ def _run_price_job_in_background(job_id: str, sources, wine_name: str) -> None:
             extractor = image_price.get_extractor(
                 os.environ.get("IMAGE_PRICE_EXTRACTOR", "off"),
                 os.environ.get("GEMINI_API_KEY"),
+                query=wine_name,  # 이 와인 가격인지 이미지 추출기가 직접 판정하게 한다
             )
 
             def extract_image_price(image_urls: list[str]):

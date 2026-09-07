@@ -41,8 +41,12 @@ def download_image(url: str, client, cookie: str | None = None) -> tuple[bytes, 
     return response.content, mime_type
 
 
-def get_extractor(name: str, api_key: str | None) -> Extractor | None:
+def get_extractor(name: str, api_key: str | None, query: str | None = None) -> Extractor | None:
     """환경변수 IMAGE_PRICE_EXTRACTOR 값으로 추출기를 고른다.
+
+    query(검색한 와인명)를 넘기면 추출기가 "이 이미지가 그 와인 가격인지"까지
+    판정한다 — 와인 글에 같이 올라온 다른 상품 사진의 가격이 와인 가격으로
+    저장되는 걸 막는다(실측 2026-09-05 초밥 영수증 사례).
 
     기본값은 'off' — 벤치마크(scripts/bench_image_price.py)로 Gemini/OCR 중
     어느 쪽이 나은지 정하기 전까지는 이미지 경로를 켜지 않는다."""
@@ -51,9 +55,10 @@ def get_extractor(name: str, api_key: str | None) -> Extractor | None:
             logger.warning("IMAGE_PRICE_EXTRACTOR=gemini인데 GEMINI_API_KEY가 없다 — 이미지 추출 비활성")
             return None
         return lambda image_bytes, mime_type: price_image_gemini.extract_final_price(
-            image_bytes, mime_type, api_key=api_key)
+            image_bytes, mime_type, api_key=api_key, query=query)
     if name == "ocr":
-        return price_image_ocr.extract_final_price
+        return lambda image_bytes, mime_type: price_image_ocr.extract_final_price(
+            image_bytes, mime_type, query=query)
     return None
 
 
