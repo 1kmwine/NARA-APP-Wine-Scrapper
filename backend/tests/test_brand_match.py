@@ -173,3 +173,30 @@ def test_query_tokens_all_present_still_rejects_other_product_of_same_brand():
     from app.brand_match import query_tokens_all_present
 
     assert query_tokens_all_present("몬테스 알파 이마트 45,000원", "몬테스 클래식") is False
+
+
+def test_correct_query_spelling_fixes_transliteration_from_catalog():
+    # 실측(2026-09-07): "프렐류디오 가격"은 네이버가 오디오 앰프 글을 돌려줬다.
+    # 카탈로그에 실제로 쓰이는 표기("프렐루디오")로 토큰만 교정한다.
+    from app.brand_match import correct_query_spelling
+
+    catalog = ["리베라 프렐루디오 넘버원 샤도네이", "몬테스 알파 카베르네 소비뇽"]
+    assert correct_query_spelling("프렐류디오 샤도네이", catalog) == "프렐루디오 샤도네이"
+    assert correct_query_spelling("프렐루디오", catalog) == "프렐루디오"  # 이미 정상이면 그대로
+
+
+def test_correct_query_spelling_keeps_token_count():
+    # 카탈로그 정식명 전체로 갈아치우면 검색어가 길어져 결과가 줄어든다 —
+    # 토큰 단위 교정만 한다.
+    from app.brand_match import correct_query_spelling
+
+    catalog = ["리베라 프렐루디오 넘버원 샤도네이"]
+    assert correct_query_spelling("프렐류디오", catalog) == "프렐루디오"
+
+
+def test_correct_query_spelling_leaves_unknown_tokens_untouched():
+    from app.brand_match import correct_query_spelling
+
+    catalog = ["몬테스 알파"]
+    assert correct_query_spelling("존재하지않는와인", catalog) == "존재하지않는와인"
+    assert correct_query_spelling("몬테스 알파", []) == "몬테스 알파"

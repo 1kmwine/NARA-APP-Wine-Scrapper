@@ -229,3 +229,12 @@ def test_get_all_channel_prices_returns_all_rows_with_iso_timestamp():
     select_sql, params = conn._cursor.executed[-1]
     assert "ORDER BY id DESC LIMIT %s" in select_sql
     assert params == (100,)
+
+
+def test_get_catalog_names_ko_returns_names():
+    from app.db import get_catalog_names_ko
+
+    conn = FakeConnection(fetch_results=[("리베라 프렐루디오 넘버원 샤도네이",), ("몬테스",)])
+    assert get_catalog_names_ko(conn) == ["리베라 프렐루디오 넘버원 샤도네이", "몬테스"]
+    sql = conn._cursor.executed[-1][0]
+    assert "nameKo" in sql and "brandName" in sql

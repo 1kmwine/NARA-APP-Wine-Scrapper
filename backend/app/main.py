@@ -1,4 +1,5 @@
 from __future__ import annotations
+import logging
 import os
 import threading
 import time
@@ -12,13 +13,15 @@ from pydantic import BaseModel
 from .config import get_settings
 from .naver_search import fetch_all_items
 from .parse import parse_article_meta, extract_visible_text
-from .brand_match import match_brands
+from .brand_match import correct_query_spelling, match_brands
 from .jobs import JobStore, run_job, run_price_job
 from . import db
 from . import source_config
 from . import collectors
 from . import image_price
 from . import briefing_summary
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="NARA Wine Scraper API")
 # 이 서비스는 127.0.0.1에만 바인딩되어 nginx 리버스 프록시를 통해서만 접근되고
@@ -96,6 +99,18 @@ def _insert_channel_price(wine_query: str, channel: str, price_low: int, price_h
         conn, wine_query, channel, price_low, price_high, year_month, source_type, source_url,
         is_promo=is_promo, is_duty_free=is_duty_free,
     ))
+
+
+def _correct_price_query(wine_name: str) -> str:
+    """취급 상품 카탈로그 표기로 검색어를 교정한다 — 음역 표기가 갈리면 네이버가
+    아예 다른 글을 돌려준다(실측 2026-09-07 프렐류디오/프렐루디오). DB 조회가
+    실패하면 입력 그대로 쓴다(검색 자체를 막지 않는다)."""
+    try:
+        names = _with_connection(db.get_catalog_names_ko)
+    except Exception:  # noqa: BLE001
+        logger.exception("검색어 교정용 카탈로그 조회 실패")
+        return wine_name
+    return correct_query_spelling(wine_name, names)
 
 
 def _get_price_history(wine_query: str) -> list[dict]:
@@ -325,6 +340,9 @@ def create_price_job(payload: CreatePriceJobRequest) -> CreateJobResponse:
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=502, detail=f"소스 설정을 불러오지 못했습니다: {exc}") from exc
 
+    # 표기 교정된 검색어로 수집·저장한다 — 같은 와인을 다른 표기로 검색해도
+    # 같은 이력에 쌓이고, 네이버 검색도 정상 결과를 준다.
+    wine_name = _correct_price_query(wine_name)
     job = store.create(wine_name, "", total=1 + len(sources.wassap))  # 블로그(항상 1) + 와쌉 소스 개수
     thread = threading.Thread(
         target=_run_price_job_in_background,
