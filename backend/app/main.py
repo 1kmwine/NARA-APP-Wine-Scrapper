@@ -90,9 +90,11 @@ def _insert_article(source_name: str, url: str, article, matched: list[str], cat
 
 
 def _insert_channel_price(wine_query: str, channel: str, price_low: int, price_high: int,
-                          year_month: str, source_type: str, source_url: str) -> int:
+                          year_month: str, source_type: str, source_url: str,
+                          is_promo: bool = False, is_duty_free: bool = False) -> int:
     return _with_connection(lambda conn: db.insert_channel_price(
         conn, wine_query, channel, price_low, price_high, year_month, source_type, source_url,
+        is_promo=is_promo, is_duty_free=is_duty_free,
     ))
 
 

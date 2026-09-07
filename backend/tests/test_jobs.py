@@ -659,7 +659,7 @@ def test_run_price_job_extracts_and_stores_blog_prices():
     assert result.status == "succeeded"
     assert result.price_results == [{
         "channel": "이마트", "year_month": "2026-06", "price_low": 29800, "price_high": 33000,
-        "source_urls": ["https://blog.naver.com/naracellar/1"], "via_image": False,
+        "source_urls": ["https://blog.naver.com/naracellar/1"], "via_image": False, "promo": False, "duty_free": False,
     }]
     assert len(inserted) == 1
     assert inserted[0][:2] == ("몬테스", "이마트")
@@ -698,7 +698,8 @@ def test_run_price_job_one_failing_insert_does_not_block_siblings():
     sources = _empty_sources()
     insert_calls = []
 
-    def flaky_insert(wine_query, channel, price_low, price_high, year_month, source_type, source_url):
+    def flaky_insert(wine_query, channel, price_low, price_high, year_month, source_type,
+                     source_url, is_promo=False, is_duty_free=False):
         insert_calls.append(channel)
         if channel == "이마트":
             raise RuntimeError("db down for 이마트")
@@ -837,7 +838,7 @@ def test_run_price_job_extracts_wassap_prices():
     result = store.get(job.id)
     assert result.price_results == [{
         "channel": "CU", "year_month": "2026-08", "price_low": 21000, "price_high": 21000,
-        "source_urls": ["https://cafe.naver.com/winerack24/369628"], "via_image": False,
+        "source_urls": ["https://cafe.naver.com/winerack24/369628"], "via_image": False, "promo": False, "duty_free": False,
     }]
     assert seen_args == [("20564405", "https://cafe.naver.com/winerack24/369628")]
 
@@ -937,7 +938,9 @@ def test_run_price_job_falls_back_to_image_when_text_has_no_price():
 
     result = store.get(job.id)
     assert result.price_checked_items[0]["status"] == "priced_from_image"
-    assert inserted[0] == ("베터하프", "GS25", 15920, 15920, "2026-08", "blog_img", "https://blog.naver.com/x/1")
+    # 마지막 둘은 is_promo/is_duty_free — 이미지 경로는 글 전체 문맥으로 판정한다
+    assert inserted[0] == ("베터하프", "GS25", 15920, 15920, "2026-08", "blog_img",
+                           "https://blog.naver.com/x/1", False, False)
 
 
 def test_run_price_job_does_not_use_images_when_text_price_found():

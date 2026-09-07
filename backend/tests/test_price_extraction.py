@@ -7,39 +7,39 @@ def test_extracts_single_price_with_explicit_month():
     # 글 발행 시점 기준).
     text = "이마트 7월 29,800원에 샀어요 개꿀"
     result = extract_channel_prices(text, fallback_year_month="2026-07")
-    assert result == [{"channel": "이마트", "price_low": 29800, "price_high": 29800, "year_month": "2026-07"}]
+    assert result == [{"channel": "이마트", "price_low": 29800, "price_high": 29800, "year_month": "2026-07", "is_promo": False, "is_duty_free": False}]
 
 
 def test_extracts_price_range():
     text = "이마트 매장마다 다른데 29,800원~33,000원 정도 하더라구요"
     result = extract_channel_prices(text, fallback_year_month="2026-07")
-    assert result == [{"channel": "이마트", "price_low": 29800, "price_high": 33000, "year_month": "2026-07"}]
+    assert result == [{"channel": "이마트", "price_low": 29800, "price_high": 33000, "year_month": "2026-07", "is_promo": False, "is_duty_free": False}]
 
 
 def test_falls_back_to_post_year_month_when_no_month_mentioned():
     text = "코스트코 19,900원 완전 혜자"
     result = extract_channel_prices(text, fallback_year_month="2026-05")
-    assert result == [{"channel": "코스트코", "price_low": 19900, "price_high": 19900, "year_month": "2026-05"}]
+    assert result == [{"channel": "코스트코", "price_low": 19900, "price_high": 19900, "year_month": "2026-05", "is_promo": False, "is_duty_free": False}]
 
 
 def test_emart24_not_misdetected_as_plain_emart():
     text = "이마트24 앱으로 21,000원에 픽업했어요"
     result = extract_channel_prices(text, fallback_year_month="2026-07")
-    assert result == [{"channel": "이마트24", "price_low": 21000, "price_high": 21000, "year_month": "2026-07"}]
+    assert result == [{"channel": "이마트24", "price_low": 21000, "price_high": 21000, "year_month": "2026-07", "is_promo": False, "is_duty_free": False}]
 
 
 def test_plain_emart_still_detected_when_not_followed_by_24():
     text = "이마트 가서 29,800원 주고 샀어요"
     result = extract_channel_prices(text, fallback_year_month="2026-07")
-    assert result == [{"channel": "이마트", "price_low": 29800, "price_high": 29800, "year_month": "2026-07"}]
+    assert result == [{"channel": "이마트", "price_low": 29800, "price_high": 29800, "year_month": "2026-07", "is_promo": False, "is_duty_free": False}]
 
 
 def test_multiple_channels_in_one_post():
     text = "이마트 29,800원\n코스트코 25,000원"
     result = extract_channel_prices(text, fallback_year_month="2026-07")
     assert result == [
-        {"channel": "이마트", "price_low": 29800, "price_high": 29800, "year_month": "2026-07"},
-        {"channel": "코스트코", "price_low": 25000, "price_high": 25000, "year_month": "2026-07"},
+        {"channel": "이마트", "price_low": 29800, "price_high": 29800, "year_month": "2026-07", "is_promo": False, "is_duty_free": False},
+        {"channel": "코스트코", "price_low": 25000, "price_high": 25000, "year_month": "2026-07", "is_promo": False, "is_duty_free": False},
     ]
 
 
@@ -62,20 +62,20 @@ def test_multiple_channels_same_line_bind_to_nearest_price_not_pooled():
 def test_unconnected_second_number_does_not_form_fake_range():
     text = "와인앤모어 129,000원인데 배송비 3,000원 별도"
     result = extract_channel_prices(text, fallback_year_month="2026-07")
-    assert result == [{"channel": "와인앤모어", "price_low": 129000, "price_high": 129000, "year_month": "2026-07"}]
+    assert result == [{"channel": "와인앤모어", "price_low": 129000, "price_high": 129000, "year_month": "2026-07", "is_promo": False, "is_duty_free": False}]
 
 
 def test_existing_range_with_explicit_connector_still_works():
     # regression: the ORIGINAL range-detection behavior (Task 1) must still work
     text = "이마트 매장마다 다른데 29,800원~33,000원 정도 하더라구요"
     result = extract_channel_prices(text, fallback_year_month="2026-07")
-    assert result == [{"channel": "이마트", "price_low": 29800, "price_high": 33000, "year_month": "2026-07"}]
+    assert result == [{"channel": "이마트", "price_low": 29800, "price_high": 33000, "year_month": "2026-07", "is_promo": False, "is_duty_free": False}]
 
 
 def test_range_connected_via_buteo_kkaji_still_forms_one_range():
     text = "이마트 29,800원부터 33,000원까지 다양해요"
     result = extract_channel_prices(text, fallback_year_month="2026-07")
-    assert result == [{"channel": "이마트", "price_low": 29800, "price_high": 33000, "year_month": "2026-07"}]
+    assert result == [{"channel": "이마트", "price_low": 29800, "price_high": 33000, "year_month": "2026-07", "is_promo": False, "is_duty_free": False}]
 
 
 def test_comparison_table_collapsed_to_one_line_binds_each_channel_correctly():
@@ -102,7 +102,9 @@ def test_per_bottle_price_wins_over_bundle_price_on_same_line():
     # 실측(2026-09-03 GS25 2병 행사 글): 묶음가 36,000원이 병당 가격으로 저장됐다.
     text = "편의점 구매 시(GS25편의점 기준) : 2병 행사가 36,000원 적용 시 한 병당 18,000원"
     result = extract_channel_prices(text, fallback_year_month="2026-07")
-    assert result == [{"channel": "GS25", "price_low": 18000, "price_high": 18000, "year_month": "2026-07"}]
+    # "행사가" 문구가 있으므로 is_promo=True로 표시된다(제외하지 않고 구분 표시)
+    assert result == [{"channel": "GS25", "price_low": 18000, "price_high": 18000,
+                       "year_month": "2026-07", "is_promo": True, "is_duty_free": False}]
 
 
 def test_per_bottle_variants_are_recognized():
@@ -119,7 +121,7 @@ def test_line_without_per_bottle_marker_keeps_all_values():
     # 병당 표기가 없으면 기존 동작 그대로 — 가장 가까운 값에 묶인다.
     text = "이마트 29,800원"
     result = extract_channel_prices(text, fallback_year_month="2026-07")
-    assert result == [{"channel": "이마트", "price_low": 29800, "price_high": 29800, "year_month": "2026-07"}]
+    assert result == [{"channel": "이마트", "price_low": 29800, "price_high": 29800, "year_month": "2026-07", "is_promo": False, "is_duty_free": False}]
 
 
 def test_merge_by_month_combines_multiple_sources_in_same_month_into_range():
@@ -131,6 +133,7 @@ def test_merge_by_month_combines_multiple_sources_in_same_month_into_range():
     assert merged == [{
         "channel": "이마트", "year_month": "2026-07", "price_low": 29800, "price_high": 31000,
         "source_urls": ["https://a", "https://b"], "via_image": False,
+        "promo": False, "duty_free": False,
     }]
 
 
@@ -218,7 +221,7 @@ def test_extract_channel_prices_without_section_headers_keeps_old_behavior():
     # 섹션 헤더가 아예 없는 글은 기존 전역 문맥 판정을 그대로 쓴다(회귀 방지).
     text = "이마트에서 19,900원에 샀어요"
     result = extract_channel_prices(text, fallback_year_month="2026-08", query="몬테스 클래식")
-    assert result == [{"channel": "이마트", "price_low": 19900, "price_high": 19900, "year_month": "2026-08"}]
+    assert result == [{"channel": "이마트", "price_low": 19900, "price_high": 19900, "year_month": "2026-08", "is_promo": False, "is_duty_free": False}]
 
 
 def test_extract_channel_prices_pairs_channel_line_with_next_line_price():
@@ -280,7 +283,7 @@ def test_plain_emart_still_detected_when_not_followed_by_traders():
 def test_manwon_notation_is_parsed():
     # 실측(2026-09-05, 와쌉 구매글): "- 가격:  39만원" / "- 구입처:  와인픽스 청담점"
     assert extract_channel_prices("와인픽스 39만원에 샀어요", "2026-09") == [
-        {"channel": "와인픽스", "price_low": 390000, "price_high": 390000, "year_month": "2026-09"}]
+        {"channel": "와인픽스", "price_low": 390000, "price_high": 390000, "year_month": "2026-09", "is_promo": False, "is_duty_free": False}]
     assert extract_channel_prices("이마트 3만9천원", "2026-09")[0]["price_low"] == 39000
     assert extract_channel_prices("이마트 39.5만원", "2026-09")[0]["price_low"] == 395000
 
@@ -290,15 +293,18 @@ def test_price_line_before_channel_line_is_paired():
     body = "- 와인명 / 빈티지:  사시까이아 2023\n- 가격:  39만원\n- 구입처:  와인픽스 청담점"
     result = extract_channel_prices(body, "2026-09", query="사시까이아")
     assert result == [
-        {"channel": "와인픽스", "price_low": 390000, "price_high": 390000, "year_month": "2026-09"}]
+        {"channel": "와인픽스", "price_low": 390000, "price_high": 390000, "year_month": "2026-09", "is_promo": False, "is_duty_free": False}]
 
 
-def test_duty_free_price_is_excluded():
-    # 면세 가격은 국내 채널 시세와 섞으면 안 된다(관세·주세 제외 가격).
-    assert extract_channel_prices("에노테카 면세점에서 26만원에 구매", "2026-09") == []
-    assert extract_channel_prices("현대면세점 199,000원", "2026-09") == []
-    # 면세 언급이 없으면 그대로 인정
-    assert extract_channel_prices("에노테카에서 199,000원", "2026-09")[0]["price_low"] == 199000
+def test_duty_free_price_is_flagged_not_dropped():
+    # 면세 가격은 상시 시세와 다르지만 버리지 않고 구분 표시한다(사용자 결정 2026-09-07).
+    result = extract_channel_prices("에노테카 면세점에서 26만원에 구매", "2026-09")
+    assert result[0]["price_low"] == 260000
+    assert result[0]["is_duty_free"] is True
+    # 면세 언급이 없으면 플래그 없이 그대로
+    plain = extract_channel_prices("에노테카에서 199,000원", "2026-09")
+    assert plain[0]["price_low"] == 199000
+    assert plain[0]["is_duty_free"] is False
 
 
 def test_mentions_duty_free_helper():
@@ -333,3 +339,39 @@ def test_title_omitted_keeps_previous_permissive_behavior():
     # title을 안 넘기는 호출부(기존 코드/테스트)는 동작이 바뀌지 않아야 한다.
     result = extract_channel_prices("이마트에서 19,900원", "2026-07", query="몬테스 클래식")
     assert result[0]["price_low"] == 19900
+
+
+def test_price_without_won_suffix_is_parsed_when_comma_grouped():
+    # 실측(2026-09-07, cafe.naver.com/winerack24/241157 "이마트 장터" 목록):
+    # "퀘르체토 치냘레 17 82,800 (이탈리아 토스카나)" — "원"이 없어서 통째로 놓쳤다.
+    result = extract_channel_prices(
+        "퀘르체토 치냘레 17 82,800 (이탈리아 토스카나)", "2023-05",
+        query="퀘르체토 치냘레", title="이마트 장터 그나마 살 만한거 추려봤어요")
+    assert result[0]["channel"] == "이마트"      # 채널은 제목에서 확정
+    assert result[0]["price_low"] == 82800
+    assert result[0]["is_promo"] is True        # "장터" → 행사가 표시
+
+
+def test_vintage_year_is_not_parsed_as_price():
+    # 콤마 없는 숫자는 가격으로 보지 않는다 — 빈티지(2019)/용량 오인 방지.
+    assert extract_channel_prices("퀘르체토 치냘레 2019 (이탈리아)", "2023-05",
+                                  query="퀘르체토 치냘레", title="이마트 장터") == []
+
+
+def test_bare_number_with_unit_is_not_parsed_as_price():
+    assert extract_channel_prices("이마트 1,000ml 대용량", "2026-07") == []
+
+
+def test_post_level_channel_only_applies_when_line_names_the_wine():
+    # 글 전체 채널이 하나여도, 그 줄이 검색어를 언급하지 않으면 귀속하지 않는다.
+    body = "퀘르체토 치냘레 17 82,800 (이탈리아)\n몰리두커 더 복서 41,800 (호주)"
+    result = extract_channel_prices(body, "2023-05", query="퀘르체토 치냘레",
+                                    title="이마트 장터 목록")
+    assert [r["price_low"] for r in result] == [82800]  # 몰리두커 줄은 붙지 않음
+
+
+def test_post_level_channel_requires_exactly_one_channel_in_post():
+    # 글에 채널이 둘이면 어느 채널 가격인지 확정 불가 — 귀속하지 않는다.
+    body = "퀘르체토 치냘레 17 82,800 (이탈리아)"
+    assert extract_channel_prices(body, "2023-05", query="퀘르체토 치냘레",
+                                  title="이마트랑 코스트코 장터 비교") == []

@@ -542,14 +542,18 @@ function renderPriceSearchResults(query, priceResults){
     const tdMonth=document.createElement('td'); tdMonth.textContent=p.year_month;
     const tdPrice=document.createElement('td');
     tdPrice.textContent=formatPriceRange(p.price_low, p.price_high);
-    if(p.via_image){
-      // 본문 텍스트가 아니라 첨부 이미지(결제화면 캡처 등)에서 읽은 값 —
-      // 오탐 가능성이 텍스트 추출보다 높으니 화면에서 구분해 보여준다.
+    // 가격의 성격을 배지로 구분한다 — 행사가/면세가는 그 채널의 상시 시세와
+    // 다르고(관세·주세, 한정 행사), 이미지 추출은 오탐 가능성이 텍스트보다 높다.
+    const badges=[];
+    if(p.promo) badges.push('행사가');
+    if(p.duty_free) badges.push('면세');
+    if(p.via_image) badges.push('이미지 추출');
+    badges.forEach(text=>{
       const badge=document.createElement('span');
       badge.className='badge'; badge.style.marginLeft='6px';
-      badge.textContent='이미지 추출';
+      badge.textContent=text;
       tdPrice.appendChild(badge);
-    }
+    });
     tr.appendChild(tdChannel); tr.appendChild(tdMonth); tr.appendChild(tdPrice);
     tr.appendChild(buildSourceLinksCell(p.source_urls));
     priceResultsTbody.appendChild(tr);

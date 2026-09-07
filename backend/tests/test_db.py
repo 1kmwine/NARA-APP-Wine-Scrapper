@@ -194,7 +194,8 @@ def test_insert_channel_price_inserts_one_row():
     assert "ON DUPLICATE KEY UPDATE" in insert_sql
     assert "price_low = VALUES(price_low)" in insert_sql
     assert "`year_month`" in insert_sql
-    assert params == ("몬테스 알파", "이마트", 29800, 33000, "2026-07", "blog", "https://blog.naver.com/x/1")
+    assert params == ("몬테스 알파", "이마트", 29800, 33000, "2026-07", "blog",
+                      "https://blog.naver.com/x/1", 0, 0)  # 마지막 둘은 is_promo/is_duty_free
     assert conn.committed
 
 
