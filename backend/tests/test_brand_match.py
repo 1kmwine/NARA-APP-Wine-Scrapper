@@ -146,3 +146,30 @@ def test_flexible_name_match_accepts_when_brand_token_present():
 
     assert flexible_name_match("케이머스 카베르네 소비뇽 나파밸리", "케이머스 나파밸리") is True
     assert flexible_name_match("로저구라트 브뤼 나뚜레", "로저구라트") is True
+
+
+def test_fold_translit_absorbs_common_korean_transliteration_variants():
+    from app.brand_match import fold_translit
+
+    assert fold_translit("프렐류디오") == fold_translit("프렐루디오")
+    assert fold_translit("샤도네이") == fold_translit("사도네이")
+    assert fold_translit("까베르네") == fold_translit("카베르네")
+    assert fold_translit("샤또") == fold_translit("샤토")
+
+
+def test_query_tokens_all_present_allows_words_in_between():
+    # 실측(2026-09-07): "프렐루디오 샤도네이" 검색인데 제목은
+    # "리베라 프렐루디오 넘버원 샤도네이" — 구절 매칭만으론 놓친다.
+    from app.brand_match import query_tokens_all_present
+
+    title = "Rivera Preludio 리베라 프렐루디오 넘버원 샤도네이 2023 이탈리아 화이트와인 추천"
+    assert query_tokens_all_present(title, "프렐루디오 샤도네이") is True
+    assert query_tokens_all_present(title, "프렐류디오 샤도네이") is True  # 표기 변형도 흡수
+    assert query_tokens_all_present(title, "몬테스 클래식") is False
+
+
+def test_query_tokens_all_present_still_rejects_other_product_of_same_brand():
+    # 토큰 전부 매칭으로 느슨해졌어도 다른 제품 줄은 여전히 거부해야 한다.
+    from app.brand_match import query_tokens_all_present
+
+    assert query_tokens_all_present("몬테스 알파 이마트 45,000원", "몬테스 클래식") is False
