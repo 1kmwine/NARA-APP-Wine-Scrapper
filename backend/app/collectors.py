@@ -803,6 +803,44 @@ _BLOCK_BREAK_RE = re.compile(r'</p>|<br\s*/?>|</div>', re.IGNORECASE)
 _TAG_RE = re.compile(r'<[^>]+>')
 
 
+_TABLE_RE = re.compile(r'<table\b[^>]*>(.*?)</table>', re.DOTALL | re.IGNORECASE)
+_TR_RE = re.compile(r'<tr\b[^>]*>(.*?)</tr>', re.DOTALL | re.IGNORECASE)
+_TD_RE = re.compile(r'<t[hd]\b[^>]*>(.*?)</t[hd]>', re.DOTALL | re.IGNORECASE)
+
+
+def _cell_text(cell_html: str) -> str:
+    text = _TAG_RE.sub(' ', cell_html)
+    return re.sub(r'\s+', ' ', html_module.unescape(text)).strip()
+
+
+def _table_lines(html_str: str) -> list[str]:
+    """표를 행 방향·열 방향으로 각각 한 줄씩 이어붙여 돌려준다.
+
+    가격 비교표는 채널명과 가격이 다른 셀에 있어서, 태그를 벗기면 셀마다
+    별개의 줄이 된다 — 채널명 줄과 가격 줄이 인접하지도 않아서(헤더 4칸이
+    먼저, 가격 4칸이 나중) 줄 단위 추출로는 통째로 놓쳤다(실측 2026-09-07
+    blog.naver.com/seouldrinklog/223044018917 — 이마트 용산점 120,000원,
+    와인앤모어 한남점 150,000원). 표를 두 방향으로 이어붙이면 채널이 열
+    머리글이든 행 머리글이든 채널명과 가격이 같은 줄에 놓인다.
+
+    셀 텍스트를 그대로 이어붙이므로, 어느 쪽 방향이 맞는지 판단하지 않는다 —
+    채널과 가격이 같은 줄에 없으면 어차피 추출되지 않는다."""
+    lines: list[str] = []
+    for table_html in _TABLE_RE.findall(html_str):
+        grid = [[_cell_text(cell) for cell in _TD_RE.findall(row)]
+                for row in _TR_RE.findall(table_html)]
+        grid = [row for row in grid if any(row)]
+        if not grid:
+            continue
+        lines.extend(" ".join(c for c in row if c) for row in grid)
+        width = max(len(row) for row in grid)
+        for col in range(width):
+            column = [row[col] for row in grid if col < len(row) and row[col]]
+            if column:
+                lines.append(" ".join(column))
+    return [ln for ln in lines if ln]
+
+
 def _html_to_lines(html_str: str) -> str:
     """블록 태그(</p>, <br>, </div>)를 줄바꿈으로 바꾼 뒤 나머지 태그를 벗기고
     HTML 엔티티(&#x3D; 등, Smart Editor 콘텐츠에 흔함)를 복원한다. 빈 줄은 버린다.
@@ -816,7 +854,9 @@ def _html_to_lines(html_str: str) -> str:
     text = _TAG_RE.sub('', text)
     text = html_module.unescape(text)
     lines = [ln.strip() for ln in text.split('\n')]
-    return '\n'.join(ln for ln in lines if ln)
+    # 표는 셀이 줄마다 흩어지면 채널·가격 짝을 잃는다 — 행/열 방향으로 이어붙인
+    # 줄을 덧붙여, 어느 방향 표든 같은 줄에서 짝이 잡히게 한다.
+    return '\n'.join([ln for ln in lines if ln] + _table_lines(html_str))
 
 
 def fetch_blog_full_body(external_url: str, client) -> FetchedBody | None:

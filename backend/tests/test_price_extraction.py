@@ -404,3 +404,16 @@ def test_threshold_amount_is_not_a_price():
     assert extract_channel_prices("이마트 30,000원 이상 구매시 할인", "2023-03") == []
     # 조건 문구가 없으면 그대로 인정
     assert extract_channel_prices("이마트 30,000원", "2023-03")[0]["price_low"] == 30000
+
+
+def test_comparison_table_prices_are_extracted_once_per_channel():
+    # 표를 행·열 두 방향으로 이어붙이므로 같은 값이 중복 수집되지 않아야 한다.
+    body = (
+        "이마트 용산점 120,000원 적용 불가 이마트 앱\n"
+        "와인앤모어 한남점 150,000원 적용 불가 매장 방문\n"
+        "이마트 용산점 120,000원 적용 불가 이마트 앱\n"
+    )
+    result = extract_channel_prices(body, "2023-03", query="빌꺄르 살몽",
+                                    title="빌꺄르-살몽 브뤼 로제 샴페인 가격 비교")
+    pairs = [(r["channel"], r["price_low"]) for r in result]
+    assert pairs == [("이마트", 120000), ("와인앤모어", 150000)]
