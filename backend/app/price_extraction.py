@@ -51,6 +51,16 @@ _MANWON_MIN, _MANWON_MAX = 1_000, 9_999_999
 # 면세점/duty free 가격은 국내 채널 시세와 같이 놓을 수 없다(관세·주세 제외 가격).
 # 실측 2026-09-05 — 현대면세점 26만원, 에노테카 면세 $187.86 결제화면 글.
 _DUTY_FREE_RE = re.compile(r'(면세점|면세|듀티\s*프리|duty\s*free|dfs)', re.IGNORECASE)
+# "원"이 생략된 가격 — 목록형 글에서 아주 흔하다(실측 2026-09-07,
+# cafe.naver.com/winerack24/241157 "이마트 장터" 목록: "퀘르체토 치냘레 17 82,800
+# (이탈리아 토스카나)"). 콤마 그룹만 인정한다 — 빈티지(2019)나 "17" 같은 숫자는
+# 콤마가 없어서 걸리지 않는다. 뒤에 다른 단위가 붙은 숫자(1,000ml 등)는 제외.
+_BARE_COMMA_NUM_RE = re.compile(
+    r'(?<![\d,])(\d{1,3}(?:,\d{3})+)(?!\s*(?:원|ml|mL|ML|㎖|cc|kg|g\b|년|명|개|건|병|km|m\b))'
+)
+# 장터/행사/특가 가격은 그 채널의 상시 시세와 다르다 — 저장은 하되 화면에서
+# 구분 표시한다(사용자 결정 2026-09-07). "할인"만 있는 문구는 너무 흔해서 제외.
+_PROMO_RE = re.compile(r'(장터|행사가|행사\s|행사$|특가|세일|프로모션|1\s*\+\s*1|원\s*플러스\s*원)')
 # "[📍 로저 구라트, 까바 밀레짐 브뤼 2024]"처럼 한 줄 전체가 대괄호로 싸인 상품
 # 섹션 헤더 — 여러 상품을 나열/비교하는 글(레드셀러류 성지 리뷰)의 관례적 표기.
 _SECTION_HEADER_RE = re.compile(r'^\[.+\]$')
@@ -122,6 +132,16 @@ def _find_price_values(line: str) -> list[dict]:
             value += int(decimal) * 1_000
         if cheon:
             value += int(cheon) * 1_000
+        if not _MANWON_MIN <= value <= _MANWON_MAX:
+            continue
+        values.append({"start": m.start(), "price_low": value, "price_high": value})
+
+    for m in _BARE_COMMA_NUM_RE.finditer(line):
+        if any(start <= m.start() < end for start, end in consumed):
+            continue
+        if any(v["start"] == m.start() for v in values):
+            continue  # 이미 "원" 붙은 가격으로 잡힌 숫자
+        value = int(m.group(1).replace(",", ""))
         if not _MANWON_MIN <= value <= _MANWON_MAX:
             continue
         values.append({"start": m.start(), "price_low": value, "price_high": value})
@@ -218,6 +238,12 @@ def _price_from_following_line(lines: list[str], index: int) -> tuple[str, list[
     return None
 
 
+def mentions_promo(text: str) -> bool:
+    """장터/행사/특가 문맥인지 — 이미지 경로처럼 어느 가격을 읽었는지 코드가 알
+    수 없는 경우 글 단위로 판정해 표시 플래그로 남기는 데 쓴다."""
+    return bool(_PROMO_RE.search(text or ""))
+
+
 def mentions_duty_free(text: str) -> bool:
     """면세 문맥인지 — 이미지 경로처럼 어느 가격을 읽었는지 코드가 알 수 없는
     경우 글 단위로 판단해 아예 건너뛰는 데 쓴다."""
@@ -270,6 +296,8 @@ def extract_channel_prices(body_text: str, fallback_year_month: str, query: str 
     lines = body_text.splitlines()
     has_sections = any(_SECTION_HEADER_RE.match(ln.strip()) for ln in lines if ln.strip())
     current_section = ""
+    # 글 전체에서 채널이 딱 하나면, 채널명이 없는 가격 줄에도 그 채널을 쓸 수 있다.
+    post_channel = resolve_single_channel(f"{title or ''}\n{body_text}")
     for index, line in enumerate(lines):
         stripped = line.strip()
         if not stripped:
@@ -278,6 +306,10 @@ def extract_channel_prices(body_text: str, fallback_year_month: str, query: str 
             current_section = stripped
             continue
         values = _find_price_values(line)
+        # 폴백(글단위 채널 귀속)은 이 줄 자체에 가격이 있을 때만 쓴다 — 옆 줄과
+        # 짝지어 얻은 가격까지 폴백에 넘기면 같은 값이 두 번 저장된다(실측:
+        # 와쌉 템플릿의 "와인명" 줄이 "가격" 줄과 짝지어지면서 중복 발생).
+        values_from_own_line = bool(values)
         attribution_text = line
         if not values:
             # 채널만 있는 줄은 바로 다음 줄, 없으면 바로 앞 줄과 짝지어 본다 —
@@ -290,24 +322,45 @@ def extract_channel_prices(body_text: str, fallback_year_month: str, query: str 
             # 귀속 판정은 채널 줄 + 가격 줄을 함께 본다 — 둘 중 어디에 제품명이
             # 적혀 있든 같은 항목을 가리키기 때문.
             attribution_text = f"{line}\n{price_line}"
-        # 면세점 가격은 국내 채널 시세와 섞으면 안 된다 — 가격 줄이든 채널 줄이든
-        # 면세 문맥이 있으면 그 값은 버린다(실측 2026-09-05 현대면세점/에노테카 면세).
-        if _DUTY_FREE_RE.search(attribution_text):
-            continue
         if query:
             section_arg = current_section if has_sections else None
             if not line_attributable_to_query(attribution_text, query, section=section_arg, title=title):
                 continue
         year_month = _resolve_year_month(attribution_text, fallback_year_month)
+        # 행사가/면세가는 그 채널의 상시 시세와 다르다 — 버리지 않고 표시용
+        # 플래그로 남긴다(사용자 결정 2026-09-07). 판정은 가격 줄 문맥 + 제목
+        # (장터 목록글은 제목에만 "장터"가 있다).
+        flag_text = f"{attribution_text}\n{title or ''}"
+        is_promo = bool(_PROMO_RE.search(flag_text))
+        is_duty_free = bool(_DUTY_FREE_RE.search(flag_text))
+        matched_any_channel = False
         for channel, pattern in _CHANNEL_PATTERNS.items():
             for channel_match in pattern.finditer(line):
+                matched_any_channel = True
                 nearest = min(values, key=lambda v: abs(channel_match.end() - v["start"]))
                 results.append({
                     "channel": channel,
                     "price_low": nearest["price_low"],
                     "price_high": nearest["price_high"],
                     "year_month": year_month,
+                    "is_promo": is_promo,
+                    "is_duty_free": is_duty_free,
                 })
+        # 가격 줄에 채널명이 없으면 글 전체에서 채널을 찾는다 — 단 글 전체에
+        # 채널이 정확히 하나이고, 이 줄이 검색어를 직접 언급할 때만(사용자 결정
+        # 2026-09-07). 실측: "이마트 장터" 목록글은 채널이 제목에만 있고 각 줄은
+        # "와인명 가격" 형태다(cafe.naver.com/winerack24/241157).
+        if (not matched_any_channel and values_from_own_line and query and post_channel
+                and fuzzy_find(line, query)):
+            nearest = min(values, key=lambda v: v["start"])
+            results.append({
+                "channel": post_channel,
+                "price_low": nearest["price_low"],
+                "price_high": nearest["price_high"],
+                "year_month": year_month,
+                "is_promo": is_promo,
+                "is_duty_free": is_duty_free,
+            })
     return results
 
 
@@ -330,12 +383,16 @@ def merge_channel_prices_by_month(rows: list[dict]) -> list[dict]:
                 "price_high": row["price_high"],
                 "source_urls": [row["source_url"]],
                 "via_image": is_image_sourced,
+                "promo": bool(row.get("is_promo")),
+                "duty_free": bool(row.get("is_duty_free")),
             }
         else:
             entry["price_low"] = min(entry["price_low"], row["price_low"])
             entry["price_high"] = max(entry["price_high"], row["price_high"])
             entry["source_urls"].append(row["source_url"])
             entry["via_image"] = entry["via_image"] or is_image_sourced
+            entry["promo"] = entry["promo"] or bool(row.get("is_promo"))
+            entry["duty_free"] = entry["duty_free"] or bool(row.get("is_duty_free"))
 
     def sort_key(key: tuple[str, str]) -> tuple[int, str]:
         channel, year_month = key

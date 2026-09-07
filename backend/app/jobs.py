@@ -12,8 +12,8 @@ from .sources import SourcesConfig
 from .collectors import CollectedItem
 from .naver_search import items_for_domain
 from .price_extraction import (
-    extract_channel_prices, mentions_duty_free, merge_channel_prices_by_month,
-    resolve_single_channel,
+    extract_channel_prices, mentions_duty_free, mentions_promo,
+    merge_channel_prices_by_month, resolve_single_channel,
 )
 
 logger = logging.getLogger(__name__)
@@ -608,6 +608,7 @@ def run_price_job(
                 insert_channel_price(
                     query, p["channel"], p["price_low"], p["price_high"], p["year_month"],
                     source_type, source_url,
+                    p.get("is_promo", False), p.get("is_duty_free", False),
                 )
             except Exception:  # noqa: BLE001 — DB 저장 실패는 로그만, 나머지 값 처리는 계속
                 logger.exception("가격 저장 실패: %s", source_url)
@@ -616,11 +617,6 @@ def run_price_job(
         # 본문 텍스트에 가격이 없을 때만 이미지를 본다 — 호출 최소화 + 같은
         # (source_url, channel, year_month) 키에 텍스트/이미지 값이 겹치지 않게.
         if not (extract_image_price and image_urls):
-            return "no_price"
-        # 면세점 글은 이미지 경로를 아예 타지 않는다 — 결제화면이 면세 가격일
-        # 가능성이 높은데 코드가 어느 가격인지 구분할 수 없다(실측 2026-09-05
-        # 에노테카 면세 결제화면 글). 국내 채널 시세와 섞으면 안 된다.
-        if mentions_duty_free(f"{title}\n{body_text}"):
             return "no_price"
         channel = resolve_single_channel(f"{title}\n{body_text}")
         if channel is None:
@@ -640,9 +636,13 @@ def run_price_job(
         if image_price is None:
             return "no_price"
         try:
+            # 이미지에서 읽은 가격은 어느 문맥인지 코드가 모른다 — 글 전체
+            # (제목+본문)에서 행사/면세 여부를 판정해 표시용 플래그로 남긴다.
+            post_text = f"{title}\n{body_text}"
             insert_channel_price(
                 query, channel, image_price, image_price, fallback_ym,
                 f"{source_type}_img", source_url,
+                mentions_promo(post_text), mentions_duty_free(post_text),
             )
         except Exception:  # noqa: BLE001
             logger.exception("이미지 가격 저장 실패: %s", source_url)

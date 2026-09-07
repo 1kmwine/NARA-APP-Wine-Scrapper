@@ -153,6 +153,16 @@ def ensure_channel_prices_table(conn) -> None:
             ADD UNIQUE KEY IF NOT EXISTS uniq_source_channel_month (source_url, channel, `year_month`)
             """
         )
+        # 행사가/면세가는 그 채널의 상시 시세와 다르다 — 버리지 않고 구분 표시한다
+        # (사용자 결정 2026-09-07). 기존 테이블에도 붙도록 IF NOT EXISTS로 ALTER.
+        cur.execute(
+            "ALTER TABLE wine_channel_prices "
+            "ADD COLUMN IF NOT EXISTS is_promo TINYINT(1) NOT NULL DEFAULT 0"
+        )
+        cur.execute(
+            "ALTER TABLE wine_channel_prices "
+            "ADD COLUMN IF NOT EXISTS is_duty_free TINYINT(1) NOT NULL DEFAULT 0"
+        )
     conn.commit()
 
 
@@ -162,11 +172,13 @@ def get_channel_price_history(conn, wine_query: str) -> list[dict]:
     ensure_channel_prices_table(conn)
     with conn.cursor() as cur:
         cur.execute(
-            "SELECT channel, price_low, price_high, `year_month`, source_type, source_url "
+            "SELECT channel, price_low, price_high, `year_month`, source_type, source_url, "
+            "is_promo, is_duty_free "
             "FROM wine_channel_prices WHERE wine_query = %s ORDER BY id",
             (wine_query,),
         )
-        cols = ["channel", "price_low", "price_high", "year_month", "source_type", "source_url"]
+        cols = ["channel", "price_low", "price_high", "year_month", "source_type", "source_url",
+                "is_promo", "is_duty_free"]
         return [dict(zip(cols, row)) for row in cur.fetchall()]
 
 
@@ -192,6 +204,7 @@ def get_all_channel_prices(conn, limit: int = 300) -> list[dict]:
 def insert_channel_price(
     conn, wine_query: str, channel: str, price_low: int, price_high: int,
     year_month: str, source_type: str, source_url: str,
+    is_promo: bool = False, is_duty_free: bool = False,
 ) -> int:
     ensure_channel_prices_table(conn)
     with conn.cursor() as cur:
@@ -202,15 +215,19 @@ def insert_channel_price(
         cur.execute(
             """
             INSERT INTO wine_channel_prices
-                (wine_query, channel, price_low, price_high, `year_month`, source_type, source_url)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+                (wine_query, channel, price_low, price_high, `year_month`, source_type, source_url,
+                 is_promo, is_duty_free)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON DUPLICATE KEY UPDATE
                 wine_query = VALUES(wine_query),
                 price_low = VALUES(price_low),
                 price_high = VALUES(price_high),
-                source_type = VALUES(source_type)
+                source_type = VALUES(source_type),
+                is_promo = VALUES(is_promo),
+                is_duty_free = VALUES(is_duty_free)
             """,
-            (wine_query, channel, price_low, price_high, year_month, source_type, source_url),
+            (wine_query, channel, price_low, price_high, year_month, source_type, source_url,
+             int(bool(is_promo)), int(bool(is_duty_free))),
         )
         row_id = cur.lastrowid
     conn.commit()
