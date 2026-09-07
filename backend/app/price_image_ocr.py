@@ -48,9 +48,14 @@ def ocr_text_mentions_query(text: str, query: str) -> bool:
     상품(음식 등) 영수증의 금액도 그대로 읽어버린다(실측 2026-09-05 초밥
     영수증 사례). 이름 흔적이 전혀 없으면 지어내지 않고 버린다."""
     flat_text = re.sub(r'\s+', '', text)
-    if re.sub(r'\s+', '', query) and re.sub(r'\s+', '', query) in flat_text:
+    flat_query = re.sub(r'\s+', '', query)
+    if flat_query and flat_query in flat_text:
         return True
-    return any(len(token) >= 2 and token in flat_text for token in query.split())
+    # 첫 토큰(브랜드명)만 인정 — 산지·품종 토큰("나파밸리", "샤도네이")이 겹친다고
+    # 통과시키면 진열대의 다른 와인 가격표를 그대로 읽는다.
+    tokens = query.split()
+    brand_token = tokens[0] if tokens else ""
+    return len(brand_token) >= 2 and brand_token in flat_text
 
 
 def extract_final_price(image_bytes: bytes, mime_type: str, query: str | None = None) -> int | None:

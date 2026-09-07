@@ -58,7 +58,7 @@ def extract_final_price(
     mime_type: str,
     api_key: str,
     client=None,
-    model: str = "gemini-flash-latest",
+    model: str = "gemini-flash-lite-latest",
     query: str | None = None,
 ) -> int | None:
     """이미지에서 최종 결제금액을 읽는다. 못 읽으면 None.
@@ -70,7 +70,13 @@ def extract_final_price(
     이 이미지 하나만 스킵하고 검색 전체는 계속돼야 한다.
 
     model 기본값이 -latest 별칭인 이유는 briefing_summary.call_gemini와 같다:
-    이 API 키의 무료 티어는 버전 고정 모델이 quota=0이다."""
+    이 API 키의 무료 티어는 버전 고정 모델이 quota=0이다.
+
+    flash가 아니라 flash-lite인 이유: gemini-flash-latest는 무료 쿼터가 하루
+    ~20건 수준이라 이미지 1장=1호출인 이 경로가 검색 몇 번에 429로 죽는다
+    (실측 2026-09-05 — 종일 429). lite로 실측했을 때 가격표 판독·제품 판정이
+    모두 정확했다: 켄달잭슨 가격표는 null, 같은 글의 로저구라트 가격표는
+    19,990원, 케이머스 진열대(가격표 2개)에서는 위쪽 144,900원을 정확히 골랐다."""
     http = client or httpx
     try:
         response = http.post(
