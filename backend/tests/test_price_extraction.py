@@ -307,3 +307,29 @@ def test_mentions_duty_free_helper():
     assert mentions_duty_free("현대면세점에서 구매하였습니다") is True
     assert mentions_duty_free("duty free shop") is True
     assert mentions_duty_free("코스트코에서 구매") is False
+
+
+def test_price_line_without_product_name_requires_title_to_name_the_wine():
+    # 실측(2026-09-05, blog.naver.com/tongtong2you/224358319648): "[레드] 귀달베르토
+    # 2022" 글이 사시까이아를 "세컨드 와인"으로만 언급하는데, 귀달베르토의
+    # "가격: 약 6만원(세븐일레븐 행사가)"이 사시까이아 세븐일레븐 가격으로 저장됐다.
+    body = "가격: 약 6만원(세븐일레븐 행사가)\n사시까이아의 세컨드 와인인 귀달베르토를 마셨다"
+    assert extract_channel_prices(
+        body, "2026-07", query="사시까이아", title="[레드] 귀달베르토 2022(Tenuta San Guido)") == []
+    # 제목이 그 와인을 지목하면 그대로 인정한다
+    result = extract_channel_prices(
+        body, "2026-07", query="사시까이아", title="사시까이아 2023 세븐일레븐 행사")
+    assert result[0]["price_low"] == 60000
+
+
+def test_title_matching_tolerates_spacing_difference():
+    body = "구매처 : 코스트코 일산점\n가격 : 19,990원"
+    result = extract_channel_prices(
+        body, "2026-07", query="로저구라트", title="'#304' 로저 구라트 브뤼 밀레짐 2023")
+    assert result[0]["price_low"] == 19990
+
+
+def test_title_omitted_keeps_previous_permissive_behavior():
+    # title을 안 넘기는 호출부(기존 코드/테스트)는 동작이 바뀌지 않아야 한다.
+    result = extract_channel_prices("이마트에서 19,900원", "2026-07", query="몬테스 클래식")
+    assert result[0]["price_low"] == 19900

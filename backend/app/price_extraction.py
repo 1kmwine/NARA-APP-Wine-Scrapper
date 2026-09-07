@@ -137,7 +137,8 @@ def _find_price_values(line: str) -> list[dict]:
     return values
 
 
-def line_attributable_to_query(line: str, query: str, section: str | None = None) -> bool:
+def line_attributable_to_query(line: str, query: str, section: str | None = None,
+                               title: str | None = None) -> bool:
     """가격이 적힌 이 줄이 정말 '검색한 그 와인' 가격인지 판정.
 
     같은 브랜드의 다른 제품 가격을 검색한 제품 가격으로 붙여버리는 문제가
@@ -168,6 +169,15 @@ def line_attributable_to_query(line: str, query: str, section: str | None = None
     brand_token = tokens[0] if tokens else ""
     if brand_token and fuzzy_find(line, brand_token):
         return False
+    # 가격 줄에 제품명이 전혀 없는 경우("가격: 약 6만원(세븐일레븐 행사가)").
+    # 글 문맥을 상속하되, title이 주어지면 제목이 그 와인을 지목해야만 인정한다 —
+    # 검색어가 본문에 '언급'으로만 나오는 글(다른 와인 리뷰)에서 그 와인 가격이
+    # 검색어 가격으로 붙는 문제가 있었다(실측 2026-09-05 —
+    # blog.naver.com/tongtong2you/224358319648 "[레드] 귀달베르토 2022" 글은
+    # 사시까이아를 "세컨드 와인"으로만 언급하는데 귀달베르토의 세븐일레븐
+    # 6만원이 사시까이아 가격으로 저장됐다).
+    if title is not None:
+        return bool(fuzzy_find(title, query))
     return True
 
 
@@ -237,7 +247,8 @@ def _price_from_preceding_line(lines: list[str], index: int) -> tuple[str, list[
     return None
 
 
-def extract_channel_prices(body_text: str, fallback_year_month: str, query: str | None = None) -> list[dict]:
+def extract_channel_prices(body_text: str, fallback_year_month: str, query: str | None = None,
+                           title: str | None = None) -> list[dict]:
     """정규식 기반 휴리스틱 — 본문에 직접 타이핑된 채널명+가격만 잡는다.
     위젯/이미지 안의 가격, 표현이 크게 다른 문장은 놓칠 수 있음(지어내지 않음:
     채널명과 가격 패턴이 같은 줄에서 둘 다 확인될 때만 결과에 넣는다).
@@ -285,7 +296,7 @@ def extract_channel_prices(body_text: str, fallback_year_month: str, query: str 
             continue
         if query:
             section_arg = current_section if has_sections else None
-            if not line_attributable_to_query(attribution_text, query, section=section_arg):
+            if not line_attributable_to_query(attribution_text, query, section=section_arg, title=title):
                 continue
         year_month = _resolve_year_month(attribution_text, fallback_year_month)
         for channel, pattern in _CHANNEL_PATTERNS.items():

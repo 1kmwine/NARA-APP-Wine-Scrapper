@@ -599,7 +599,7 @@ def run_price_job(
             return "unrelated"  # 검색어가 글 어디에도 없다 — 다른 제품 글
         fallback_ym = (published_date or "")[:7] or _today_year_month()
         try:
-            prices = extract_channel_prices(body_text, fallback_ym, query=query)
+            prices = extract_channel_prices(body_text, fallback_ym, query=query, title=title)
         except Exception:  # noqa: BLE001 — 추출 자체가 깨져도 이 소스만 생략, 검색 전체는 계속
             logger.exception("가격 추출 실패: %s", source_url)
             return "no_price"
