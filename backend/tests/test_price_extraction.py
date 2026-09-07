@@ -275,3 +275,35 @@ def test_emart_traders_counts_only_as_traders():
 def test_plain_emart_still_detected_when_not_followed_by_traders():
     result = extract_channel_prices("이마트 29,800원", fallback_year_month="2026-07")
     assert [r["channel"] for r in result] == ["이마트"]
+
+
+def test_manwon_notation_is_parsed():
+    # 실측(2026-09-05, 와쌉 구매글): "- 가격:  39만원" / "- 구입처:  와인픽스 청담점"
+    assert extract_channel_prices("와인픽스 39만원에 샀어요", "2026-09") == [
+        {"channel": "와인픽스", "price_low": 390000, "price_high": 390000, "year_month": "2026-09"}]
+    assert extract_channel_prices("이마트 3만9천원", "2026-09")[0]["price_low"] == 39000
+    assert extract_channel_prices("이마트 39.5만원", "2026-09")[0]["price_low"] == 395000
+
+
+def test_price_line_before_channel_line_is_paired():
+    # 와쌉 템플릿은 가격을 채널보다 먼저 적는다 — 다음 줄만 보던 로직은 놓쳤다.
+    body = "- 와인명 / 빈티지:  사시까이아 2023\n- 가격:  39만원\n- 구입처:  와인픽스 청담점"
+    result = extract_channel_prices(body, "2026-09", query="사시까이아")
+    assert result == [
+        {"channel": "와인픽스", "price_low": 390000, "price_high": 390000, "year_month": "2026-09"}]
+
+
+def test_duty_free_price_is_excluded():
+    # 면세 가격은 국내 채널 시세와 섞으면 안 된다(관세·주세 제외 가격).
+    assert extract_channel_prices("에노테카 면세점에서 26만원에 구매", "2026-09") == []
+    assert extract_channel_prices("현대면세점 199,000원", "2026-09") == []
+    # 면세 언급이 없으면 그대로 인정
+    assert extract_channel_prices("에노테카에서 199,000원", "2026-09")[0]["price_low"] == 199000
+
+
+def test_mentions_duty_free_helper():
+    from app.price_extraction import mentions_duty_free
+
+    assert mentions_duty_free("현대면세점에서 구매하였습니다") is True
+    assert mentions_duty_free("duty free shop") is True
+    assert mentions_duty_free("코스트코에서 구매") is False
