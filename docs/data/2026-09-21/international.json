@@ -1,0 +1,368 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "Michelin ranks Bordeaux ch&acirc;teaux in new &lsquo;grapes&rsquo; selection&nbsp;",
+      "title_ko": "Michelin ranks Bordeaux ch&acirc;teaux in new &lsquo;grapes&rsquo; selection&nbsp;",
+      "summary_ko": "Nine estates get top-tier 'three grapes'...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Going native: Indigenous grapes lead a banner year for the Balkans at DWWA 2026",
+      "title_ko": "Going native: Indigenous grapes lead a banner year for the Balkans at DWWA 2026",
+      "summary_ko": "Our latest spirits round-up...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Spirits briefing: The Cocktail Hour review and how to make a Negroni Seltz",
+      "title_ko": "Spirits briefing: The Cocktail Hour review and how to make a Negroni Seltz",
+      "summary_ko": "California can do it all, with remarkable consistency...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Saxum’s Coastal Pursuit",
+      "title_ko": "Saxum’s Coastal Pursuit",
+      "summary_ko": "A new chapter in California Syrah arrives as Saxum’s Justin Smith pioneers a coastal ridgeline west of Paso Robles",
+      "url": "https://www.winespectator.com/articles/saxum-paso-robles-justin-smith-slo-coast-syrah-vineyard",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "ABCs of Paso Robles",
+      "title_ko": "ABCs of Paso Robles",
+      "summary_ko": "Understanding the 11 subappellations that make up this California Central Coast wine region",
+      "url": "https://www.winespectator.com/articles/abcs-paso-robles",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Over 300 Recently Reviewed California Rhône-Style Wines",
+      "title_ko": "Over 300 Recently Reviewed California Rhône-Style Wines",
+      "summary_ko": "Including standout bottles from top producers including Colgin, Tablas Creek, Ridge, Stolpman and more",
+      "url": "https://www.winespectator.com/articles/top-california-rhone-wine-alphabetical-tasting-report-103126",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "New York Rallies After Harsh April Frost",
+      "summary": "New York vineyards are working to recover following the impact of a harsh April frost.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "So, How Are Wine Shops Doing These Days? It Depends.",
+      "summary": "An analysis explores the varying fortunes and current business climate for wine retail shops.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "McManis Family Vineyards Selling 3,500 Acres Including Winery Facility and Vineyards in San Joaquin and Sacramento Counties",
+      "summary": "McManis Family Vineyards has put a massive 3,500-acre holding, including its winery facility and vineyards, up for sale.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "New heights: Wiston Estate to be Emirates’ first ever English sparkling",
+      "summary": "Wiston Estate has become Emirates' first-ever English sparkling wine partner.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Global bulk wine exports decline 11.8% year on year",
+      "summary": "Global bulk wine exports have recorded an 11.8% decline compared to the previous year.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Vinography Images: Fog of Riesling",
+      "summary": "A wall of vines appears out of the morning fog across the Mosel River in Germany.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Hip-Hop Doesn’t Need Wine, But Wine Just Might Need Hip-Hop",
+      "summary": "An exploration of the intersection between hip-hop culture and the world of wine.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 9/13/26",
+      "summary": "A weekly roundup of interesting wine stories and articles found across the web.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "XANDER SOREN WINES BRIDGE JAPANESE AND AMERICAN PALATES",
+      "summary": "Xander Soren wines successfully bridge Japanese and American palates with unique winemaking approaches.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "RED SPARKLING WINE—AND YES, IT’S A THING. FROM ITALY. STARTING WITH LAMBRUSCO",
+      "summary": "Explore the refreshing world of Italian red sparkling wine, beginning with the classic Lambrusco.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "WINES OF…DID YOU SAY CALABRIA? FOOD-FRIENDLY AND PLANET-FRIENDLY LIBRANDI WINES FROM SOUTHERN ITALY",
+      "summary": "Discover food-friendly and planet-friendly Librandi wines originating from the Calabria region in southern Italy.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "How wine changed on my watch",
+      "summary": "Jancis reflects on how the sleepy, tradition-obsessed world of wine has been transformed over her 50 years as a wine writer.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Comfort in a bottle",
+      "summary": "A short piece offering a comforting perspective on wine, published yesterday.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Our 2026 wine writing competition – who won?",
+      "summary": "An announcement revealing the winners of the 2026 wine writing competition.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Old Vines, New Lessons: Rosa Kruger on Climate and the Future of Wine",
+      "summary": "As the guiding force behind the Old Vine Project, Kruger has reshaped how South Africa recognizes and safeguards its viticultural inheritance.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Northern Rhône Today: Preserving Identity in a Warming Climate",
+      "summary": "Yohan Castaing explores how the Northern Rhône is working to preserve its wine identity amidst a warming climate.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "2025 Mosel: The Full Gamut of Expression",
+      "summary": "따뜻하고 여유로웠던 2025년 모젤 생육기와 늦여름의 비 덕분에 조기 수확이 이루어졌으며, 그 결과 상큼하고 과일 향이 풍부한 리슬링 와인들이 탄생했습니다.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Mount Etna: The Juggernaut of Italian Wine",
+      "summary": "변동성 심한 기후 속에서도 에트나는 지속적인 발전과 혁신을 거듭하며 이탈리아 와인의 강력한 중심지로 자리 잡고 있습니다.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Portugal’s Treasure Trove of Native Grapes",
+      "summary": "Richard Mayson discusses the distinctive array of native grapes and the history of winemaking in Portugal.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Tasting with MS Jackson Rohrbaugh",
+      "summary": "Master Sommelier Jackson Rohrbaugh joins GuildSomm's director in this episode of Into the Glass.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Latest Updates: Asti Rosato, Columbia Hills AVA, Sherry Pagos, and Mexico Refresh",
+      "summary": "Check out the latest updates to the Wine Law Compendium, including new regulations for Asti DOCG rosé wines.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "‘The Worst Is Behind Us’: Silicon Valley Bank’s 2026 Wine Industry Report",
+      "summary": "The 25th annual Silicon Valley Bank report highlights early signs of recovery and key takeaways for a declining wine industry.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "SevenFifty Daily’s Most Popular Articles of 2025",
+      "summary": "The most-read stories of the year focused on major industry issues like tariffs as well as educational deep dives into viticulture and wine aging.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Henry Jeffreys on why the answer to food-pairing is always sherry",
+      "summary": "Henry Jeffreys explains why sherry is consistently the best answer for food-pairing.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Ten young winemakers shaping the future of Georgian wine",
+      "summary": "Next generation Georgian winemakers are honouring the country's rich vinous history while introducing a modern philosophy on wine.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "A slow wine revolution in Wales",
+      "summary": "Sophie Thorpe explores the developing slow wine movement taking place in Wales.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "New beverage launches: Cherry rosé, Twinings, Bruichladdich and more…",
+      "summary": "체리 로제와 고단백 오트 음료 등 선도적인 주류 브랜드들이 진화하는 소비자의 요구에 맞춰 포트폴리오를 확장하고 있습니다.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "How wine can adapt to a changing climate",
+      "summary": "기온이 상승함에 따라 와인 산업은 점점 더 큰 압박에 직면하고 있습니다.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "New beverage launches: Rice lager, sailing champagne and more…",
+      "summary": "기능성 음료, RTD, 프리미엄 증류주, 무알코올 혁신을 주도하는 브랜드들이 맛의 실험, 웰니스, 프리미엄화를 통해 소비자들을 유인하고 있습니다.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Republic of Georgia",
+      "summary": "Jamal Rayyis explores the wines and culture of the Republic of Georgia in this November 2024 article.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "A vin miraculeux from Fronton, in France’s Southwest",
+      "summary": "Joshua Greene highlights a miraculous wine from Fronton as the Wine of the Week in November 2024.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Latest Releases from France’s Southwest",
+      "summary": "Joshua Greene reviews the latest wine releases originating from France’s Southwest region.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "title_ko": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/registration-opens-47th-world-congress-vine-and-wine",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "title_ko": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-hosts-inaugural-ambassadors-day-dijon",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "The OIV headquarters awarded the “Heritage of Diplomacy” label",
+      "title_ko": "The OIV headquarters awarded the “Heritage of Diplomacy” label",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-headquarters-awarded-heritage-diplomacy-label",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "US Wine Imports Fall Sharply in First Half of 2026",
+      "summary": "US wine imports experienced a significant 25.2% drop in value during the first half of 2026, impacting both bottled and bulk wine suppliers.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "France Raises Champagne's Alcohol Limit to 15%",
+      "summary": "France has temporarily increased Champagne's alcohol limit from 13% to 15% due to extreme heat causing an early harvest and rapid sugar accumulation.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Russian Wine and Alcohol Production Falls Sharp...",
+      "summary": "Russia's production of wine, vodka, and cognac declined sharply from January to August 2026 as excise tax hikes and a shrinking legal market impacted output.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "Liv-ex Market Intelligence",
+      "summary": "Liv-ex Market Intelligence provides trusted fine wine market analysis built on the industry's most comprehensive pool of transactional data to help businesses make informed commercial decisions.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "Automation",
+      "summary": "To navigate shifting demand, trade tensions, and unpredictable market conditions in 2025, fine wine businesses need timely, unbiased intelligence rather than relying on intuition alone.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "How Market Intelligence Helps Fine Wine Businesses",
+      "summary": "Liv-ex market insights enable businesses to understand market dynamics, act early on emerging trends, optimise commercial performance, and empower their teams with reliable data.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "IWSC News",
+      "title": "IWSC 2026: New Zealand shows strength beyond Sauvignon Blanc",
+      "summary": "New Zealand secured over 200 medals at the IWSC 2026, showcasing remarkable consistency and diversity beyond its famous Sauvignon Blanc.",
+      "url": "https://www.iwsc.net/news/wine",
+      "date": ""
+    },
+    {
+      "source": "IWSC News",
+      "title": "IWSC 2026: Portugal’s fresh new chapter",
+      "summary": "The 2026 results highlighted an exciting evolution in Portuguese still wines alongside the continued exceptional quality of the country's fortified wines.",
+      "url": "https://www.iwsc.net/news/wine",
+      "date": ""
+    },
+    {
+      "source": "IWSC News",
+      "title": "House of Cards wins IWSC 2026 Western Australian Wine Producer Trophy",
+      "summary": "Margaret River producer House of Cards won the Western Australian Wine Producer Trophy after achieving an outstanding performance and a historic 100-point score.",
+      "url": "https://www.iwsc.net/news/wine",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
