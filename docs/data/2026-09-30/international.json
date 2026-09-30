@@ -1,0 +1,368 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "Boisset acquires Artesa as California wine history repeats itself",
+      "title_ko": "Boisset acquires Artesa as California wine history repeats itself",
+      "summary_ko": "Jean-Charles Boisset makes a significant investment in Carneros amid falling wine consumption",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Michelin ranks Bordeaux ch&acirc;teaux in new &lsquo;grapes&rsquo; selection&nbsp;",
+      "title_ko": "Michelin ranks Bordeaux ch&acirc;teaux in new &lsquo;grapes&rsquo; selection&nbsp;",
+      "summary_ko": "Nine estates get top-tier 'three grapes'...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Going native: Indigenous grapes lead a banner year for the Balkans at DWWA 2026",
+      "title_ko": "Going native: Indigenous grapes lead a banner year for the Balkans at DWWA 2026",
+      "summary_ko": "Our latest issue is out now...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Exploring the Exotic Beans of India",
+      "title_ko": "Exploring the Exotic Beans of India",
+      "summary_ko": "Monsooned and otherwise, coffee from this South Asian country stuns",
+      "url": "https://www.winespectator.com/articles/exploring-the-exotic-beans-of-india-103122",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Can Coffee or Tea Prevent Dementia?",
+      "title_ko": "Can Coffee or Tea Prevent Dementia?",
+      "summary_ko": "An extensive study tracking more than 130,000 people found a strong link between coffee and better brain health",
+      "url": "https://www.winespectator.com/articles/study-finds-can-coffee-or-tea-can-reduce-dementia-risk",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Cool Coffee Drinks",
+      "title_ko": "Cool Coffee Drinks",
+      "summary_ko": "Four cool-down coffee cocktail recipes to try at home",
+      "url": "https://www.winespectator.com/articles/drinks-tip-cool-coffee-drinks-51989",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Wine Continues to Search for Momentum Amid Persistent Consumer Headwinds - NielsenIQ",
+      "summary": "NielsenIQ reports that the wine industry is still striving to find momentum while facing ongoing consumer headwinds.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Growers, Wineries Assess Impact of Second Street Fire in Benton City, Washington",
+      "summary": "Local growers and wineries in Benton City, Washington, are evaluating the effects of the recent Second Street Fire.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "The Wine Society launches podcast on Spotify",
+      "summary": "The Wine Society has expanded its media presence by launching a new podcast available on Spotify.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Friday read: Ewelme Hills aims high with launch of still rosé",
+      "summary": "Ewelme Hills has set ambitious goals with the introduction of its new still rosé wine.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 9/27/26",
+      "summary": "필자가 웹상에서 흥미롭게 읽은 와인 관련 이야기들을 매주 모아서 소개하는 주간 뉴스 roundup입니다.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "The Road to Great Wine With Eben Sadie",
+      "summary": "세계에서 가장 재능 있고 야심 찬 와인 메이커 중 한 명인 에벤 세이디와 함께 위대한 와인을 찾아가는 여정을 다룹니다.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "The Wine Country Event of the Summer – still time to get tix!! May 14-17, 2026 Healdsburg Wine and Food Experience",
+      "summary": "미국 최고의 소도시 중 하나인 힐즈스버그에서 2026년 5월 14일부터 17일까지 최고의 와인과 음식, 엔터테인먼트를 즐길 수 있는 여름 와인 축제가 개최됩니다.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "Savoring Sips, Scents and Food-Pairings in Napa: Domaine Carneros",
+      "summary": "단순한 와인 시음을 넘어 향과 음식 페어링을 결합한 도멘 카르네로스의 더욱 몰입감 있고 수준 높은 와인 경험을 소개합니다.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Old Vines, New Lessons: Rosa Kruger on Climate and the Future of Wine",
+      "summary": "As the guiding force behind the Old Vine Project, Kruger has reshaped how South Africa recognizes and safeguards its viticultural inheritance.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "A Mighty Fortress Is Our God: A Tribute to Pierre Trimbach",
+      "summary": "Stephan Reinhardt pays tribute to Pierre Trimbach and his enduring legacy in the world of wine.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Northern Rhône Today: Preserving Identity in a Warming Climate",
+      "summary": "Yohan Castaing explores how the Northern Rhône is working to preserve its unique identity amidst a changing and warming climate.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Santa Barbara 2024: Shifting the Spotlight",
+      "summary": "Santa Barbara's 2024 wines shine as Chardonnays, Syrahs, and Cabernets from various subregions rapidly surge in quality alongside traditional Pinot Noir.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Monteraponi Trebbiano: A Whiter Shade of Chianti Classico",
+      "summary": "A retrospective tasting from 2011 onward highlights the compelling evolution and distinct character of Monteraponi's Trebbiano in Chianti Classico.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Portugal’s Treasure Trove of Native Grapes",
+      "summary": "Richard Mayson discusses the distinctive array of native grapes and the history of Portuguese winemaking.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Tasting with MS Jackson Rohrbaugh",
+      "summary": "Master Sommelier Jackson Rohrbaugh joins GuildSomm's podcast to discuss tasting and industry insights.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Latest Updates: Asti Rosato, Columbia Hills AVA, Sherry Pagos, and Mexico Refresh",
+      "summary": "Check out the latest updates to the Wine Law Compendium featuring new regulations and appellations.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "‘The Worst Is Behind Us’: Silicon Valley Bank’s 2026 Wine Industry Report",
+      "summary": "The 25th annual Silicon Valley Bank report highlights early signs of recovery and key takeaways for a declining wine industry.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "SevenFifty Daily’s Most Popular Articles of 2025",
+      "summary": "This year's most-read stories covered major industry topics such as tariffs alongside educational deep dives into viticulture and wine aging.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Roger Jones on the magical, close-knit world of Barolo's G.D. Vajra",
+      "summary": "Roger Jones explores the fascinating and close-knit community behind Barolo's renowned G.D. Vajra winery.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "How Kurtatsch is embracing Alto Adige’s new UGA classification",
+      "summary": "An in-depth look at how winery Kurtatsch is adapting to Alto Adige's new UGA classification system.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Marc Kent on Porseleinberg 2024 and the birth of a SA wine icon",
+      "summary": "Marc Kent discusses the 2024 vintage of Porseleinberg and the emergence of a new South African wine icon.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Ten young winemakers shaping the future of Georgian wine",
+      "summary": "다리아 홀로딜리나는 조루지아의 차세대 와인 양조자들이 풍부한 양조 역사를 존중하면서도 현대적인 철학으로 미래를 만들어가는 모습을 소개한다.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "A slow wine revolution in Wales",
+      "summary": "소피 소프가 웨일스에서 일어나고 있는 느린 와인 혁명에 대해 조명한다.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "New beverage launches: Cherry rosé, Twinings, Bruichladdich and more…",
+      "summary": "Leading drinks brands are expanding their portfolios with items like cherry rosé, high-protein oat drinks, and peated whisky to meet evolving consumer demands.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "How wine can adapt to a changing climate",
+      "summary": "The wine industry is facing mounting pressure as rising temperatures and environmental challenges continue to impact production.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Republic of Georgia",
+      "summary": "Jamal Rayyis explores the wines and culture of the Republic of Georgia.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "A vin miraculeux from Fronton, in France’s Southwest",
+      "summary": "Joshua Greene highlights a miraculous wine from Fronton located in France’s Southwest.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Latest Releases from France’s Southwest",
+      "summary": "Joshua Greene reviews the latest wine releases coming out of France’s Southwest.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Morandé Wine Group unveils new mid-strength cherry rosé-style wine",
+      "summary": "Chilean wine producer Morandé Wine Group has introduced a mid-strength cherry rosé-style wine for global markets that blends cherry wine with Sauvignon Blanc.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Maison Pommery and Henkell International end partnership discussions",
+      "summary": "Champagne producer Maison Pommery & Associés has called off its exclusive partnership discussions with sparkling wine group Henkell International.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Joel Gott Wines brings RTD wine with electrolytes to US market",
+      "summary": "California-based Joel Gott Wines has launched Sauvy B, a new line of ready-to-drink canned Sauvignon Blanc spritz beverages featuring added electrolytes.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Las 120 mayores bodegas italianas resisten mejor la caída del vino",
+      "summary": "이탈리아의 상위 120개 와이너리가 와인 시장의 침체 속에서도 상대적으로 잘 버텨내고 있다는 분석입니다.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Estados Unidos veta la entrada de bebidas alcohólicas canadienses tras endurecer la disputa comercial",
+      "summary": "미국이 무역 분쟁을 격화시키며 캐나다산 주류의 수입을 금지했습니다.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "El vino aguanta mejor que el resto del alcohol en el mercado de Estados Unidos",
+      "summary": "와인이 미국 시장에서 다른 주류 품목들에 비해 상대적으로 견조한 판매 실적을 유지하고 있습니다.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "title_ko": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/registration-opens-47th-world-congress-vine-and-wine",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "title_ko": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-hosts-inaugural-ambassadors-day-dijon",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "The OIV headquarters awarded the “Heritage of Diplomacy” label",
+      "title_ko": "The OIV headquarters awarded the “Heritage of Diplomacy” label",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-headquarters-awarded-heritage-diplomacy-label",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "New Zealand Wine Exports Rise 8% in Volume, but...",
+      "summary": "New Zealand wine exports grew by 8% in volume to reach 306.2 million liters, although the overall value showed barely any increase.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Champagne's 2026 Harvest Shrinks, but Producers...",
+      "summary": "Despite a sharp decline in Champagne's 2026 harvest due to spring frosts and summer heat, producers consider the vintage exceptional and plan to use reserve wines.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Treasury Wine Estates to Sell Seppelt as Portfo...",
+      "summary": "Treasury Wine Estates is selling its Seppelt winery and Drumborg vineyard to Aaron Drummond as part of efforts to streamline its portfolio.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine Institute",
+      "title": "Press Release",
+      "summary": "Wine Institute press release available for download in PDF format.",
+      "url": "https://wineinstitute.org/news/press-room/",
+      "date": ""
+    },
+    {
+      "source": "IWSC News",
+      "title": "“Richness, longevity and elegance”: inside the Franciacorta judging",
+      "summary": "The IWSC held its second Global Wine Judging event in Franciacorta, where judges discussed standout flights and styles known for their richness, longevity, and elegance.",
+      "url": "https://www.iwsc.net/news/wine",
+      "date": ""
+    },
+    {
+      "source": "IWSC News",
+      "title": "Meet Annabel Angland: winner of IWSC 2026 Young Wine Producer Award",
+      "summary": "Cape Mentelle viticulturist Annabel Angland was recognized by the IWSC as an exciting young talent, discussing her career journey and Margaret River's future.",
+      "url": "https://www.iwsc.net/news/wine",
+      "date": ""
+    },
+    {
+      "source": "IWSC News",
+      "title": "IWSC 2026: New Zealand shows strength beyond Sauvignon Blanc",
+      "summary": "New Zealand secured over 200 medals at the IWSC 2026, demonstrating remarkable consistency and wine quality that extends well beyond Sauvignon Blanc.",
+      "url": "https://www.iwsc.net/news/wine",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
