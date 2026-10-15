@@ -1,0 +1,316 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Wine Spectator",
+      "title": "Daniel Boulud’s Long-Awaited Brasserie Opens on the Upper West Side",
+      "title_ko": "Daniel Boulud’s Long-Awaited Brasserie Opens on the Upper West Side",
+      "summary_ko": "Brasserie Boulud, a new hotspot across from Lincoln Center, features a serious French wine list and an expansive menu",
+      "url": "https://www.winespectator.com/articles/daniel-boulud-brasserie-new-york-city-restaurant-opening-wine",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Daniel Boulud’s American Dream",
+      "title_ko": "Daniel Boulud’s American Dream",
+      "summary_ko": "The French-born New York chef has built an international restaurant empire, but he remains hungry",
+      "url": "https://www.winespectator.com/articles/chef-daniel-boulud-profile",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Daniel Boulud&#039;s Mustard-Crusted Pork Rack",
+      "title_ko": "Daniel Boulud&#039;s Mustard-Crusted Pork Rack",
+      "summary_ko": "A delicious beer-braised pork dish for fall",
+      "url": "https://www.winespectator.com/articles/dining-tip-daniel-bouluds-mustard-crusted-pork-rack-50864",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Foley Family Wines & Spirits Expands Portfolio with DrinkAde Pre-Alcohol Wellness Shot",
+      "summary": "Foley Family Wines & Spirits is broadening its product portfolio by adding the DrinkAde pre-alcohol wellness shot.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Sommelier Wine Awards 2027 open for submissions",
+      "summary": "The Sommelier Wine Awards 2027 are now officially open to accept new submissions.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 10/11/26",
+      "summary": "저자가 웹상에서 발견한 흥미로운 와인 이야기들을 매주 정리하여 소개하는 글입니다.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Tasting a Bit of California Wine History",
+      "summary": "저자가 샌프란시스코의 한 와인 수집가 집을 방문해 캘리포니아 와인의 역사적인 빈티지를 시음한 경험을 담았습니다.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "The Wine Country Event of the Summer – still time to get tix!! May 14-17, 2026 Healdsburg Wine and Food Experience",
+      "summary": "미국 최고의 소도시 중 하나인 힐즈버그에서 2026년 5월에 열리는 환상적인 와인과 미식 축제를 소개합니다.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Germany's GG releases in 2026 – Spätburgunder",
+      "summary": "In the small, transparent 2024 vintage, Germany’s Pinot shows the unique characteristics of various vineyards in Rheinhessen.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "California embraces 'table wine'",
+      "summary": "California wine producers are increasingly embracing the concept and production of traditional table wine.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Bordeaux 2026 harvest report",
+      "summary": "An insightful look into the conditions and expectations surrounding the 2026 harvest in Bordeaux.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Old Vines, New Lessons: Rosa Kruger on Climate and the Future of Wine",
+      "summary": "Rosa Kruger has reshaped how South Africa recognizes and safeguards its viticultural inheritance as the guiding force behind the Old Vine Project.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Northern Rhône Today: Preserving Identity in a Warming Climate",
+      "summary": "Yohan Castaing discusses the preservation of identity in the Northern Rhône amidst a warming climate.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Discover Jerez: From Fortified Classics to Blancos de Albariza",
+      "summary": "This report explores the traditional styles of Jerez and a new generation of producers revisiting techniques to reveal the character of wines before prolonged aging.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Exploring Uco Valley: From Altamira to Gualtallary",
+      "summary": "This report explores the distinct identities of the Uco Valley’s subregions through more than 600 wines from gravel-rich and cool mountain sites.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Joseph Phelps Insignia 1974-2025: Past, Present and Future",
+      "summary": "Two recent vertical tastings provided an opportunity to delve into the rich history of Joseph Phelps’ Insignia and examine the trends shaping Napa Valley's first proprietary red Bordeaux blend.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "‘The Worst Is Behind Us’: Silicon Valley Bank’s 2026 Wine Industry Report",
+      "summary": "Silicon Valley Bank's 25th annual report highlights early signs of recovery for the declining wine industry.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "SevenFifty Daily’s Most Popular Articles of 2025",
+      "summary": "The top-read stories of the year focused on major industry issues like tariffs as well as educational deep dives into viticulture and wine aging.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Calancombe Estate's English wine & spirits success from scratch",
+      "summary": "Calancombe Estate shares its journey of building a successful English wine and spirits brand completely from scratch.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Ten young winemakers shaping the future of Georgian wine",
+      "summary": "Next generation Georgian winemakers are honoring the country's rich vinous history while introducing a modern philosophy on wine.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "A slow wine revolution in Wales",
+      "summary": "Sophie Thorpe explores the emerging and unique slow wine revolution happening in Wales.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Global Drinks Intel",
+      "title": "How to turn the tide back towards alcohol in Germany – Market Intel",
+      "summary": "Despite beer, wine, and spirits losing ground in Germany, emerging pockets of growth offer hope for the country's spirits market.",
+      "url": "https://drinks-intel.com/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "Champagne in a can: Can RTD attract new consumers?",
+      "summary": "Tavern’s Cannes Royale Champagne cocktails highlights the opportunities and challenges of bringing a premium wine category into more informal drinking occasions.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "€5m wine heist sees 30,000 bottles stolen from famous Italian winery",
+      "summary": "Italian media reports that thieves have stolen 30,000 bottles of wine from a prestigious winery.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "New beverage launches: Grey Goose, MOMO and more...",
+      "summary": "Brands across premium spirits, craft soft drinks, and wine are using flavour innovation, provenance, and limited editions to drive interest.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Republic of Georgia",
+      "summary": "Jamal Rayyis explores the wine culture and offerings of the Republic of Georgia in this November 2024 article.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "A vin miraculeux from Fronton, in France’s Southwest",
+      "summary": "Joshua Greene highlights a miraculous wine from the Famille Arbeau growers in Fronton, France as the Wine of the Week.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Latest Releases from France’s Southwest",
+      "summary": "Joshua Greene reviews the latest wine releases coming from the Southwest region of France.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Morandé Wine Group unveils new mid-strength cherry rosé-style wine",
+      "summary": "Morandé Wine Group has introduced a mid-strength cherry rosé-style wine for global markets that blends cherry wine with Sauvignon Blanc.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Maison Pommery and Henkell International end partnership discussions",
+      "summary": "Champagne producer Maison Pommery & Associés has ended its exclusive partnership discussions with sparkling wine group Henkell International.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Global wine exports fell 5.1% to 15.8 billion euros in the first half of 2026",
+      "summary": "In the first half of 2026, global wine exports experienced a 5.1% decline, dropping total value to 15.8 billion euros.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Italy Enforces New Anti-Greenwashing Rules Across Its Wine Sector",
+      "summary": "Italy has implemented strict new anti-greenwashing regulations throughout its domestic wine industry.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Beer sales in Krasnodar Krai fell 4.4% in the first nine months of 2026",
+      "summary": "During the first nine months of 2026, beer sales within the Krasnodar Krai region decreased by 4.4%.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "OIV strengthens dialogue with the international table grape community",
+      "title_ko": "OIV strengthens dialogue with the international table grape community",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-strengthens-dialogue-international-table-grape-community",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "title_ko": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/registration-opens-47th-world-congress-vine-and-wine",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "title_ko": "OIV hosts inaugural Ambassadors’ Day in Dijon",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-hosts-inaugural-ambassadors-day-dijon",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Germany’s 2026 Wine Harvest: Smaller Crop, High Quality",
+      "summary": "Germany’s 2026 wine harvest is forecast to fall 4-20% below average after a hot, dry summer, yet growers expect top quality.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "LVMH Wines & Spirits Keeps Its Momentum: Champagne Rebound",
+      "summary": "LVMH Wines & Spirits grew 5% organically in the first nine months of 2026, led by a champagne rebound, Hennessy in Asia and Provence rosé.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "EU Wine Exports Slip 2.9% in Early 2026, Falling Short",
+      "summary": "EU wine and wine-based product exports fell 2.9% to €9.446 billion in January–July 2026, a €280M drop, yet remain the bloc’s fourth-largest agri-food export category.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "Automation",
+      "summary": "The fine wine industry is navigating shifting demand and trade tensions in 2025, making timely and unbiased market intelligence essential for protecting margins.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "How Market Intelligence Helps Fine Wine Businesses",
+      "summary": "Market intelligence enables fine wine businesses to understand market dynamics, spot emerging trends early, optimise commercial performance, and empower their teams with reliable data.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "The Conversations Shaping Wine’s Next Chapter",
+      "summary": "An exploration of the dialogue and trends currently defining the future trajectory of the wine industry.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "Wine…Is It Still Relevant? | Yes, But…AND New Study Shows a Third of Consumers Say “We’ll Have It Our Way,” Mixing It With Juice, Ice, Sparkling Water, Etc.",
+      "summary": "A new study reveals that while wine remains relevant, a significant portion of consumers prefer mixing it with various beverages like juice, ice, or sparkling water.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
