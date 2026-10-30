@@ -1,0 +1,311 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "Why United Airlines blended its newest wine at 35,000 feet",
+      "title_ko": "Why United Airlines blended its newest wine at 35,000 feet",
+      "summary_ko": "Rare wines galore for collectors...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Rare 1945 La T&acirc;che bottle to headline Bonhams wine auction in Paris",
+      "title_ko": "Rare 1945 La T&acirc;che bottle to headline Bonhams wine auction in Paris",
+      "summary_ko": "Take a sneak peek...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Norway&rsquo;s Nikolai Haram Svorte crowned ASI Best Sommelier of the World 2026",
+      "title_ko": "Norway&rsquo;s Nikolai Haram Svorte crowned ASI Best Sommelier of the World 2026",
+      "summary_ko": "From Burgundy to Jerez...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "A Labor of Love",
+      "title_ko": "A Labor of Love",
+      "summary_ko": "How chairman and CEO Marvin R. Shanken turned a tabloid into the world’s premier wine magazine",
+      "url": "https://www.winespectator.com/articles/marvin-shanken-wine-spectator-history-50-anniversary-113026",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Looking Ahead",
+      "title_ko": "Looking Ahead",
+      "summary_ko": "Executive editor Jeffery Lindenmuth celebrates wine’s endurance and looks ahead to its future",
+      "url": "https://www.winespectator.com/articles/jeffery-lindenmuth-wine-spectator-50-anniversary-113026",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "WSWA SipSource Holiday Preview: Wine and Spirits Sales Steadying",
+      "summary": "Wine & Spirits Wholesalers of America releases a holiday preview indicating that wine and spirits sales are steadying.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Judge Approves $625,000 Loan to Keep Calistoga Vintner Services Running",
+      "summary": "A judge has approved a $625,000 loan to ensure Calistoga Vintner Services continues its operations.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Evergreen Family Wines' Alki Chardonnay Expands to Kroger Stores Across the U.S.",
+      "summary": "Evergreen Family Wines announces the nationwide expansion of its Alki Chardonnay into Kroger grocery stores.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 10/26/26",
+      "summary": "This is a weekly roundup of interesting wine stories found across the web for the week of October 26, 2026.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 10/18/26",
+      "summary": "This is a weekly roundup of interesting wine stories found across the web for the week of October 18, 2026.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 10/11/26",
+      "summary": "This is a weekly roundup of interesting wine stories found across the web for the week of October 11, 2026.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "The Wine Country Event of the Summer – still time to get tix!! May 14-17, 2026 Healdsburg Wine and Food Experience",
+      "summary": "미국 최고의 소도시 중 하나인 힐즈버그에서 2026년 5월 14일부터 17까지 열리는 환상적인 와인과 미식 축제의 소식을 전합니다.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "VinePair",
+      "title": "A Wine Cellar Was Left Untouched Since 1939. Here’s What Was Found",
+      "summary": "1939년부터 손길이 닿지 않은 채 방치되어 있던 와인 셀러에서 발견된 흥미로운 내용들을 소개합니다.",
+      "url": "https://vinepair.com/",
+      "date": ""
+    },
+    {
+      "source": "Punch",
+      "title": "The Real Housewives of Conspicuous Consumption",
+      "summary": "What do the reality stars’ drinking habits reveal about wealth, taste, status and the economics of the U.S. wine industry?",
+      "url": "https://punchdrink.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Blind tasting, part 10 – Sauvignon Blanc",
+      "summary": "Mission Blind Tasting returns with a focus on Sauvignon Blanc, exploring one of the world's most recognizable grape varieties.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Bordeaux 2010s today",
+      "summary": "Jancis Robinson shares insights on the evolution and current state of Bordeaux 2010 vintage wines.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "The Alpine Wine Framework",
+      "summary": "An article exploring the unique characteristics and structural framework of wines produced in Alpine regions.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Chardonnay on Riesling’s Turf: Exciting Gains in Germany and Austria",
+      "summary": "Master of Wine Bryce Wiatrak explores the exciting Chardonnay wines of Germany and Austria, unpacking the grape's growth in the region.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "New Maps: Germany and Spain",
+      "summary": "GuildSomm has released new maps of Spain, Rioja, and the Mosel, Pfalz, and Rheingau regions of Germany.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "‘The Worst Is Behind Us’: Silicon Valley Bank’s 2026 Wine Industry Report",
+      "summary": "The 25th annual Silicon Valley Bank report highlights early signs of recovery and key takeaways for a declining wine industry.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "SevenFifty Daily’s Most Popular Articles of 2025",
+      "summary": "This year's most-read stories covered crucial industry issues like tariffs alongside educational deep dives into viticulture and wine aging.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Optimism and great new wines in abundance at Davy’s tasting",
+      "summary": "Davy’s tasting showcased a strong sense of optimism alongside an abundance of great new wines.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Light bottle, big ambition: Alentejo takes step towards lighter bottles",
+      "summary": "Alentejo is taking a significant step forward in sustainability by adopting lighter wine bottles.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "How Grgich Hills & Rutherford Hill showcase the best of Napa Valley",
+      "summary": "Grgich Hills and Rutherford Hill brilliantly demonstrate the finest qualities and characteristics of Napa Valley.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Ten young winemakers shaping the future of Georgian wine",
+      "summary": "Daria Kholodilina introduces Georgia's top young winemakers who are honoring vinous history while introducing modern philosophies.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "A slow wine revolution in Wales",
+      "summary": "Sophie Thorpe explores the emerging slow wine movement taking place in Wales.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "WSTA calls for alcohol duty cut as UK wine and spirits sales fall",
+      "summary": "The WSTA is urging the UK government to cut alcohol duty as consecutive tax increases place heavy financial pressure on both beverage businesses and consumers.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Republic of Georgia",
+      "summary": "Jamal Rayyis explores the wine and culture of the Republic of Georgia in this November 2024 article.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "A vin miraculeux from Fronton, in France’s Southwest",
+      "summary": "Joshua Greene highlights a miraculous wine from Fronton in Southwest France as the wine of the week.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Latest Releases from France’s Southwest",
+      "summary": "Joshua Greene reviews the latest wine releases coming from the Southwest region of France.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "The Duckhorn Portfolio appoints new chief operating officer",
+      "summary": "US-based premium wine company The Duckhorn Portfolio has announced several new executive leadership appointments, including a new chief operating officer.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Morandé Wine Group unveils new mid-strength cherry rosé-style wine",
+      "summary": "Chilean wine producer Morandé Wine Group has unveiled its latest innovation: a mid-strength cherry rosé-style wine for global markets, blending cherry wine with Sauvignon Blanc.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Maison Pommery and Henkell International end partnership discussions",
+      "summary": "Champagne producer Masion Pommery & Associés has ended its exclusive partnership discussions with sparkling wine group Henkell International.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Low-strength beer doubled its share of British tax clearances, government review found",
+      "summary": "A government review revealed that low-strength beer doubled its share of British tax clearances.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "The United Kingdom will raise beer duty 4.6% on February 1, 2027",
+      "summary": "The United Kingdom announced plans to increase beer duty by 4.6% starting February 1, 2027.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "U.S. wine wholesalers sold 8% less wine by volume through September",
+      "summary": "Wine volume sales by U.S. wholesalers experienced an 8% decline through September.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "China hosted the 47th OIV World Congress of Vine and Wine, marking a historic first for Asia",
+      "title_ko": "China hosted the 47th OIV World Congress of Vine and Wine, marking a historic first for Asia",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/china-hosted-47th-oiv-world-congress-vine-and-wine-marking-historic-first-asia",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV strengthens dialogue with the international table grape community",
+      "title_ko": "OIV strengthens dialogue with the international table grape community",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-strengthens-dialogue-international-table-grape-community",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "title_ko": "Registration is now open for the 47th World Congress of Vine and Wine",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/registration-opens-47th-world-congress-vine-and-wine",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Italian Wine Industry Generates €40.7 Billion f...",
+      "summary": "이탈리아 와인 산업은 경제에 막대한 기여를 하고 있으나 기후 변화와 수출 감소 등의 도전에 직면해 있습니다.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "California Wine Crisis Deepens Amid Winery Bank...",
+      "summary": "수요 감소와 재고 과잉으로 인해 캘리포니아 와인 산업의 파산과 구조조정 위기가 심화되고 있습니다.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "Fine Wine Market Insights and Analysis",
+      "summary": "Liv-ex Market Intelligence delivers independent, data-driven analysis of the fine wine market to help businesses navigate shifting demand and make informed commercial decisions.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
