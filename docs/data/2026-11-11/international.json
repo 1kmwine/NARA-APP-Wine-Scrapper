@@ -1,0 +1,339 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "London welcomes wine lovers: Highlights from the Decanter Fine Wine Encounter 2026",
+      "title_ko": "런던은 와인 애호가들을 환영합니다: Decanter Fine Wine Encounter 2026",
+      "summary_ko": "하이라이트 DFWE London 2026",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Decanter to reveal its Top 50 US Wines of 2026",
+      "title_ko": "디캔터가 2026년 미국 상위 50대 와인 공개",
+      "summary_ko": "4병 대신 3병, 저렴한 배송비 및 조기 참가 혜택: 세계 최대 와인 대회에서 생산자를 위한 새로운 소식을 소개합니다.",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Decanter World Wine Awards 2027: Entries now open",
+      "title_ko": "Decanter World Wine Awards 2027: 출품작 공개",
+      "summary_ko": "수집가를 위한 다양한 희귀 와인...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "A Labor of Love",
+      "title_ko": "사랑의 노동",
+      "summary_ko": "회장 겸 CEO인 Marvin R. Shanken이 어떻게 타블로이드 신문을 세계 최고의 와인 잡지로 탈바꿈시켰는지",
+      "url": "https://www.winespectator.com/articles/marvin-shanken-wine-spectator-history-50-anniversary-113026",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Looking Ahead",
+      "title_ko": "전망",
+      "summary_ko": "편집장 Jeffery Lindenmuth가 와인의 내구성을 축하하고 미래를 내다봅니다.",
+      "url": "https://www.winespectator.com/articles/jeffery-lindenmuth-wine-spectator-50-anniversary-113026",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Wine Tastes Better To Some GLP-1 Users. Why?",
+      "summary": "GLP-1 사용자 중 일부에게 와인의 맛이 더 좋게 느껴지는 이유에 대해 다룹니다.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Wine Industry Financial Symposium Opens Today",
+      "summary": "오늘 와인 산업 재무 심포지엄이 개막하여 관련 업계의 관심이 집중되고 있습니다.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "The Rhône Ranger Needs You",
+      "summary": "론 레인저(Rhône Ranger)가 와인 애호가들과 업계 관계자들의 참여를 촉구하고 있습니다.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Imbibe Magazine",
+      "title": "How Amontillado Sherry Makes Cocktails Better",
+      "summary": "Bartenders showcase amontillado sherry’s versatility in cocktails, ranging from a silky Kingston Negroni to an autumnal colada.",
+      "url": "https://imbibemagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 11/8/26",
+      "summary": "필자가 웹에서 발견한 흥미로운 와인 관련 이야기들을 매주 모아서 소개하는 주간 뉴스 roundup입니다.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 11/1/26",
+      "summary": "웹상에서 주목할 만한 다양한 와인 뉴스들을 한데 모아 독자들에게 공유하는 주간 읽을거리 코너입니다.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "Consider One of These Luxurious Hotels in Italy",
+      "summary": "This article explores luxurious Italian hotels offering five-star amenities such as rooftop lounges, private beach access, and unique spa experiences paired with great food and wine.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "The Wine Country Event of the Summer – still time to get tix!! May 14-17, 2026 Healdsburg Wine and Food Experience",
+      "summary": "An upcoming three-day wine and food event in Healdsburg offers exceptional local wines, entertainment, and top-tier culinary experiences.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "VinePair",
+      "title": "We Asked 17 Sommeliers: What’s the One Wine You Always Order When You See It on a Menu?",
+      "summary": "17명의 소믈리에에게 메뉴판에서 발견하면 무조건 주문하는 와인이 무엇인지 물어봅니다.",
+      "url": "https://vinepair.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Penfolds – consistency and patience",
+      "summary": "Julian Leidy presents a tasting article discussing the consistency and patience behind Penfolds wines.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Wines that tell stories",
+      "summary": "Tamlyn Currin features La Vierge’s Story Teller wines, which offer a free fable with every bottle.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Half a Percent of Champagne: Examining the Region’s Minor Grapes",
+      "summary": "Josh Kelly explores the lesser-known grape varieties of Champagne, including Arbane, Petit Meslier, Pinot Blanc, and Pinot Gris.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Chardonnay on Riesling’s Turf: Exciting Gains in Germany and Austria",
+      "summary": "Master of Wine Bryce Wiatrak examines the growing success and unique characteristics of Chardonnay production in Germany and Austria.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "‘The Worst Is Behind Us’: Silicon Valley Bank’s 2026 Wine Industry Report",
+      "summary": "The 25th annual Silicon Valley Bank report highlights early signs of recovery and key takeaways for a previously declining wine industry.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "SevenFifty Daily’s Most Popular Articles of 2025",
+      "summary": "The most-read stories of the year focused on major industry issues like tariffs as well as educational deep dives into viticulture and wine aging.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Why the Great Greek Wines tasting was a real show stopper",
+      "summary": "The Great Greek Wines tasting event proved to be an impressive and standout showcase.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Why LWF's London Natural Wine Fair is such a breaktrhough event",
+      "summary": "The London Wine Fair's Natural Wine Fair is highlighted as a significant breakthrough event.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Roger Jones celebrates 20 years of Sugrue's The Trouble With Dreams",
+      "summary": "Roger Jones marks the 20th anniversary of Sugrue's renowned 'The Trouble With Dreams' wine.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Ten young winemakers shaping the future of Georgian wine",
+      "summary": "Daria Kholodilina introduces Georgia's top young winemakers who are honoring vinous history while introducing modern winemaking philosophies.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "A slow wine revolution in Wales",
+      "summary": "Sophie Thorpe explores the emerging and unique slow wine movement happening in Wales.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Republic of Georgia",
+      "summary": "Jamal Rayyis explores the wines and culture of the Republic of Georgia in this recent article.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "A vin miraculeux from Fronton, in France’s Southwest",
+      "summary": "Joshua Greene highlights a miraculous wine from Fronton in the Wine of the Week feature.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Latest Releases from France’s Southwest",
+      "summary": "Joshua Greene reviews the latest wine releases coming from the Southwest region of France.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Morandé Wine Group unveils new mid-strength cherry rosé-style wine",
+      "summary": "Morandé Wine Group has introduced a mid-strength cherry rosé-style wine for global markets that blends cherry wine with Sauvignon Blanc.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Maison Pommery and Henkell International end partnership discussions",
+      "summary": "Champagne producer Maison Pommery & Associés has ended its exclusive partnership discussions with sparkling wine group Henkell International.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Italy's snow tourism lodging revenue is projected to reach 6.392 billion euros in 2026-2027",
+      "summary": "Italy's snow tourism lodging revenue is projected to reach 6.392 billion euros in the 2026-2027 season.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "China’s baijiu retail sales fell 8.2% at large monitored retailers through August",
+      "summary": "Retail sales of China's baijiu experienced an 8.2% decline at large monitored retailers through August.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Moldova’s wine exports to Japan reached $1.5 million in 2025, nearly quadrupling from 2017",
+      "summary": "Moldova's wine exports to Japan surged to $1.5 million in 2025, marking an almost fourfold increase compared to 2017.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "We&#039;re hiring a Custodian",
+      "title_ko": "관리인을 채용합니다",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/were-hiring",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "China hosted the 47th OIV World Congress of Vine and Wine, marking a historic first for Asia",
+      "title_ko": "중국이 제47회 OIV 세계 포도나무 및 와인 회의를 개최하여 아시아 최초의 역사적인 행사를 열었습니다.",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/china-hosted-47th-oiv-world-congress-vine-and-wine-marking-historic-first-asia",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV strengthens dialogue with the international table grape community",
+      "title_ko": "OIV, 국제 식용 포도 커뮤니티와의 대화 강화",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-strengthens-dialogue-international-table-grape-community",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "France Raises 2026 Wine Harvest Forecast as Sou...",
+      "summary": "France raised its 2026 wine harvest forecast to 36.7 million hectoliters, which is 3% higher than in 2025.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Røsnæs Wine Region Moves Closer to EU PDO Status",
+      "summary": "Denmark’s Røsnæs peninsula is seeking EU PDO status, which would establish it as Europe’s northernmost wine appellation.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "SVB State of the US Wine Industry",
+      "title": "2026 State of the Wine Industry Report",
+      "summary": "SVB의 2026년 보고서는 시장 변화에 대응하는 와이너리들과 그렇지 못한 와이너리들 사이의 뚜렷한 실적 격차를 조명합니다.",
+      "url": "https://www.svb.com/trends-insights/reports/wine-report",
+      "date": ""
+    },
+    {
+      "source": "SVB State of the US Wine Industry",
+      "title": "State of the US Wine Industry 2026 Videocast",
+      "summary": "비디오캐스트와 주요 핵심 사항을 통해 2026년 미국 와인 산업의 성장 전략과 소비자 행동 변화를 분석합니다.",
+      "url": "https://www.svb.com/trends-insights/reports/wine-report",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "Fine Wine Market Insights and Analysis",
+      "summary": "Liv-ex Market Intelligence delivers independent, data-driven analysis of the fine wine market to help businesses navigate shifting demands and make informed commercial decisions.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "Automation and Market Challenges in 2025",
+      "summary": "The fine wine industry continues to face challenges such as unpredictable En Primeur campaigns, renewed trade tensions, and changing global consumption patterns.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "How Market Intelligence Helps Fine Wine Businesses",
+      "summary": "Leveraging transactional data allows fine wine businesses to spot emerging trends early, benchmark commercial performance, and optimize strategies across buying and selling.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "How One Winery Is Fighting an Industry Slump",
+      "summary": "The Wall Street Journal explores innovative strategies that a specific winery is using to combat the current industry downturn.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "2026 WINE INDUSTRY LEADERS",
+      "summary": "Wine Business Monthly highlights the top influential leaders in the wine industry for the year 2026.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "How Grocers Can Boost Falling Wine Sales With Occasion-Based Merchandising",
+      "summary": "Progressive Grocer discusses how grocery stores can utilize occasion-based merchandising to revitalize declining wine sales.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
