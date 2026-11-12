@@ -1,0 +1,290 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "London welcomes wine lovers: Highlights from the Decanter Fine Wine Encounter 2026",
+      "title_ko": "London welcomes wine lovers: Highlights from the Decanter Fine Wine Encounter 2026",
+      "summary_ko": "Highlights from DFWE London 2026",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Decanter to reveal its Top 50 US Wines of 2026",
+      "title_ko": "Decanter to reveal its Top 50 US Wines of 2026",
+      "summary_ko": "Three bottles instead of four, lower shipping costs and an early-entry offer: here’s what’s new for producers at the world’s largest wine competition.",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Decanter World Wine Awards 2027: Entries now open",
+      "title_ko": "Decanter World Wine Awards 2027: Entries now open",
+      "summary_ko": "Rare wines galore for collectors...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "A Labor of Love",
+      "title_ko": "A Labor of Love",
+      "summary_ko": "How chairman and CEO Marvin R. Shanken turned a tabloid into the world’s premier wine magazine",
+      "url": "https://www.winespectator.com/articles/marvin-shanken-wine-spectator-history-50-anniversary-113026",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Looking Ahead",
+      "title_ko": "Looking Ahead",
+      "summary_ko": "Executive editor Jeffery Lindenmuth celebrates wine’s endurance and looks ahead to its future",
+      "url": "https://www.winespectator.com/articles/jeffery-lindenmuth-wine-spectator-50-anniversary-113026",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Financial Experts Highlight Reason for Wine Industry to Celebrate--in Moderation",
+      "summary": "Financial experts share cautious reasons for the wine industry to celebrate amid ongoing market conditions.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "At Winejobs.com's 2026 Summit, HR Refocuses on its Humanity",
+      "summary": "Human resources professionals in the wine industry are shifting their focus back toward human-centric practices at the recent summit.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Seasonal Demand Provides a Stronger Weekly Lift as Wine Declines Remain Unchanged - NIQ",
+      "summary": "NIQ data indicates that seasonal demand is offering a weekly boost while overall wine volume declines stay steady.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Exclusive: New Italian specialist gathers steam with appointment of Nelson Pari",
+      "summary": "A new Italian wine specialist is gaining momentum following the strategic appointment of Nelson Pari.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Champagne Bruno Paillard switches to brown glass",
+      "summary": "Champagne producer Bruno Paillard has transitioned to using brown glass for its bottles.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Robb Report",
+      "title": "Wine Collector Lewis Chester Is Auctioning Off a Treasure Trove of Champagne, Burgundy, and More",
+      "summary": "Prominent wine collector Lewis Chester is putting an extensive collection of rare Champagne, Burgundy, and other fine wines up for auction.",
+      "url": "https://www.robbreport.com/",
+      "date": ""
+    },
+    {
+      "source": "Imbibe Magazine",
+      "title": "How Amontillado Sherry Makes Cocktails Better",
+      "summary": "Bartenders showcase amontillado sherry’s versatility in cocktails, from a silky Kingston Negroni to an autumnal colada.",
+      "url": "https://imbibemagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 11/8/26",
+      "summary": "This weekly roundup features a curated selection of interesting wine stories and articles found across the web for the week of November 8, 2026.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Vinography Images: Slice of Italy",
+      "summary": "A scenic photograph capturing a quintessential Italian landscape with a farmhouse, vineyards, olive trees, and rolling hills.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 1/1/26",
+      "summary": "This weekly roundup highlights noteworthy wine-related stories and news collected from around the internet for the week of November 1, 2026.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "The Wine Country Event of the Summer – still time to get tix!! May 14-17, 2026 Healdsburg Wine and Food Experience",
+      "summary": "2026년 5월에 열리는 힐즈버그 와인 앤 푸드 익스피리언스 행사의 뛰어난 와인과 음식, 엔터테인먼트를 소개합니다.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "VinePair",
+      "title": "The 50 Best Wines of 2026",
+      "summary": "VinePair staff presents a comprehensive ranking of the 50 best wines for the year 2026.",
+      "url": "https://vinepair.com/",
+      "date": ""
+    },
+    {
+      "source": "VinePair",
+      "title": "Is it Rude to Ask the Somm to Change the Temperature of the Wine I Ordered?",
+      "summary": "An exploration of etiquette regarding whether diners can request sommeliers to adjust wine serving temperatures.",
+      "url": "https://vinepair.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Flint South Africans and The Liberator retrospective",
+      "summary": "Jancis reports on two revelatory tastings of Cape wines featuring winemakers like Eben Sadie in the Swartland.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Penfolds – consistency and patience",
+      "summary": "An article exploring the enduring consistency and required patience behind Penfolds wines.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Half a Percent of Champagne: Examining the Region’s Minor Grapes",
+      "summary": "Josh Kelly explores the minor grapes of Champagne such as Arbane, Petit Meslier, Pinot Blanc, and Pinot Gris.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Chardonnay on Riesling’s Turf: Exciting Gains in Germany and Austria",
+      "summary": "Master of Wine Bryce Wiatrak explores the exciting and developing Chardonnay wines of Germany and Austria.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "‘The Worst Is Behind Us’: Silicon Valley Bank’s 2026 Wine Industry Report",
+      "summary": "실리콘밸리은행의 제25차 연례 보고서는 침체된 와인 산업의 회복을 알리는 첫 징후인 '녹색 새싹'을 올해의 키워드로 꼽았습니다.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Ten young winemakers shaping the future of Georgian wine",
+      "summary": "Daria Kholodilina introduces the IWSC Top 10 Young Winemakers of Georgia who are blending rich history with modern philosophies.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "A slow wine revolution in Wales",
+      "summary": "Sophie Thorpe explores the emerging slow wine movement taking place in Wales.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "Pickle beer to pistachio spritzes: Food flavours shake up drinks",
+      "summary": "Culinary influences and unexpected ingredient combinations are inspiring innovation and challenging traditional conventions across beer, wine, and spirits.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Republic of Georgia",
+      "summary": "Jamal Rayyis explores the wines and culture of the Republic of Georgia in this November 15, 2024 article.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "A vin miraculeux from Fronton, in France’s Southwest",
+      "summary": "Joshua Greene highlights a miraculous wine from Fronton in France's Southwest as the wine of the week for November 3, 2024.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Latest Releases from France’s Southwest",
+      "summary": "Joshua Greene reviews the latest wine releases from France's Southwest region in an October 7, 2024 piece.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Morandé Wine Group unveils new mid-strength cherry rosé-style wine",
+      "summary": "Morandé Wine Group has launched a mid-strength cherry rosé-style wine that blends cherry wine with Sauvignon Blanc for global markets.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Maison Pommery and Henkell International end partnership discussions",
+      "summary": "Champagne producer Maison Pommery & Associés has called off its exclusive partnership talks with sparkling wine group Henkell International.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Japan’s restaurant business sentiment rose to 48.7 in October",
+      "summary": "Japan's restaurant business sentiment increased to 48.7 in October.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Cheaper bulk shipments cut Argentina’s wine export revenue despite higher volumes",
+      "summary": "Argentina experienced lower wine export revenue despite increased shipping volumes due to cheaper bulk shipments.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Halloween shopping lifted prepared cocktail sales 6.0% in the final week of October",
+      "summary": "Prepared cocktail sales grew by 6.0% in the final week of October driven by Halloween shopping.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "We&#039;re hiring a Custodian",
+      "title_ko": "We&#039;re hiring a Custodian",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/were-hiring",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "China hosted the 47th OIV World Congress of Vine and Wine, marking a historic first for Asia",
+      "title_ko": "China hosted the 47th OIV World Congress of Vine and Wine, marking a historic first for Asia",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/china-hosted-47th-oiv-world-congress-vine-and-wine-marking-historic-first-asia",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV strengthens dialogue with the international table grape community",
+      "title_ko": "OIV strengthens dialogue with the international table grape community",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-strengthens-dialogue-international-table-grape-community",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "France Raises 2026 Wine Harvest Forecast as Sou...",
+      "summary": "프랑스는 2026년 와인 수확량 전망치를 3,670만 헥토리터로 상향 조정하며 2025년 대비 3% 증가했다고 밝혔습니다.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Røsnæs Wine Region Moves Closer to EU PDO Status",
+      "summary": "덴마크의 뢰스네스 반도가 EU 원산지명칭보호(PDO) 지위를 획득하여 유럽 최북단 와인 산지가 되기 위한 절차를 밟고 있습니다.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
