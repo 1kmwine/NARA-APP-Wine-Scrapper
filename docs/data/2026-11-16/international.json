@@ -1,0 +1,248 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "Highlights from the Decanter Fine Wine Encounter London 2026: A two-day journey of fine wine",
+      "title_ko": "Highlights from the Decanter Fine Wine Encounter London 2026: A two-day journey of fine wine",
+      "summary_ko": "Photo highlights of an unforgettable two-day event...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "London welcomes wine lovers: Highlights from the Decanter Fine Wine Encounter 2026",
+      "title_ko": "London welcomes wine lovers: Highlights from the Decanter Fine Wine Encounter 2026",
+      "summary_ko": "Highlights from DFWE London 2026",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Decanter to reveal its Top 50 US Wines of 2026",
+      "title_ko": "Decanter to reveal its Top 50 US Wines of 2026",
+      "summary_ko": "Take a sneak peek...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Paul Hobbs’ Coombsville Comfort Zone",
+      "title_ko": "Paul Hobbs’ Coombsville Comfort Zone",
+      "summary_ko": "In Napa, the (relatively) cooler Coombsville subregion is Hobbs&#039; Goldilocks terroir for Cabernet",
+      "url": "https://www.winespectator.com/articles/hobbs-california-cabernet-napa-coombsville",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Back With a Bang: 2023 California Cabernet",
+      "title_ko": "Back With a Bang: 2023 California Cabernet",
+      "summary_ko": "Napa vintners deliver a stunning crop of 2023 Cabernets, overcoming the heartbreak of 2022",
+      "url": "https://www.winespectator.com/articles/california-cabernet-sauvignon-napa-2023-tasting-report-wine-111526",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "'Cannot Cost-Cut Our Way Back': Wine Business Gauges What More is Needed for Industry Recovery",
+      "summary": "와인 산업 전문가들이 단순한 비용 절감을 넘어 회복을 위해 필요한 추가적인 전략들을 진단하고 논의한다.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Willamette Valley Vineyards Posts Results for Q3 2026",
+      "summary": "윌라메트 밸리 빈야즈가 2026년 3분기 실적 결과를 발표했다.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Alliance backer Activequity snaps up Liberty Wines",
+      "summary": "Activequity, a backer of Alliance, has acquired Liberty Wines.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Record participation sees UK lead global Sherry Week with ‘enthusiasm’",
+      "summary": "The UK has led global Sherry Week with record participation and great enthusiasm.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "The Wine Country Event of the Summer – still time to get tix!! May 14-17, 2026 Healdsburg Wine and Food Experience",
+      "summary": "2026년 5월 힐즈버그에서 개최되는 최고의 와인과 미식을 경험할 수 있는 여름 와인 축제 정보를 안내합니다.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Tasting with MS Kaysie Rogers",
+      "summary": "Newly minted Master Sommelier Kaysie Rogers discusses her journey through certification and blind tastes three...",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Half a Percent of Champagne: Examining the Region’s Minor Grapes",
+      "summary": "Josh Kelly explores the minor grapes of Champagne including Arbane, Petit Meslier, Pinot Blanc, and Pinot Gris.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "‘The Worst Is Behind Us’: Silicon Valley Bank’s 2026 Wine Industry Report",
+      "summary": "The 25th annual Silicon Valley Bank report highlights early signs of recovery and key takeaways for a declining wine industry.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "SevenFifty Daily’s Most Popular Articles of 2025",
+      "summary": "The most-read stories of the year covered major industry issues like tariffs alongside educational deep dives into viticulture and wine aging.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Allison Jordan on how California is taking sustainability to another level",
+      "summary": "Allison Jordan discusses how California wine is elevating its sustainability practices to new heights.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "How Pasqua is making accessible but \"uncoventional\" wines",
+      "summary": "An exploration of how Pasqua produces wines that are both accessible to the public and unconventionally crafted.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Ten young winemakers shaping the future of Georgian wine",
+      "summary": "Daria Kholodilina introduces Georgia's top young winemakers who are blending ancient traditions with modern winemaking philosophies.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "A slow wine revolution in Wales",
+      "summary": "Sophie Thorpe explores the emerging and innovative slow wine movement happening in Wales.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Republic of Georgia",
+      "summary": "Jamal Rayyis explores the wines and culture of the Republic of Georgia in this November 2024 article.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "A vin miraculeux from Fronton, in France’s Southwest",
+      "summary": "Joshua Greene highlights a miraculous wine from Fronton in France's Southwest as the wine of the week for November 2024.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Latest Releases from France’s Southwest",
+      "summary": "Joshua Greene reviews the latest wine releases from the Southwest region of France in October 2024.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "53% of restaurants in North Rhine-Westphalia report weak Christmas party bookings",
+      "summary": "North Rhine-Westphalia reports that over half of its restaurants are experiencing weak bookings for Christmas parties.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Delta takes US$74.2 million tax dispute to Zimbabwe's Fiscal Court",
+      "summary": "Delta has escalated a substantial US$74.2 million tax dispute to the Fiscal Court of Zimbabwe.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Spain Remained Tequila’s Second-Largest Export Market Through October 2026",
+      "summary": "Spain maintained its position as Tequila's second-largest export market through the month of October 2026.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "We&#039;re hiring a Custodian",
+      "title_ko": "We&#039;re hiring a Custodian",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/were-hiring",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "China hosted the 47th OIV World Congress of Vine and Wine, marking a historic first for Asia",
+      "title_ko": "China hosted the 47th OIV World Congress of Vine and Wine, marking a historic first for Asia",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/china-hosted-47th-oiv-world-congress-vine-and-wine-marking-historic-first-asia",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV strengthens dialogue with the international table grape community",
+      "title_ko": "OIV strengthens dialogue with the international table grape community",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-strengthens-dialogue-international-table-grape-community",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "Fine Wine Market Insights and Analysis That You Can Trust",
+      "summary": "Liv-ex Market Intelligence provides reliable, data-driven analysis of the fine wine market to help businesses navigate shifting demand and trade tensions in 2025.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "What is Liv‑ex Market Intelligence?",
+      "summary": "Built on comprehensive transactional data, Liv-ex Market Intelligence offers timely, detailed, and independent insights to guide commercial decisions in the fine wine industry.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "How Market Intelligence Helps Fine Wine Businesses",
+      "summary": "The platform enables fine wine businesses to understand market dynamics, spot emerging trends early, and optimize commercial performance using real-time transactional data.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "Wine Tastes Better To Some GLP-1 Users. Why?",
+      "summary": "GLP-1 사용자 중 일부에게 와인이 더 맛있게 느껴지는 이유를 탐구합니다.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "How One Winery Is Fighting an Industry Slump",
+      "summary": "한 와이너리가 업계의 침체에 맞서 싸우고 있는 방식을 소개합니다.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "2026 WINE INDUSTRY LEADERS",
+      "summary": "2026년 와인 산업을 이끌어가는 리더들을 조명합니다.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
