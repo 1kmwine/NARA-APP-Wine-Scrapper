@@ -1,0 +1,252 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Wine Spectator",
+      "title": "Paul Hobbs’ Coombsville Comfort Zone",
+      "title_ko": "Paul Hobbs’ Coombsville Comfort Zone",
+      "summary_ko": "In Napa, the (relatively) cooler Coombsville subregion is Hobbs&#039; Goldilocks terroir for Cabernet",
+      "url": "https://www.winespectator.com/articles/hobbs-california-cabernet-napa-coombsville",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Back With a Bang: 2023 California Cabernet",
+      "title_ko": "Back With a Bang: 2023 California Cabernet",
+      "summary_ko": "Napa vintners deliver a stunning crop of 2023 Cabernets, overcoming the heartbreak of 2022",
+      "url": "https://www.winespectator.com/articles/california-cabernet-sauvignon-napa-2023-tasting-report-wine-111526",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Sunny With A Chance Of Flowers Builds Texas Momentum With Double-Digit Cabernet Sauvignon Growth",
+      "summary": "Sunny With A Chance Of Flowers achieves strong double-digit growth for its Cabernet Sauvignon in the Texas market.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Consumer research: Excessive supermarket discounting bad for wine exploration",
+      "summary": "Recent consumer research indicates that excessive discounting by supermarkets hinders wine exploration among shoppers.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Georgian wine sales up 52% for 2026",
+      "summary": "Georgian wine sales have experienced a significant 52% increase for 2026.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Vinography Unboxed: Week of 11/8/26",
+      "summary": "This weekly post explores the latest batch of wine samples recently delivered to the author's doorstep.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "I’ll Drink to That!: Edy Del Popolo Escaped From the Fruit",
+      "summary": "Episode 505 of the wine talk podcast features a conversation with Edgardo “Edy” Del Popolo.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Vinography Images: Bagged and Tagged",
+      "summary": "This photo feature highlights a different, less glamorous perspective on the farming and craftsmanship of the wine industry.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "The Wine Country Event of the Summer – still time to get tix!! May 14-17, 2026 Healdsburg Wine and Food Experience",
+      "summary": "아름다운 소도시 힐즈버그에서 2026년 5월 14일부터 17일까지 열리는 최고의 와인과 미식 축제인 힐즈버그 와인 앤 푸드 익스피리언스를 소개합니다.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Tesco's autumn 2026 range",
+      "summary": "The UK’s leading grocery outlet for wine continues to deliver winning wines at great prices.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "The Liberator, and other South African wines",
+      "summary": "A free-for-all article highlighting interesting and notable South African wines.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "New Maps: Italy, Canada, and More",
+      "summary": "GuildSomm has released new educational maps featuring wine regions in Italy, Canada, France, and Chile.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Tasting with MS Kaysie Rogers",
+      "summary": "Newly minted Master Sommelier Kaysie Rogers discusses her certification journey and blind tastes three wines.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Half a Percent of Champagne: Examining the Region’s Minor Grapes",
+      "summary": "Josh Kelly explores the rare and minor grape varieties of Champagne, including Arbane, Petit Meslier, and Pinot Blanc.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Marchese Lodovico Antinori: a life in wine and one final chapter",
+      "summary": "와인계의 거장 마르케세 로도비코 안티노리의 삶과 그의 마지막 챕터를 조명한 기사입니다.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Ten young winemakers shaping the future of Georgian wine",
+      "summary": "Daria Kholodilina introduces Georgia's top young winemakers who are honoring vinous history while introducing modern philosophies.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "A slow wine revolution in Wales",
+      "summary": "Sophie Thorpe explores the emerging and unique slow wine movement happening in Wales.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Global Drinks Intel",
+      "title": "‘As a trade association, you want to have the same level of momentum and pace as the industry you represent’ – Wine GB CEO Nicola Bates speaks to Global Drinks Intel",
+      "summary": "Wine GB CEO Nicola Bates discusses the untapped opportunities currently available for the wine industry and the need for trade association momentum.",
+      "url": "https://drinks-intel.com/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "Pickle beer to pistachio spritzes: Food flavours shake up drinks",
+      "summary": "Culinary influences and unexpected ingredient combinations are inspiring beverage innovation and challenging traditional conventions across beer, wine, and spirits.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Republic of Georgia",
+      "summary": "Jamal Rayyis explores the wines and culture of the Republic of Georgia in this November 2024 article.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "A vin miraculeux from Fronton, in France’s Southwest",
+      "summary": "Joshua Greene highlights a miraculous wine from Fronton in France's Southwest as the Wine of the Week.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Latest Releases from France’s Southwest",
+      "summary": "Joshua Greene reviews the latest wine releases coming from the Southwest region of France.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "European wine output will fall 4% in 2026, Copa-Cogeca estimates",
+      "summary": "Copa-Cogeca estimates that European wine production is set to decrease by 4% in 2026.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "England lowers 2027 business rates for qualifying hospitality, retail and leisure properties",
+      "summary": "England is reducing business rates for eligible properties in the hospitality, retail, and leisure sectors for 2027.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "New Zealand hospitality activity climbed to about 64 in October, the strongest services reading",
+      "summary": "New Zealand's hospitality sector saw its activity index rise to roughly 64 in October, marking the strongest services reading.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "We&#039;re hiring a Custodian",
+      "title_ko": "We&#039;re hiring a Custodian",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/were-hiring",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "China hosted the 47th OIV World Congress of Vine and Wine, marking a historic first for Asia",
+      "title_ko": "China hosted the 47th OIV World Congress of Vine and Wine, marking a historic first for Asia",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/china-hosted-47th-oiv-world-congress-vine-and-wine-marking-historic-first-asia",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "OIV strengthens dialogue with the international table grape community",
+      "title_ko": "OIV strengthens dialogue with the international table grape community",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-strengthens-dialogue-international-table-grape-community",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "France’s Bigger 2026 Harvest Can’t Ease Bordeaux Land Values",
+      "summary": "프랑스가 2026년 수확량 전망치를 상향 조정했음에도 불구하고 보르도 토지 가치는 2021년 이후 최대 53% 하락했습니다.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Burgundy Exports More Bottles but Earns Less, amid US Slump",
+      "summary": "부르디팽은 수출 병 수는 늘었으나 미국 시장의 부진으로 인해 전체 수익은 감소했습니다.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Fine-Wine Trading Cools After Strong October, but Burgundy Holds Firm",
+      "summary": "10월의 강세 이후 파인와인 거래는 다소 주춤해졌으나 부르고뉴는 회복력 있는 모습을 보였습니다.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "Wine Tastes Better To Some GLP-1 Users. Why?",
+      "summary": "GLP-1 사용자 중 일부에게 와인이 더 맛있게 느껴지는 이유를 탐구한 기사입니다.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "How One Winery Is Fighting an Industry Slump",
+      "summary": "업계의 침체 속에서 한 와이너리가 어떻게 위기를 극복하고 있는지 다룬 기사입니다.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "2026 WINE INDUSTRY LEADERS",
+      "summary": "2026년 와인 산업을 이끌어가는 주요 리더들을 소개한 기사입니다.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
