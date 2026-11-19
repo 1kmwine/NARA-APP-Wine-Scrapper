@@ -1,0 +1,297 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "Highlights from the Decanter Fine Wine Encounter London 2026: A two-day journey of fine wine",
+      "title_ko": "Decanter Fine Wine Encounter London 2026의 하이라이트: 고급 와인과 함께하는 2일간의 여행",
+      "summary_ko": "잊을 수 없는 이틀간의 행사의 하이라이트 사진...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "London welcomes wine lovers: Highlights from the Decanter Fine Wine Encounter 2026",
+      "title_ko": "런던이 와인 애호가들을 환영합니다: Decanter Fine Wine Encounter 2026의 하이라이트",
+      "summary_ko": "DFWE London 2026의 하이라이트",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Decanter to reveal its Top 50 US Wines of 2026",
+      "title_ko": "Decanter, 2026년 미국 상위 50대 와인 공개",
+      "summary_ko": "살짝 엿보세요...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Paul Hobbs’ Coombsville Comfort Zone",
+      "title_ko": "Paul Hobbs의 Coombsville Comfort Zone",
+      "summary_ko": "나파에서 (상대적으로) 더 시원한 Coombsville 소지역은 Hobbs' Goldilocks terroir for Cabernet",
+      "url": "https://www.winespectator.com/articles/hobbs-california-cabernet-napa-coombsville",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Back With a Bang: 2023 California Cabernet",
+      "title_ko": "Back With a Bang: 2023 California Cabernet",
+      "summary_ko": "나파 양조업자들이 놀라운 2023년산 카베르네를 수확합니다. 2022년의 비탄을 극복",
+      "url": "https://www.winespectator.com/articles/california-cabernet-sauvignon-napa-2023-tasting-report-wine-111526",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Wine Business Leadership Series Launches in Paso Robles",
+      "summary": "Full Cup Solutions has announced the launch of the Wine Business Leadership Series in Paso Robles.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "Former Duckhorn CEO to Lead Delicato Family Wines",
+      "summary": "The Santa Rosa Press Democrat reports that the former CEO of Duckhorn will step in to lead Delicato Family Wines.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "As Older Buyers Pull Back, Younger Consumer Trade Up to $50+ Wines",
+      "summary": "Recent WineBusiness news highlights a trend where younger consumers are trading up to premium wines priced at $50 and above as older buyers pull back.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "NZ new release tasting: On-trade allure in focus",
+      "summary": "A new release tasting highlights the strong allure of New Zealand wines within the on-trade sector.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Rhône Valley harvest tested by summer heat",
+      "summary": "The Rhône Valley grape harvest faces significant challenges due to intense summer heat.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "VinePair",
+      "title": "The 30 Best Wines for Thanksgiving (2026)",
+      "summary": "추추절에 어울리는 최고의 와인 30가지를 엄선하여 소개합니다.",
+      "url": "https://vinepair.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Robert Parker Wine Advocate Announces New Editor in Chief",
+      "summary": "Matthew Luczy has been appointed as the new Editor in Chief, succeeding William Kelley after nearly 10 years of contributions.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Old Vines, New Lessons: Rosa Kruger on Climate and the Future of Wine",
+      "summary": "As the guiding force behind the Old Vine Project, Rosa Kruger has reshaped how South Africa recognizes and safeguards its viticultural inheritance.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "A Mighty Fortress Is Our God: A Tribute to Pierre Trimbach",
+      "summary": "Following the passing of Pierre Trimbach in Alsace on January 31, 2026, the wine community remembers him and commemorates his legacy with every glass.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Sekt: The Best Four-Letter Word",
+      "summary": "This report explores a vast range of Austrian and German sparkling Sekt wines, highlighting pure Chardonnays, Pinot Noirs, and zero to low-dosage styles.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Tasting with MS Kaysie Rogers",
+      "summary": "Newly minted Master Sommelier Kaysie Rogers discusses her journey through certification and blind tastes three...",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "GuildSomm",
+      "title": "Half a Percent of Champagne: Examining the Region’s Minor Grapes",
+      "summary": "Josh Kelly explores the minor grapes of Champagne such as Arbane, Petit Meslier, Pinot Blanc, and Pinot Gris.",
+      "url": "https://www.guildsomm.com/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "‘The Worst Is Behind Us’: Silicon Valley Bank’s 2026 Wine Industry Report",
+      "summary": "The 25th annual Silicon Valley Bank report highlights early signs of recovery and key takeaways for a declining wine industry.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "SevenFifty Daily’s Most Popular Articles of 2025",
+      "summary": "The most-read stories of the year focused on major industry issues like tariffs as well as educational deep dives into viticulture and wine aging.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Celebrating South Africa’s fine wines at Eight Perspectives tasting",
+      "summary": "An overview of the Eight Perspectives tasting event that highlighted the exceptional quality and diversity of South African fine wines.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Why Swiss Wine needs a change of mindset to hit toppy UK targets",
+      "summary": "An analysis of the strategic shifts required for Swiss wine producers to successfully capture the competitive and high-end UK market.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Ten young winemakers shaping the future of Georgian wine",
+      "summary": "Daria Kholodilina introduces Georgia's top young winemakers who are honoring vinous history while introducing modern philosophies.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "A slow wine revolution in Wales",
+      "summary": "Sophie Thorpe explores the emerging and unique slow wine movement happening in Wales.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "Pickle beer to pistachio spritzes: Food flavours shake up drinks",
+      "summary": "Culinary influences and unexpected ingredient combinations are inspiring beverage innovation and challenging traditional conventions across beer, wine, and spirits.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Republic of Georgia",
+      "summary": "Jamal Rayyis explores the wine and culture of the Republic of Georgia in this November 2024 article.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "A vin miraculeux from Fronton, in France’s Southwest",
+      "summary": "Joshua Greene highlights a miraculous wine from Fronton as the Wine of the Week in November 2024.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Latest Releases from France’s Southwest",
+      "summary": "Joshua Greene reviews the latest wine releases coming from the Southwest region of France.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Morandé Wine Group unveils new mid-strength cherry rosé-style wine",
+      "summary": "Chilean wine producer Morandé Wine Group has launched a mid-strength cherry rosé-style wine that blends cherry wine with Sauvignon Blanc.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Maison Pommery and Henkell International end partnership discussions",
+      "summary": "Champagne producer Maison Pommery & Associés has officially ended its exclusive partnership discussions with sparkling wine group Henkell International.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "U.S. prepared cocktail sales rose 4.1% in the latest four weeks",
+      "summary": "Sales of prepared cocktails in the United States experienced a 4.1% increase over the most recent four-week period.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "U.S. beer sales decline eased in early November, NielsenIQ says",
+      "summary": "According to NielsenIQ, the downward trend in U.S. beer sales began to moderate in early November.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "U.S. wine sales fell 3.4% in early November, marking a slower decline",
+      "summary": "U.S. wine sales decreased by 3.4% in early November, indicating a deceleration in the rate of decline.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "OIV releases 2026 world wine production first estimates",
+      "title_ko": "OIV, 2026년 세계 와인 생산량 최초 추정 발표",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-releases-2026-world-wine-production-first-estimates",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "We&#039;re hiring a Custodian",
+      "title_ko": "관리인을 채용합니다",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/were-hiring",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "China hosted the 47th OIV World Congress of Vine and Wine, marking a historic first for Asia",
+      "title_ko": "중국이 제47차 OIV 포도나무 및 와인 회의를 개최하여 아시아 최초로 역사적인 기록을 세웠습니다.",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/china-hosted-47th-oiv-world-congress-vine-and-wine-marking-historic-first-asia",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "France’s Bigger 2026 Harvest Can’t Ease Bordeaux...",
+      "summary": "프랑스가 2026년 포도 수확량 전망치를 상향 조정했음에도 불구하고 보르도 토지 가치는 2021년 이후 최대 53% 하락했습니다.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Burgundy Exports More Bottles but Earns Less, a...",
+      "summary": "부르고뉴는 수출 병 수가 증가했음에도 불구하고 미국 시장의 부진 등으로 인해 전체 수익은 감소했습니다.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Fine-Wine Trading Cools After Strong October, b...",
+      "summary": "기록적인 10월 이후 파인와인 거래는 다소 주춤해졌으나 부르고뉴는 회복력을 보이고 샴페인은 점유율을 확대했습니다.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "Fine Wine Market Insights and Analysis That You Can Trust",
+      "summary": "Liv-ex Market Intelligence provides unbiased, data-driven analysis of the fine wine market to help businesses navigate shifting demand and trade tensions.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "How Market Intelligence Helps Fine Wine Businesses",
+      "summary": "The platform enables fine wine businesses to understand market dynamics, spot emerging trends early, optimize performance, and empower their teams with reliable data.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
