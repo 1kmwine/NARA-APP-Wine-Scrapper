@@ -1,0 +1,351 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Wine Spectator",
+      "title": "Straight Talk Episode 36: Andy Beckstoffer and Wine Spectator’s Top 10 Wines of 2026",
+      "title_ko": "Straight Talk Episode 36: Andy Beckstoffer and Wine Spectator’s Top 10 Wines of 2026",
+      "summary_ko": "",
+      "url": "https://www.winespectator.com/articles/straight-talk-podcast-episode-36-andy-beckstoffer-top-10-wines-of-2026",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "The Best Wines for Thanksgiving",
+      "title_ko": "The Best Wines for Thanksgiving",
+      "summary_ko": "Our editors’ favorite bottles, many under $30",
+      "url": "https://www.winespectator.com/articles/best-thanksgiving-wines-favorite-holiday-bottles",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "This Thanksgiving, There’s a Butterball Hotline for Wine",
+      "title_ko": "This Thanksgiving, There’s a Butterball Hotline for Wine",
+      "summary_ko": "You can ask top wine professionals your most burning Thanksgiving vinous questions",
+      "url": "https://www.winespectator.com/articles/thanksgiving-wine-hotline-ask-wines",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "'No Bad Questions': A California Wine Pro Created a Butterball Turkey Thanksgiving Hotline for Wine",
+      "summary": "A California wine professional launched a special Thanksgiving hotline to help consumers pair wine with their Butterball turkey.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Wine Paris: Future expansion aims to meet rising demand",
+      "summary": "Wine Paris is planning future expansions to effectively accommodate and meet the increasing global demand.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Harpers",
+      "title": "Climate change now viewed as business issue by global wine industry",
+      "summary": "The global wine industry now recognizes climate change as a critical business issue rather than just an environmental concern.",
+      "url": "https://harpers.co.uk/",
+      "date": ""
+    },
+    {
+      "source": "Imbibe Magazine",
+      "title": "Go-To Wines for Thanksgiving",
+      "summary": "Sommeliers, wine directors, and wine shop owners share their top bottle recs to pair with sumptuous seasonal fare.",
+      "url": "https://imbibemagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 11/22/26",
+      "summary": "This article is a weekly roundup of interesting wine stories found across the web for the week of November 22, 2026.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 11/16/26",
+      "summary": "This article provides a weekly curated collection of noteworthy wine-related news and stories from around the internet for the week of November 16, 2026.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 11/8/26",
+      "summary": "This post offers a weekly digest of compelling wine stories and articles highlighted on the web for the week of November 8, 2026.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "DAOU FOR THE HOLIDAYS…INTO THE NEW YEAR AND BEYOND",
+      "summary": "Barbara Barrielle shares holiday insights and features regarding DAOU wines as we move into the new year and beyond.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "SONOMA STRONG",
+      "summary": "Barbara Barrielle highlights the resilience and community spirit of Sonoma in this feature article.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Punch",
+      "title": "Midori Foam on a Cocktail From 1869?",
+      "summary": "Titusz’s modernized Wine Cup keeps its Victorian spirit while employing a few modern techniques.",
+      "url": "https://punchdrink.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Wind wine – a field guide",
+      "summary": "바람이 포도밭과 와인의 스타일에 미치는 영향에 대해 탐구하는 기사입니다.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Robert Parker Wine Advocate Announces New Editor in Chief",
+      "summary": "Matthew Luczy has been appointed as the new Editor in Chief, succeeding William Kelley after nearly 10 years of contributions.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Old Vines, New Lessons: Rosa Kruger on Climate and the Future of Wine",
+      "summary": "As the guiding force behind the Old Vine Project, Rosa Kruger has reshaped how South Africa recognizes and safeguards its viticultural inheritance.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "A Mighty Fortress Is Our God: A Tribute to Pierre Trimbach",
+      "summary": "Following the death of Pierre Trimbach in Alsace, the wine community remembers his legacy and commemorates him with every glass of Trimbach wine.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Vinous Top 100 Wines of 2026",
+      "summary": "Vinous announces its highly anticipated selection of the Top 100 Wines of 2026.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Victory from the Jaws of Defeat: 2022 Brunello di Montalcino",
+      "summary": "Despite severe drought and heat waves, winemakers in Montalcino adapted to produce 2022 Brunello wines that exceed expectations.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "‘The Worst Is Behind Us’: Silicon Valley Bank’s 2026 Wine Industry Report",
+      "summary": "The 25th annual Silicon Valley Bank report highlights early signs of recovery for the declining wine industry, encapsulated by the phrase 'green shoots'.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "SevenFifty Daily’s Most Popular Articles of 2025",
+      "summary": "This recap covers the year's most-read stories focusing on critical industry issues like tariffs as well as educational deep dives into viticulture and wine aging.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "How Nizza DOCG has the naysayers re-evaluating the Barbera grape",
+      "summary": "Nizza DOCG is causing critics and naysayers to re-evaluate the potential of the Barbera grape.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Why Wine Paris 2027 is about cementing its No 1 worldwide status",
+      "summary": "Wine Paris 2027 focuses on cementing its position as the number one worldwide status event.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Ten young winemakers shaping the future of Georgian wine",
+      "summary": "Daria Kholodilina introduces Georgia's top young winemakers who are honoring vinous history while introducing a modern philosophy.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "A slow wine revolution in Wales",
+      "summary": "Sophie Thorpe explores the emerging and unique slow wine movement taking place in Wales.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Global Drinks Intel",
+      "title": "Global wine production predicted to continue decline in 2026 – data",
+      "summary": "데이터에 따르면 2026년에도 전 세계 와인 생산량이 주요 생산국의 소규모 수확 여파로 계속 감소할 것으로 예상된다.",
+      "url": "https://drinks-intel.com/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "Pickle beer to pistachio spritzes: Food flavours shake up drinks",
+      "summary": "Culinary influences and unexpected ingredient combinations are inspiring beverage innovation and challenging traditional conventions across beer, wine, and spirits.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Republic of Georgia",
+      "summary": "Jamal Rayyis explores the wines and culture of the Republic of Georgia in this November 2024 article.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "A vin miraculeux from Fronton, in France’s Southwest",
+      "summary": "Joshua Greene highlights a miraculous wine from Fronton in France's Southwest as the Wine of the Week.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Latest Releases from France’s Southwest",
+      "summary": "Joshua Greene reviews the latest wine releases coming out of France's Southwest region.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "The Duckhorn Portfolio appoints new chief operating officer",
+      "summary": "US-based premium wine company The Duckhorn Portfolio has announced several new executive leadership appointments, including a new chief operating officer.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Morandé Wine Group unveils new mid-strength cherry rosé-style wine",
+      "summary": "Chilean wine producer Morandé Wine Group has unveiled its latest innovation: a mid-strength cherry rosé-style wine for global markets, blending cherry wine with Sauvignon Blanc.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "FoodBev Media",
+      "title": "Maison Pommery and Henkell International end partnership discussions",
+      "summary": "Champagne producer Masion Pommery & Associés has ended its exclusive partnership discussions with sparkling wine group Henkell International.",
+      "url": "https://www.foodbev.com/tags/wine",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "86% of Spain’s organized restaurant groups plan to open new locations in 2027",
+      "summary": "A large majority of Spain's organized restaurant groups are planning to expand and open new locations by the year 2027.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Nonalcoholic beer captured 8.2% of the European Union beer market in 2025",
+      "summary": "Nonalcoholic beer continued its market growth, accounting for 8.2% of the total European Union beer market in 2025.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Guerrero opens a 3 million peso mezcal aid program with 2 million pesos for certification",
+      "summary": "Guerrero has launched a 3 million peso aid program for mezcal, which includes 2 million pesos specifically allocated for product certification.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "OIV releases 2026 world wine production first estimates",
+      "title_ko": "OIV releases 2026 world wine production first estimates",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-releases-2026-world-wine-production-first-estimates",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "We&#039;re hiring a Custodian",
+      "title_ko": "We&#039;re hiring a Custodian",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/were-hiring",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "China hosted the 47th OIV World Congress of Vine and Wine, marking a historic first for Asia",
+      "title_ko": "China hosted the 47th OIV World Congress of Vine and Wine, marking a historic first for Asia",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/china-hosted-47th-oiv-world-congress-vine-and-wine-marking-historic-first-asia",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "France’s Bigger 2026 Harvest Can’t Ease Bordeaux Land Values",
+      "summary": "프랑스가 2026년 수확량 전망치를 상향 조정했음에도 불구하고 보르도 토지 가치는 2021년 이후 최대 53% 하락했습니다.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Burgundy Exports More Bottles but Earns Less",
+      "summary": "부르고뉴는 수출 병 수가 증가했음에도 불구하고 미국 시장의 부진 등으로 인해 전체 매출은 감소했습니다.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Fine-Wine Trading Cools After Strong October, but Burgundy Resilient",
+      "summary": "10월의 호조 이후 파인와인 거래는 다소 주춤해졌으나 부르고뉴는 회복력을 보이고 샴페인은 점유율을 확대했습니다.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "Automation",
+      "summary": "The fine wine industry is navigating seismic shifts, including shifting demand, changing global consumption, unpredictable En Primeur campaigns, and trade tensions.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "What is Liv‑ex Market Intelligence?",
+      "summary": "Liv-ex Market Intelligence provides analysis of the fine wine market built on comprehensive transactional data to give members clarity and confidence in commercial decisions.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "How Market Intelligence Helps Fine Wine Businesses",
+      "summary": "Market intelligence helps fine wine businesses understand market dynamics, spot emerging trends early, optimise commercial performance, and empower their teams.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "As Older Buyers Pull Back, Younger Consumer Trade Up to $50+ Wines",
+      "summary": "Older buyers are pulling back while younger consumers are trading up to purchase wines priced at $50 and above.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "Wine Tastes Better To Some GLP-1 Users. Why?",
+      "summary": "An exploration into why wine reportedly tastes better to certain individuals using GLP-1 medications.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "How One Winery Is Fighting an Industry Slump",
+      "summary": "A look at the strategies one specific winery is employing to combat the current industry downturn.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
