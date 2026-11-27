@@ -1,0 +1,347 @@
+{
+  "foreign_magazines": [
+    {
+      "source": "Decanter",
+      "title": "Decanter Beginner's Guide to Wine launches on Amazon",
+      "title_ko": "Decanter Beginner's Guide to Wine launches on Amazon",
+      "summary_ko": "With expert insights...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "Highlights from the Decanter Fine Wine Encounter London 2026: A two-day journey of fine wine",
+      "title_ko": "Highlights from the Decanter Fine Wine Encounter London 2026: A two-day journey of fine wine",
+      "summary_ko": "Photo highlights of an unforgettable two-day event...",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Decanter",
+      "title": "London welcomes wine lovers: Highlights from the Decanter Fine Wine Encounter 2026",
+      "title_ko": "London welcomes wine lovers: Highlights from the Decanter Fine Wine Encounter 2026",
+      "summary_ko": "Three bottles instead of four, lower shipping costs and an early-entry offer: here’s what’s new for producers at the world’s largest wine competition.",
+      "url": "https://www.decanter.com/wine-news/",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "Straight Talk Episode 36: Andy Beckstoffer and Wine Spectator’s Top 10 Wines of 2026",
+      "title_ko": "Straight Talk Episode 36: Andy Beckstoffer and Wine Spectator’s Top 10 Wines of 2026",
+      "summary_ko": "",
+      "url": "https://www.winespectator.com/articles/straight-talk-podcast-episode-36-andy-beckstoffer-top-10-wines-of-2026",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "The Best Wines for Thanksgiving",
+      "title_ko": "The Best Wines for Thanksgiving",
+      "summary_ko": "Our editors’ favorite bottles, many under $30",
+      "url": "https://www.winespectator.com/articles/best-thanksgiving-wines-favorite-holiday-bottles",
+      "date": ""
+    },
+    {
+      "source": "Wine Spectator",
+      "title": "This Thanksgiving, There’s a Butterball Hotline for Wine",
+      "title_ko": "This Thanksgiving, There’s a Butterball Hotline for Wine",
+      "summary_ko": "You can ask top wine professionals your most burning Thanksgiving vinous questions",
+      "url": "https://www.winespectator.com/articles/thanksgiving-wine-hotline-ask-wines",
+      "date": ""
+    },
+    {
+      "source": "Wine Business",
+      "title": "'No Bad Questions': A California Wine Pro Created a Butterball Turkey Thanksgiving Hotline for Wine",
+      "summary": "A California wine professional launched a special Thanksgiving hotline to help consumers pair wine with their Butterball turkey.",
+      "url": "https://www.winebusiness.com/",
+      "date": ""
+    },
+    {
+      "source": "Imbibe Magazine",
+      "title": "Go-To Wines for Thanksgiving",
+      "summary": "Sommeliers, wine directors, and wine shop owners share their top bottle recs to pair with sumptuous seasonal fare.",
+      "url": "https://imbibemagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 11/22/26",
+      "summary": "This article provides a weekly roundup of interesting wine stories found across the web for the week of November 22, 2026.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Vinography Unboxed: Week of 11/16/26",
+      "summary": "A weekly review of various wine samples and bottles that arrived at the author's doorstep during the week of November 16, 2026.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinography",
+      "title": "Wine News: What I’m Reading the Week of 11/16/26",
+      "summary": "The author shares a curated weekly collection of noteworthy wine-related articles and stories from around the internet for the week of November 16, 2026.",
+      "url": "https://www.vinography.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "SOUL OF A LION",
+      "summary": "Daniel and Georges Daou honor family and fathers with their world-class winery established in the Adelaida District of Paso Robles.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "Palate Press",
+      "title": "Book Review: How to Drink Natural Wine by Rachel Signer",
+      "summary": "Reviewing natural wines is uniquely challenging because these dynamic wines constantly evolve in the glass, bottle, and across vintages.",
+      "url": "https://palatepress.com/",
+      "date": ""
+    },
+    {
+      "source": "VinePair",
+      "title": "Booze News Weekly Roundup: Pause Continues at Jim Beam Facility, Global Wine Output Remains at Record Low, and More",
+      "summary": "주류 업계의 최신 동향과 짐빔 시설의 가동 중단, 글로벌 와인 생산량 감소 소식을 다룬 주간 뉴스 요약입니다.",
+      "url": "https://vinepair.com/",
+      "date": ""
+    },
+    {
+      "source": "Punch",
+      "title": "Midori Foam on a Cocktail From 1869?",
+      "summary": "Titusz's modernized Wine Cup keeps its Victorian spirit while employing a few modern techniques.",
+      "url": "https://punchdrink.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Bordeaux's bargains – the crus bourgeois",
+      "summary": "Mature vintages of crus bourgeois are currently selling for a song, and some of them are delicious now.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Wind wine – a field guide",
+      "summary": "An insightful 12-read guide exploring the concept and characteristics of wind wine.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Jancis Robinson",
+      "title": "Xarello – beyond the bubbles",
+      "summary": "An exploration of the Xarello grape variety extending far beyond its traditional role in sparkling wine.",
+      "url": "https://www.jancisrobinson.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Robert Parker Wine Advocate Announces New Editor in Chief",
+      "summary": "Matthew Luczy has been appointed as the new Editor in Chief, succeeding William Kelley after nearly 10 years of contributions.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "Old Vines, New Lessons: Rosa Kruger on Climate and the Future of Wine",
+      "summary": "Rosa Kruger has reshaped how South Africa recognizes and safeguards its viticultural inheritance as the guiding force behind the Old Vine Project.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine Advocate",
+      "title": "A Mighty Fortress Is Our God: A Tribute to Pierre Trimbach",
+      "summary": "Pierre Trimbach passed away in Alsace on January 31, 2026, leaving behind a lasting legacy to be commemorated with every glass of Trimbach wine.",
+      "url": "https://winejournal.robertparker.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Vinous Top 100 Wines of 2026",
+      "summary": "Vinous proudly announces its selection of the Top 100 Wines of 2026.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Victory from the Jaws of Defeat: 2022 Brunello di Montalcino",
+      "summary": "Despite severe droughts and heat waves, winemakers in Montalcino adapted to produce 2022 Brunello wines that exceed expectations.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinous",
+      "title": "Sekt: The Best Four-Letter Word",
+      "summary": "Fine wine lovers looking to explore sparkling options will find plenty of compelling Austrian and German Sekt treasures highlighted in this report.",
+      "url": "https://vinous.com/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "‘The Worst Is Behind Us’: Silicon Valley Bank’s 2026 Wine Industry Report",
+      "summary": "The 25th annual Silicon Valley Bank report highlights early signs of recovery for a declining wine industry, symbolized by the phrase 'green shoots'.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "SevenFifty Daily",
+      "title": "SevenFifty Daily’s Most Popular Articles of 2025",
+      "summary": "SevenFifty Daily's most-read stories of the year focused on major industry issues like tariffs as well as educational deep dives into viticulture and wine aging.",
+      "url": "https://daily.sevenfifty.com/category/articles/news/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "How Nizza DOCG has the naysayers re-evaluating the Barbera grape",
+      "summary": "This article explores how Nizza DOCG is changing perceptions of the Barbera grape among skeptics.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "The Buyer",
+      "title": "Discovering the diversity of wines in Spain’s Navarra and Somontano",
+      "summary": "A deep dive into the diverse and unique wine offerings coming out of Spain’s Navarra and Somontano regions.",
+      "url": "https://www.the-buyer.net/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "Ten young winemakers shaping the future of Georgian wine",
+      "summary": "Daria Kholodilina introduces the IWSC Top 10 Young Winemakers of Georgia who are blending rich vinous history with modern winemaking philosophies.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Club Oenologique",
+      "title": "A slow wine revolution in Wales",
+      "summary": "Sophie Thorpe explores the emerging and unique wine revolution happening in Wales.",
+      "url": "https://cluboenologique.com/wine/",
+      "date": ""
+    },
+    {
+      "source": "Beverage Daily",
+      "title": "Pickle beer to pistachio spritzes: Food flavours shake up drinks",
+      "summary": "Culinary influences and unexpected ingredient combinations are inspiring beverage innovation and challenging traditional conventions across beer, wine, and spirits.",
+      "url": "https://www.beveragedaily.com/Sectors/Wine/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Republic of Georgia",
+      "summary": "Jamal Rayyis explores the wine and culture of the Republic of Georgia in this November 15, 2024 article.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "A vin miraculeux from Fronton, in France’s Southwest",
+      "summary": "Joshua Greene highlights a miraculous wine from Fronton in southwestern France for the Wine of the Week.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Wine & Spirits Magazine",
+      "title": "The Latest Releases from France’s Southwest",
+      "summary": "Joshua Greene reviews the latest wine releases emerging from the Southwest region of France.",
+      "url": "https://www.wineandspiritsmagazine.com/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "British restaurant takeaway sales fell for a 19th straight month in October",
+      "summary": "British restaurant takeaway sales experienced a decline for the 19th consecutive month in October.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "U.S. spending on food services and accommodations rose 2.3% after inflation in October",
+      "summary": "U.S. spending on food services and accommodations increased by 2.3% after adjusting for inflation in October.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    },
+    {
+      "source": "Vinetur",
+      "title": "Switzerland’s beer market grew 0.8% after nonalcoholic beer sales jumped 15.0%",
+      "summary": "Switzerland's beer market saw 0.8% growth driven by a significant 15.0% surge in nonalcoholic beer sales.",
+      "url": "https://www.vinetur.com/mercados/",
+      "date": ""
+    }
+  ],
+  "foreign_stats": [
+    {
+      "source": "OIV",
+      "title": "OIV releases 2026 world wine production first estimates",
+      "title_ko": "OIV releases 2026 world wine production first estimates",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/oiv-releases-2026-world-wine-production-first-estimates",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "We&#039;re hiring a Custodian",
+      "title_ko": "We&#039;re hiring a Custodian",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/were-hiring",
+      "date": ""
+    },
+    {
+      "source": "OIV",
+      "title": "China hosted the 47th OIV World Congress of Vine and Wine, marking a historic first for Asia",
+      "title_ko": "China hosted the 47th OIV World Congress of Vine and Wine, marking a historic first for Asia",
+      "summary_ko": "",
+      "url": "https://www.oiv.int/press/china-hosted-47th-oiv-world-congress-vine-and-wine-marking-historic-first-asia",
+      "date": ""
+    },
+    {
+      "source": "Wine-Intelligence",
+      "title": "Burgundy Exports More Bottles but Earns Less, a...",
+      "summary": "부르고뉴는 8월까지 12개월 동안 더 많은 와인 병을 수출했으나 미국 판매 감소 등으로 인해 전체 수익은 하락했습니다.",
+      "url": "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "Fine Wine Market Insights and Analysis That You Can Trust",
+      "summary": "Liv-ex Market Intelligence provides reliable, data-driven analysis of the fine wine market to help businesses make informed commercial decisions.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "Automation and Market Challenges in 2025",
+      "summary": "The fine wine industry continues to navigate shifting demand, trade tensions, and unpredictable campaigns, making timely intelligence essential for protecting margins.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Liv-ex",
+      "title": "How Market Intelligence Helps Fine Wine Businesses",
+      "summary": "Accessing independent transactional data enables fine wine businesses to spot emerging trends early, benchmark performance, and optimise commercial strategies.",
+      "url": "https://www.liv-ex.com/blog-fine-wine-market-insights-and-analysis/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "As Older Buyers Pull Back, Younger Consumer Trade Up to $50+ Wines",
+      "summary": "고령 소비자들이 지출을 줄이는 동안 젊은 소비자들은 50달러 이상의 고가 와인으로 소비를 전환하고 있다는 분석입니다.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "Wine Tastes Better To Some GLP-1 Users. Why?",
+      "summary": "일부 GLP-1 사용자들에게 와인 맛이 더 좋게 느껴지는 이유에 대해 조명합니다.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    },
+    {
+      "source": "Wine Market Council",
+      "title": "How One Winery Is Fighting an Industry Slump",
+      "summary": "한 와이너리가 업계의 침체 속에서 위기를 극복해 나가는 방식을 소개합니다.",
+      "url": "https://winemarketcouncil.com/press/",
+      "date": ""
+    }
+  ],
+  "domestic_stats": [],
+  "events": [],
+  "downstream_market": []
+}
